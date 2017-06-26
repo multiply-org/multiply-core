@@ -2,7 +2,7 @@ import unittest
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__))+os.sep+'..')
-#from multiply_dummy import dummy_platform
+from multiply_dummy import dummy_platform
 
 class TestCore(unittest.TestCase):
     def setUp(self):
