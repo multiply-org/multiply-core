@@ -56,7 +56,7 @@ brdf_descriptor = coarse_resolution_pre_processor.pre_process(coarse_res_data)
 
 high_res_data_constraints = []
 high_res_data_provider = dummy_high_res_data_provider.DummyHighResDataProvider()
-high_res_data = high_res_data_provider.get_data(config, high_res_data_constraints)
+high_res_data = high_res_data_provider.get_data(config, high_res_data_constraints, 'a')
 
 sar_data_constraints = []
 sar_data_provider = dummy_sar_data_access_provider.DummySARDataAccessProvider()
