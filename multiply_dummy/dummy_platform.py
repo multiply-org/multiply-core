@@ -36,7 +36,7 @@ config = Configuration(region={'ul' : ul, 'lr' : lr}, time_start=t1, time_stop=t
 
 # run the system
 aux_data_constraints = []
-aux_data_provider = dummy_aux_data_provider.DummyAuxDataProvider(config)  # config always used when new instances are created
+aux_data_provider = dummy_aux_data_provider.DummyAuxDataProvider()  # config always used when new instances are created
 some_aux_data = aux_data_provider.read_aux_data(aux_data_constraints)
 prior_engine = dummy_prior_engine.DummyPriorEngine()
 prior_1 = prior_engine.create_prior(some_aux_data)
@@ -45,11 +45,11 @@ prior_engine.save_prior(prior_1)
 prior_id = 'My prior'
 prior_2 = prior_engine.get_prior(prior_id)
 
-brdf_archive = dummy_brdf_archive.DummyBRDFArchive(config)
+brdf_archive = dummy_brdf_archive.DummyBRDFArchive()
 brdf_archive.has_brdf_descriptor(config)
 brdf_descriptor = brdf_archive.get_brdf_descriptor()
 coarse_res_data_constraints = []
-coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider(config)
+coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider()
 coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints)
 coarse_resolution_pre_processor = dummy_coarse_resolution_pre_processor.DummyCoarseResolutionPreProcessor()
 brdf_descriptor = coarse_resolution_pre_processor.pre_process(coarse_res_data)
