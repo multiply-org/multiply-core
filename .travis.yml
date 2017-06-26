@@ -44,7 +44,7 @@ install:
   # - conda uninstall -c conda-forge rt1
   #
   # now install the MULTIPLY components
-  pip install https://github.com/multiply-org/prior_engine.git
+  - pip install https://github.com/multiply-org/prior_engine.git
 
 
 script:
