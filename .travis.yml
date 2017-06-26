@@ -35,6 +35,10 @@ install:
   # or master branches
   - conda install pip
 
+
+  - sudo apt-get install libsnappy-dev
+
+
   # test installation from pip
   #- pip install rt1
   #- yes | pip uninstall rt1
