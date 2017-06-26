@@ -47,7 +47,7 @@ prior_2 = prior_engine.get_prior(prior_id)
 
 brdf_archive = dummy_brdf_archive.DummyBRDFArchive()
 brdf_archive.has_brdf_descriptor(config, 'somepara')
-brdf_descriptor = brdf_archive.get_brdf_descriptor()
+brdf_descriptor = brdf_archive.get_brdf_descriptor('a','b')
 coarse_res_data_constraints = []
 coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider()
 coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints)
