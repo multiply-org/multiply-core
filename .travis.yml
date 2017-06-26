@@ -43,8 +43,8 @@ install:
   # - conda install -c conda-forge rt1
   # - conda uninstall -c conda-forge rt1
   #
-  # now install the MULTIPLY components
-  - pip install https://github.com/multiply-org/prior_engine.git
+  # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
+  - pip install https://github.com/multiply-org/prior_engine/zipball/master
 
 
 script:
