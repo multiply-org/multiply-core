@@ -50,7 +50,7 @@ brdf_archive.has_brdf_descriptor(config, 'somepara')
 brdf_descriptor = brdf_archive.get_brdf_descriptor('a','b')
 coarse_res_data_constraints = []
 coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider()
-coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints)
+coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints, 'a')
 coarse_resolution_pre_processor = dummy_coarse_resolution_pre_processor.DummyCoarseResolutionPreProcessor()
 brdf_descriptor = coarse_resolution_pre_processor.pre_process(coarse_res_data)
 
