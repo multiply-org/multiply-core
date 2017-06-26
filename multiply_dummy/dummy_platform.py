@@ -60,7 +60,7 @@ high_res_data = high_res_data_provider.get_data(config, high_res_data_constraint
 
 sar_data_constraints = []
 sar_data_provider = dummy_sar_data_access_provider.DummySARDataAccessProvider()
-sar_data = sar_data_provider.get_data(config, sar_data_constraints)
+sar_data = sar_data_provider.get_data(config, sar_data_constraints, 'a')
 
 high_res_pre_processor = dummy_high_resolution_pre_processor.DummyHighResolutionPreProcessor()
 high_res_sdr = high_res_pre_processor.pre_process(brdf_descriptor, high_res_data)
