@@ -16,6 +16,8 @@ from multiply_post_processing import dummy_post_processor
 
 
 from configuration import Configuration
+from state import TargetState
+
 
 import datetime
 
@@ -25,7 +27,12 @@ t2 = datetime.datetime(2000,12,31)
 ul = {'lon' : 11.2, 'lat' : 48.0}
 lr = {'lon' : 12.2, 'lat' : 45.0}
 
-config = Configuration(region={'ul' : ul, 'lr' : lr, 'time_start' : t1, 'time_stop' : t2 })   # region couljd be relaed by object ??
+tstate = TargetState(state={'lai':True, 'sm':False})
+
+
+config = Configuration(region={'ul' : ul, 'lr' : lr, 'time_start' : t1, 'time_stop' : t2 }, tstate=tstate)   
+
+
 
 # run the system
 aux_data_constraints = []
@@ -38,25 +45,22 @@ prior_engine.save_prior(prior_1)
 prior_id = 'My prior'
 prior_2 = prior_engine.get_prior(prior_id)
 
-temporal_location = '2017-01-01'
-spatial_location = 'space'
-
-brdf_archive = dummy_brdf_archive.DummyBRDFArchive()
-brdf_archive.has_brdf_descriptor(temporal_location, spatial_location)
-brdf_descriptor = brdf_archive.get_brdf_descriptor(temporal_location, spatial_location)
+brdf_archive = dummy_brdf_archive.DummyBRDFArchive(config)
+brdf_archive.has_brdf_descriptor(config)
+brdf_descriptor = brdf_archive.get_brdf_descriptor()
 coarse_res_data_constraints = []
-coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider()
-coarse_res_data = coarse_res_provider.get_data(temporal_location, spatial_location, coarse_res_data_constraints)
+coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider(config)
+coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints)
 coarse_resolution_pre_processor = dummy_coarse_resolution_pre_processor.DummyCoarseResolutionPreProcessor()
 brdf_descriptor = coarse_resolution_pre_processor.pre_process(coarse_res_data)
 
 high_res_data_constraints = []
 high_res_data_provider = dummy_high_res_data_provider.DummyHighResDataProvider()
-high_res_data = high_res_data_provider.get_data(temporal_location, spatial_location, high_res_data_constraints)
+high_res_data = high_res_data_provider.get_data(config, high_res_data_constraints)
 
 sar_data_constraints = []
 sar_data_provider = dummy_sar_data_access_provider.DummySARDataAccessProvider()
-sar_data = sar_data_provider.get_data(temporal_location, spatial_location, sar_data_constraints)
+sar_data = sar_data_provider.get_data(config, sar_data_constraints)
 
 high_res_pre_processor = dummy_high_resolution_pre_processor.DummyHighResolutionPreProcessor()
 high_res_sdr = high_res_pre_processor.pre_process(brdf_descriptor, high_res_data)
@@ -74,7 +78,6 @@ optical_forw_operator_emulator_2 = emulation_engine.get_optical_forward_operator
 sar_forw_operator_emulator_2 = emulation_engine.get_sar_forward_operator_emulator('sar_forward_operator_id')
 
 # harmonize data
-
 inference_engine = dummy_inference_engine.DummyInferenceEngine()
 high_res_biophysical_params = inference_engine.infer(brdf_descriptor, high_res_sdr, grd_sar_data, prior_2,
                                optical_forw_operator_emulator_2, sar_forw_operator_emulator_1)
