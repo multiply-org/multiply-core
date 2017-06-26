@@ -52,8 +52,9 @@ install:
   - pip install https://github.com/multiply-org/prior_engine/zipball/master
   - pip install https://github.com/multiply-org/data_access/zipball/master
   - pip install https://github.com/multiply-org/emulation_framework/zipball/master
-  - pip install https://github.com/multiply-org/post_processing/zipball/master
   - pip install https://github.com/multiply-org/forward_operators/zipball/master
+  - pip install https://github.com/multiply-org/post_processing/zipball/master
+  - pip install https://github.com/multiply-org/pre_processing/zipball/master
   - pip install https://github.com/multiply-org/inference-engine/zipball/master
   - pip install https://github.com/multiply-org/visualization/zipball/master
 
