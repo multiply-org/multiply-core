@@ -1,3 +1,7 @@
+"""
+define state vector
+"""
+
 class State(object):
     def __init__(self, **kwargs):
         self.state = kwargs.get('state', None)
