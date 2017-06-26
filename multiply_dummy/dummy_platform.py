@@ -14,8 +14,22 @@ from multiply_coarse_resolution_pre_processing import dummy_coarse_resolution_pr
 from multiply_visualization import dummy_visualization_component
 from multiply_post_processing import dummy_post_processor
 
+
+from configuration import Configuration
+
+import datetime
+
+# specifiy user based configuration
+t1 = datetime.datetime(1998,1,1)
+t2 = datetime.datetime(2000,12,31)
+ul = {'lon' : 11.2, 'lat' : 48.0}
+lr = {'lon' : 12.2, 'lat' : 45.0}
+
+config = Configuration(region={'ul' : ul, 'lr' : lr, 'time_start' : t1, 'time_stop' : t2 })   # region couljd be relaed by object ??
+
+# run the system
 aux_data_constraints = []
-aux_data_provider = dummy_aux_data_provider.DummyAuxDataProvider()
+aux_data_provider = dummy_aux_data_provider.DummyAuxDataProvider(config)  # config always used when new instances are created
 some_aux_data = aux_data_provider.read_aux_data(aux_data_constraints)
 prior_engine = dummy_prior_engine.DummyPriorEngine()
 prior_1 = prior_engine.create_prior(some_aux_data)
