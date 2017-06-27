@@ -9,7 +9,7 @@ from multiply_high_resolution_pre_processing import dummy_high_resolution_pre_pr
 from multiply_sar_pre_processing import SARPreProcessor 
 from multiply_data_access.coarse_res_data_access import dummy_coarse_res_data_provider
 from multiply_data_access.high_res_data_access import dummy_high_res_data_provider
-from multiply_data_access.sar_data_access import dummy_sar_data_access_provider
+from multiply_data_access.sar_data_access import SARDataAccessProvider
 from multiply_coarse_resolution_pre_processing import dummy_coarse_resolution_pre_processor
 from multiply_visualization import dummy_visualization_component
 from multiply_post_processing import dummy_post_processor
@@ -29,8 +29,6 @@ ul = {'lon' : 11.2, 'lat' : 48.0}
 lr = {'lon' : 12.2, 'lat' : 45.0}
 
 tstate = TargetState(state={'lai':True, 'sm':False})
-
-
 config = Configuration(region={'ul' : ul, 'lr' : lr}, time_start=t1, time_stop=t2, tstate=tstate)   
 
 
@@ -59,17 +57,20 @@ high_res_data_constraints = []
 high_res_data_provider = dummy_high_res_data_provider.DummyHighResDataProvider()
 high_res_data = high_res_data_provider.get_data(config, high_res_data_constraints, 'a')
 
-sar_data_constraints = []
-sar_data_provider = dummy_sar_data_access_provider.DummySARDataAccessProvider()
-sar_data = sar_data_provider.get_data(config, sar_data_constraints, 'a')
+#sar_data_constraints = []  # not sure what the idea behind this variable is!
+odir = tempfile.mkdtemp()  # files should come somehow from the global config in the end
+sar_data_provider = SARDataAccessProvider(config=config, output_dir=odir)
+sar_data = sar_data_provider.get_data()
 
+##########################
+# DATA PREPROCESSING
+##########################
 high_res_pre_processor = dummy_high_resolution_pre_processor.DummyHighResolutionPreProcessor()
 high_res_sdr = high_res_pre_processor.pre_process(brdf_descriptor, high_res_data)
 
 # do the SAR pre-processing
 sar_pre_processor = SARPreProcessor(config=config)
-tmpdir = tempfile.mkdtemp()
-grd_sar_data = sar_pre_processor.pre_process(input=sar_data,output=tmpdir)
+grd_sar_data = sar_pre_processor.pre_process(input=sar_data,output=sar_data)
 
 # RT model definitions
 optical_forw_operator_1 = dummy_optical_forward_operator.DummyOpticalForwardOperator()
