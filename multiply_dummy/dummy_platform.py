@@ -6,7 +6,7 @@ from multiply_forward_operators import dummy_optical_forward_operator
 from multiply_forward_operators import dummy_sar_forward_operator
 from multiply_emulation_engine import dummy_emulation_engine
 from multiply_high_resolution_pre_processing import dummy_high_resolution_pre_processor
-from multiply_sar_pre_processing import dummy_sar_pre_processor
+from multiply_sar_pre_processing import SARPreProcessor 
 from multiply_data_access.coarse_res_data_access import dummy_coarse_res_data_provider
 from multiply_data_access.high_res_data_access import dummy_high_res_data_provider
 from multiply_data_access.sar_data_access import dummy_sar_data_access_provider
@@ -20,6 +20,7 @@ from state import TargetState
 
 
 import datetime
+import tempfile
 
 # specifiy user based configuration
 t1 = datetime.datetime(1998,1,1)
@@ -65,9 +66,12 @@ sar_data = sar_data_provider.get_data(config, sar_data_constraints, 'a')
 high_res_pre_processor = dummy_high_resolution_pre_processor.DummyHighResolutionPreProcessor()
 high_res_sdr = high_res_pre_processor.pre_process(brdf_descriptor, high_res_data)
 
-sar_pre_processor = dummy_sar_pre_processor.DummySARPreProcessor()
-grd_sar_data = sar_pre_processor.pre_process(sar_data)
+# do the SAR pre-processing
+sar_pre_processor = SARPreProcessor(config=config)
+tmpdir = tempfile.mkdtemp()
+grd_sar_data = sar_pre_processor.pre_process(input=sar_data,output=tmpdir)
 
+# RT model definitions
 optical_forw_operator_1 = dummy_optical_forward_operator.DummyOpticalForwardOperator()
 sar_forw_operator_1 = dummy_sar_forward_operator.DummySARForwardOperator()
 

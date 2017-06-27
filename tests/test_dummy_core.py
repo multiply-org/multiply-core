@@ -11,6 +11,10 @@ class TestCore(unittest.TestCase):
         pass
 
     def test_dummy(self):
+        """
+        we just check for the time beeing that the import of the
+        platform dummy is working ...
+        """
         assert True
 
 
