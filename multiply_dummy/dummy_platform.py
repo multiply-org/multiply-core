@@ -1,6 +1,6 @@
 from multiply_inference_engine import dummy_inference_engine
 from multiply_data_access.aux_data_access import dummy_aux_data_provider
-from multiply_prior_engine import dummy_prior_engine
+from multiply_prior_engine import PriorEngine
 from multiply_data_access.brdf_access import dummy_brdf_archive
 from multiply_forward_operators import dummy_optical_forward_operator
 from multiply_forward_operators import dummy_sar_forward_operator
@@ -37,12 +37,19 @@ config = Configuration(region={'ul' : ul, 'lr' : lr}, time_start=t1, time_stop=t
 aux_data_constraints = []
 aux_data_provider = dummy_aux_data_provider.DummyAuxDataProvider()  # config always used when new instances are created
 some_aux_data = aux_data_provider.read_aux_data(aux_data_constraints)
-prior_engine = dummy_prior_engine.DummyPriorEngine()
-prior_1 = prior_engine.create_prior(some_aux_data)
+
+
+
+
+
+prior_engine = PriorEngine(config=config, priors={'sm' : {'type' : 'climatology'}})
+priors = prior_engine.get_priors()
+
+#prior_1 = prior_engine.create_prior(some_aux_data)
 # this command is expected to be executed internally whenever a prior is created
-prior_engine.save_prior(prior_1)
-prior_id = 'My prior'
-prior_2 = prior_engine.get_prior(prior_id)
+#prior_engine.save_prior(prior_1)  # TODO prior1 is used nowhere!
+#prior_id = 'My prior'
+#prior_2 = prior_engine.get_prior(prior_id)
 
 brdf_archive = dummy_brdf_archive.DummyBRDFArchive()
 brdf_archive.has_brdf_descriptor(config, 'somepara')
@@ -84,7 +91,7 @@ sar_forw_operator_emulator_2 = emulation_engine.get_sar_forward_operator_emulato
 
 # harmonize data
 inference_engine = dummy_inference_engine.DummyInferenceEngine()
-high_res_biophysical_params = inference_engine.infer(brdf_descriptor, high_res_sdr, grd_sar_data, prior_2,
+high_res_biophysical_params = inference_engine.infer(brdf_descriptor, high_res_sdr, grd_sar_data, priors,
                                optical_forw_operator_emulator_2, sar_forw_operator_emulator_1)
 
 #from here on: use of inferred products
