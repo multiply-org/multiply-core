@@ -11,6 +11,9 @@ class Configuration(object):
         self.time_start = kwargs.get('time_start', None)
         self.time_stop = kwargs.get('time_stop', None)
 
+        self.gpt = '/home/tweiss/snap/bin/gpt'  # todo relace this default value by some better option e.g. a command call to which gpt or so
+
+
         self._check()
 
     def _check(self):
