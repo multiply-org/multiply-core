@@ -29,7 +29,7 @@ ul = {'lon' : 11.2, 'lat' : 48.0}
 lr = {'lon' : 12.2, 'lat' : 45.0}
 
 tstate = TargetState(state={'lai':True, 'sm':False})
-config = Configuration(region={'ul' : ul, 'lr' : lr}, time_start=t1, time_stop=t2, tstate=tstate)   
+config = Configuration(region={'ul' : ul, 'lr' : lr}, time_start=t1, time_stop=t2, tstate=tstate, landcover='abc.nc', luts={'roughness' : 'nix.lut'})
 
 
 
