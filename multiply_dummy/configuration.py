@@ -1,17 +1,20 @@
 """
-module for MULTIPLY platfrom configuration
+module for MULTIPLY platform configuration
 """
 
 import datetime
 
+
 class Configuration(object):
+
     def __init__(self, **kwargs):
         self.region = kwargs.get('region', None)
 
         self.time_start = kwargs.get('time_start', None)
         self.time_stop = kwargs.get('time_stop', None)
 
-        self.gpt = '/home/tweiss/snap/bin/gpt'  # todo relace this default value by some better option e.g. a command call to which gpt or so
+        # todo replace this default value by some better option e.g. a command call to which gpt or so
+        self.gpt = '/home/tweiss/snap/bin/gpt'
         self.landcover = kwargs.get('landcover', None)
         self.luts = kwargs.get('luts', None)
 
