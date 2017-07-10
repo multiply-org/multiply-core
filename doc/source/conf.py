@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Multiply Core'
-copyright = '2017, Tonio Fincke'
+copyright = '2017'
 author = 'Tonio Fincke'
 
 # The version info for the project you're documenting, acts as replacement for
