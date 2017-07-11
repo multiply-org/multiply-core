@@ -20,15 +20,15 @@ from state import TargetState
 import datetime
 import tempfile
 
-# specifiy user based configuration
+# specify user based configuration
 t1 = datetime.datetime(1998, 1, 1)
 t2 = datetime.datetime(2000, 12, 31)
 ul = {'lon': 11.2, 'lat': 48.0}
 lr = {'lon': 12.2, 'lat': 45.0}
 
-tstate = TargetState(state={'lai': True, 'sm': False})
-config = Configuration(region={'ul': ul, 'lr': lr}, time_start=t1, time_stop=t2, tstate=tstate, landcover='abc.nc',
-                       luts={'roughness': 'nix.lut'})
+target_state = TargetState(state={'lai': True, 'sm': False})
+config = Configuration(region={'ul': ul, 'lr': lr}, time_start=t1, time_stop=t2, tstate=target_state,
+                       landcover='abc.nc', luts={'roughness': 'nix.lut'})
 
 # run the system
 aux_data_constraints = []
