@@ -3,14 +3,23 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Multiply Core's documentation!
-=========================================
+===============================
+MULTIPLY platform documentation
+===============================
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
 
-
+   introduction
+   data-access
+   emulation-framework
+   forward-operators
+   inference-engine
+   post-processing
+   pre-processing
+   prior-engine
+   visualization
 
 Indices and tables
 ==================
