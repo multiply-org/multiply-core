@@ -7,4 +7,9 @@ setup(name='multiply-dummy',
       description='MULTIPLY Dummy',
       author='MULTIPLY Team',
       packages=['multiply_dummy'],
+      entry_points={
+          'console_scripts': [
+              'example = cli_example.cli_example:main'
+          ]
+      }
      )
