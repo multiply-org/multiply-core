@@ -5,12 +5,12 @@ from multiply_data_access.brdf_access import dummy_brdf_archive
 from multiply_forward_operators import dummy_optical_forward_operator
 from multiply_forward_operators import dummy_sar_forward_operator
 from multiply_emulation_engine import dummy_emulation_engine
-from multiply_high_resolution_pre_processing import dummy_high_resolution_pre_processor
+from multiply_high_res_pre_processing import dummy_high_res_pre_processor
 from multiply_sar_pre_processing import SARPreProcessor
 from multiply_data_access.coarse_res_data_access import dummy_coarse_res_data_provider
 from multiply_data_access.high_res_data_access import dummy_high_res_data_provider
 from multiply_data_access.sar_data_access import SARDataAccessProvider
-from multiply_coarse_resolution_pre_processing import dummy_coarse_resolution_pre_processor
+from multiply_coarse_res_pre_processing import dummy_coarse_res_pre_processor
 from multiply_visualization import dummy_visualization_component
 from multiply_post_processing import dummy_post_processor
 
@@ -50,8 +50,8 @@ brdf_descriptor = brdf_archive.get_brdf_descriptor('a', 'b')
 coarse_res_data_constraints = []
 coarse_res_provider = dummy_coarse_res_data_provider.DummyCoarseResDataProvider()
 coarse_res_data = coarse_res_provider.get_data(config, coarse_res_data_constraints, 'a')
-coarse_resolution_pre_processor = dummy_coarse_resolution_pre_processor.DummyCoarseResolutionPreProcessor()
-brdf_descriptor = coarse_resolution_pre_processor.pre_process(coarse_res_data)
+coarse_res_pre_processor = dummy_coarse_res_pre_processor.DummyCoarseResPreProcessor()
+brdf_descriptor = coarse_res_pre_processor.pre_process(coarse_res_data)
 
 high_res_data_constraints = []
 high_res_data_provider = dummy_high_res_data_provider.DummyHighResDataProvider()
@@ -65,7 +65,7 @@ sar_data = sar_data_provider.get_data()
 ##########################
 # DATA PREPROCESSING
 ##########################
-high_res_pre_processor = dummy_high_resolution_pre_processor.DummyHighResolutionPreProcessor()
+high_res_pre_processor = dummy_high_res_pre_processor.DummyHighResPreProcessor()
 high_res_sdr = high_res_pre_processor.pre_process(brdf_descriptor, high_res_data)
 
 # do the SAR pre-processing
