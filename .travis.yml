@@ -35,7 +35,6 @@ install:
   # or master branches
   - conda install pip
 
-
   # test installation from pip
   #- pip install rt1
   #- yes | pip uninstall rt1
@@ -51,14 +50,11 @@ install:
   - pip install https://github.com/multiply-org/emulation_framework/zipball/master
   - pip install https://github.com/multiply-org/forward_operators/zipball/master
   - pip install https://github.com/multiply-org/post_processing/zipball/master
-  - pip install https://github.com/multiply-org/pre_processing/zipball/master
+  - pip install https://github.com/multiply-org/coarse-res-pre-processing/zipball/master
+  - pip install https://github.com/multiply-org/high-res-pre-processing/zipball/master
+  - pip install https://github.com/multiply-org/sar-pre-processing/zipball/master
   - pip install https://github.com/multiply-org/inference-engine/zipball/master
   - pip install https://github.com/multiply-org/visualization/zipball/master
-
-
-
-
-
 
 script:
   - nosetests # -s to see print-output from nosetests
