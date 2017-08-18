@@ -55,7 +55,7 @@ install:
   - pip install https://github.com/multiply-org/sar-pre-processing/zipball/master
   - pip install https://github.com/multiply-org/inference-engine/zipball/master
   - pip install https://github.com/multiply-org/visualization/zipball/master
-  - pip install https://github.com/multiply-org/multiply_dummy/zipball/master
+  - pip install https://github.com/multiply-org/multiply-core/zipball/master
 
 script:
   - pytest
