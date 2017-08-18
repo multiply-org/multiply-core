@@ -14,8 +14,8 @@ from multiply_coarse_res_pre_processing import dummy_coarse_res_pre_processor
 from multiply_visualization import dummy_visualization_component
 from multiply_post_processing import dummy_post_processor
 
-from configuration import Configuration
-from state import TargetState
+from multiply_dummy.configuration import Configuration
+from multiply_dummy.state import TargetState
 
 import datetime
 import tempfile
