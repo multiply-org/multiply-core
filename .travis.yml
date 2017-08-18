@@ -4,8 +4,8 @@
 language: python
 python:
   # We don't actually use the Travis Python, but this keeps it organized.
-  - "2.7"
-    #- "3.6"
+  # - "2.7"
+  - "3.6"
 install:
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
@@ -45,11 +45,11 @@ install:
   #
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
   #
-  - pip install https://github.com/multiply-org/prior_engine/zipball/master
-  - pip install https://github.com/multiply-org/data_access/zipball/master
-  - pip install https://github.com/multiply-org/emulation_framework/zipball/master
-  - pip install https://github.com/multiply-org/forward_operators/zipball/master
-  - pip install https://github.com/multiply-org/post_processing/zipball/master
+  - pip install https://github.com/multiply-org/prior-engine/zipball/master
+  - pip install https://github.com/multiply-org/data-access/zipball/master
+  - pip install https://github.com/multiply-org/emulation-framework/zipball/master
+  - pip install https://github.com/multiply-org/forward-operators/zipball/master
+  - pip install https://github.com/multiply-org/post-processing/zipball/master
   - pip install https://github.com/multiply-org/coarse-res-pre-processing/zipball/master
   - pip install https://github.com/multiply-org/high-res-pre-processing/zipball/master
   - pip install https://github.com/multiply-org/sar-pre-processing/zipball/master
