@@ -57,4 +57,4 @@ install:
   - pip install https://github.com/multiply-org/visualization/zipball/master
 
 script:
-  - nosetests # -s to see print-output from nosetests
+  - pytest
