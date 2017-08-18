@@ -22,11 +22,13 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
+  - conda list
 
   # nose must be installed explicitly to ensure that the virtual conda-environment is used within the tests
   # (otherwise import-errors will occur for non-standard packages like scipy sympy and symengine)
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION nose numpy 
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION pytest numpy
   - source activate test-environment
+  - conda list
 
   # before the actual installation we test first if existing
   # installation mechanism using PIP and CONDA work
