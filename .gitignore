@@ -67,6 +67,10 @@ docs/_build/
 # PyBuilder
 target/
 
+# PyCharm
+.idea/
+*.iml
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -100,4 +104,8 @@ ENV/
 # mypy
 .mypy_cache/
 
-.idea/
+# SublimeText settings
+.sublime/
+
+# Scripts
+Scripts/
