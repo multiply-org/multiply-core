@@ -70,7 +70,7 @@ class DummyOrchestrator(object):
             # current time step
             x, c_inv = prior_engine(inference_config, time_step, x, c_inv)
             subprocess.call(['multiply', 'get_prior_information', '--config', multiply_config,
-                             '--time_step', time_step, '--x', x, 'c_inv', c_inv,
+                             '--time_step', time_step, '--x', x, '--c_inv', c_inv,
                              '--output_dir', './user/data/']) # where to put a yaml file with new values for x and c_inv
 
             # Query the observations database
@@ -79,10 +79,10 @@ class DummyOrchestrator(object):
             for observation in observations:
                 # what would be the output of this?
                 subprocess.call(['multiply', 'infer', '--config', multiply_config,
-                                '--observation', observation, '--x', x, 'c_inv', c_inv])
+                                '--observation', observation, '--x', x, '--c_inv', c_inv])
 
             # Propagation stage
             subprocess.call(['multiply', 'propagate', '--config', multiply_config, # does this have an output?
-                             '--time_step', time_step, '--x', x, 'c_inv', c_inv])
+                             '--time_step', time_step, '--x', x, '--c_inv', c_inv])
 
 
