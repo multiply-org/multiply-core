@@ -54,7 +54,6 @@ install:
   #
   - pip install cython
   - pip install pyproj
-  - pip install cartopy
   - pip install dask
   - pip install geopandas
   - pip install fiona
@@ -71,6 +70,7 @@ install:
   - pip install shapely
   - pip install tornado
   - pip install xarray
+  - pip install cartopy
   - pip install https://github.com/CCI-Tools/cate/zipball/master
   - pip install https://github.com/multiply-org/prior-engine/zipball/master
   - pip install https://github.com/multiply-org/data-access/zipball/master
