@@ -53,7 +53,7 @@ install:
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
   #
   - pip install cython
-  - pip install proj4
+  - pip install pyproj
   - pip install cartopy
   - pip install dask
   - pip install geopandas
@@ -67,7 +67,6 @@ install:
   - pip install pandas
   - pip install pillow
   - pip install psutil
-  - pip install pyproj
   - pip install scipy
   - pip install shapely
   - pip install tornado
