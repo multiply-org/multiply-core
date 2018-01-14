@@ -52,6 +52,7 @@ install:
   #
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
   #
+  - pip install cython
   - pip install cartopy
   - pip install dask
   - pip install geopandas
