@@ -52,6 +52,24 @@ install:
   #
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
   #
+  - pip install cartopy
+  - pip install dask
+  - pip install geopandas
+  - pip install fiona
+  - pip install jdcal
+  - pip install matplotlib
+  - pip install netcdf4
+  - pip install numba
+  - pip install numpy
+  - pip install owslib
+  - pip install pandas
+  - pip install pillow
+  - pip install psutil
+  - pip install pyproj
+  - pip install scipy
+  - pip install shapely
+  - pip install tornado
+  - pip install xarray
   - pip install https://github.com/CCI-Tools/cate/zipball/master
   - pip install https://github.com/multiply-org/prior-engine/zipball/master
   - pip install https://github.com/multiply-org/data-access/zipball/master
