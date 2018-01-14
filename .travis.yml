@@ -17,11 +17,11 @@ install:
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
-  - pip install numpy
-  - pip install scipy
-  - git clone https://multiply-ci:multiplyci1@github.com/CCI-Tools/cate.git
-  - cd cate
-  - python setup.py install
+#  - pip install numpy
+#  - pip install scipy
+#  - git clone https://multiply-ci:multiplyci1@github.com/CCI-Tools/cate.git
+#  - cd cate
+#  - python setup.py install
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
@@ -52,6 +52,7 @@ install:
   #
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
   #
+  - pip install https://github.com/CCI-Tools/cate/zipball/master
   - pip install https://github.com/multiply-org/prior-engine/zipball/master
   - pip install https://github.com/multiply-org/data-access/zipball/master
   - pip install https://github.com/multiply-org/emulation-framework/zipball/master
