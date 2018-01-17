@@ -2,14 +2,9 @@
 
 from setuptools import setup
 
-setup(name='multiply-dummy',
+setup(name='multiply-core',
       version='0.1',
-      description='MULTIPLY Dummy',
+      description='MULTIPLY Core',
       author='MULTIPLY Team',
-      packages=['multiply_dummy'],
-      entry_points={
-          'console_scripts': [
-              'example = cli_example.cli_example:main'
-          ]
-      }
+      packages=['multiply_core', 'multiply_core.util']
      )
