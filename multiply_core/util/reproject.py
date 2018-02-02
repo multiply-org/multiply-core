@@ -13,7 +13,14 @@ class Reproject(object):
         """Reprojects/Warps an image to fit exactly another image.
         Additionally, you can set the destination SRS if you want
         to or if it isn't defined in the source image."""
-        g = gdal.Open(target_img)
+        if type(target_img) is str:
+            g = gdal.Open(target_img)
+        else:
+            g = target_img
+        if type(source_img) is str:
+            s = gdal.Open(source_img)
+        else:
+            s = source_img
         geo_t = g.GetGeoTransform()
         x_size, y_size = g.RasterXSize, g.RasterYSize
         xmin = min(geo_t[0], geo_t[0] + x_size * geo_t[1])
@@ -27,9 +34,7 @@ class Reproject(object):
             dstSRS.ImportFromWkt(raster_wkt)
         else:
             dstSRS = dstSRSs
-        g = gdal.Warp('', source_img, format='MEM',
-                      outputBounds=[xmin, ymin, xmax, ymax], xRes=xRes, yRes=yRes,
-                      dstSRS=dstSRS)
+        g = gdal.Warp('', s, format='MEM', outputBounds=[xmin, ymin, xmax, ymax], xRes=xRes, yRes=yRes, dstSRS=dstSRS)
         return g
 
     # @staticmethod
