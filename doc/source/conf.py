@@ -102,7 +102,7 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'MultiplyCoredoc'
 
-html_logo = '_static/logo/Multiply_multicoloour.png'
+html_logo = '_static/logo/Multiply_multicolour.png'
 
 # -- Options for LaTeX output ---------------------------------------------
 
