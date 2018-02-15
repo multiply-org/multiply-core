@@ -2,6 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/multiply-org/multiply-core.svg?branch=master)](https://travis-ci.org/multiply-org/multiply-core)
+[![Documentation Status](https://readthedocs.org/projects/multiply/badge/?version=latest)](http://multiply.readthedocs.io/en/latest/?badge=latest)
                 
 # MULTIPLY Core
 
