@@ -16,7 +16,7 @@ MULTIPLY platform documentation
    workflow
    quick_start
    user_manual
-   data-access
+   support
 
 Indices and tables
 ==================
