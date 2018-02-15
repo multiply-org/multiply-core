@@ -12,14 +12,11 @@ MULTIPLY platform documentation
    :caption: Contents:
 
    introduction
+   components
+   workflow
+   quick_start
+   user_manual
    data-access
-   emulation-framework
-   forward-operators
-   inference-engine
-   post-processing
-   pre-processing
-   prior-engine
-   visualization
 
 Indices and tables
 ==================
