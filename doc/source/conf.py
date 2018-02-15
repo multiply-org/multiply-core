@@ -46,9 +46,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Multiply Core'
+project = 'Multiply'
 copyright = '2017'
-author = 'Tonio Fincke'
+author = 'MULTIPLY Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -102,6 +102,7 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'MultiplyCoredoc'
 
+html_logo = '_static/logo/Multiply_multicoloour.png'
 
 # -- Options for LaTeX output ---------------------------------------------
 
