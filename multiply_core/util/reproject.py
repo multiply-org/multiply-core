@@ -1,5 +1,4 @@
 import gdal
-import numpy as np
 import osr
 
 __author__ = "José Luis Gómez-Dans (University College London)," \
