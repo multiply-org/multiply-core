@@ -7,8 +7,12 @@ requirements = [
     'osr'
 ]
 
+__version__ = None
+with open('multiply_core/version.py') as f:
+    exec(f.read())
+
 setup(name='multiply-core',
-      version='0.1',
+      version=__version__,
       description='MULTIPLY Core',
       author='MULTIPLY Team',
       packages=['multiply_core', 'multiply_core.util'],
