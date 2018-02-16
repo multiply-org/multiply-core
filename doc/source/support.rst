@@ -30,5 +30,3 @@ Bugs, feature requests, suggestions for improvements should be reported in the r
 
 If you are unsure which of these trackers to use or if your issue is of a more general nature, use the
 `Core Issue Tracker`_.
-
-- `High Res Pre-Processing Issue Tracker`
