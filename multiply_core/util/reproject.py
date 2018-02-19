@@ -1,7 +1,7 @@
 import gdal
 import osr
 
-__author__ = "José Luis Gómez-Dans (University College London)," \
+__author__ = "José Luis Gómez-Dans (NCEO/UCL)," \
              "Tonio Fincke (Brockmann Consult GmbH)"
 
 
@@ -33,7 +33,9 @@ class Reproject(object):
             dstSRS.ImportFromWkt(raster_wkt)
         else:
             dstSRS = dstSRSs
-        g = gdal.Warp('', s, format='MEM', outputBounds=[xmin, ymin, xmax, ymax], xRes=xRes, yRes=yRes, dstSRS=dstSRS)
+        g = gdal.Warp('', s, format='MEM', 
+                      outputBounds=[xmin, ymin, xmax, ymax], 
+                      xRes=xRes, yRes=yRes, dstSRS=dstSRS)
         return g
 
     # @staticmethod
