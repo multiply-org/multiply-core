@@ -4,7 +4,9 @@ from setuptools import setup
 
 requirements = [
     'gdal',
-    'osr'
+    'numpy',
+    'osr',
+    'pytest'
 ]
 
 __version__ = None
@@ -17,4 +19,4 @@ setup(name='multiply-core',
       author='MULTIPLY Team',
       packages=['multiply_core', 'multiply_core.util'],
       install_requires=requirements
-)
+      )
