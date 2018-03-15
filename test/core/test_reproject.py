@@ -25,14 +25,14 @@ def test_transform_coordinates_0():
               9.9986114, 50.0038300]
     transformed_coordinates = reproject.transform_coordinates(ala_srs, s2_srs, coords)
     assert 8 == len(transformed_coordinates)
-    assert -144583.384, transformed_coordinates[0]
-    assert 6685755.131, transformed_coordinates[1]
-    assert -144583.384, transformed_coordinates[2]
-    assert 5539163.063, transformed_coordinates[3]
-    assert 571659.159, transformed_coordinates[4]
-    assert 6685755.131, transformed_coordinates[5]
-    assert 571659.159, transformed_coordinates[6]
-    assert 5539163.063, transformed_coordinates[7]
+    assert pytest.approx(-144583.384), transformed_coordinates[0]
+    assert pytest.approx(6685755.131), transformed_coordinates[1]
+    assert pytest.approx(-144583.384), transformed_coordinates[2]
+    assert pytest.approx(5539163.063), transformed_coordinates[3]
+    assert pytest.approx(571659.159), transformed_coordinates[4]
+    assert pytest.approx(6685755.131), transformed_coordinates[5]
+    assert pytest.approx(571659.159), transformed_coordinates[6]
+    assert pytest.approx(5539163.063), transformed_coordinates[7]
 
 
 def test_transform_coordinates_1():
@@ -44,10 +44,10 @@ def test_transform_coordinates_1():
     coords = [-0.0013889, 60.0013885, 9.9986114, 50.0038300]
     transformed_coordinates = reproject.transform_coordinates(ala_srs, s2_srs, coords)
     assert 4 == len(transformed_coordinates)
-    assert -144583.384, transformed_coordinates[0]
-    assert 6685755.131, transformed_coordinates[1]
-    assert 571659.159, transformed_coordinates[2]
-    assert 5539163.063, transformed_coordinates[3]
+    assert pytest.approx(-144583.384), transformed_coordinates[0]
+    assert pytest.approx(6685755.131), transformed_coordinates[1]
+    assert pytest.approx(571659.159), transformed_coordinates[2]
+    assert pytest.approx(5539163.063), transformed_coordinates[3]
 
 
 def test_get_spatial_reference_system_from_dataset():
@@ -113,10 +113,10 @@ def test_reproject_image():
     assert EPSG_32232_WKT == reprojected_dataset.GetProjection()
     geo_transform = reprojected_dataset.GetGeoTransform()
     assert 6 == len(geo_transform)
-    assert 420392.4558445791 == geo_transform[0]
+    assert pytest.approx(420392.4558445791) == geo_transform[0]
     assert 50.0 == geo_transform[1]
     assert 0.0 == geo_transform[2]
-    assert 5961284.037740353 == geo_transform[3]
+    assert pytest.approx(5961284.037740353) == geo_transform[3]
     assert 0.0 == geo_transform[4]
     assert -100.0 == geo_transform[5]
     assert 1 == reprojected_dataset.RasterCount
