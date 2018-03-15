@@ -45,7 +45,7 @@ install:
   # - conda uninstall -c conda-forge rt1
   #
   # now install the MULTIPLY components (could be replaced at a later stage with alternative installation methods)
-  #
+  - python setup.py install
 
 script:
   - pytest
