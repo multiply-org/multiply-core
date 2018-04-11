@@ -124,8 +124,37 @@ def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: 
     return (x_dist / x_res) * (y_dist / y_res)
 
 
+class Reprojection(object):
+
+    def __init__(self, bounds: Sequence[float], x_res: int, y_res: int, destination_srs: osr.SpatialReference,
+                 bounds_srs: Optional[osr.SpatialReference], resampling_mode: Optional[str]):
+        self._bounds = bounds
+        self._x_res = x_res
+        self._y_res = y_res
+        self._destination_srs = destination_srs
+        self._resampling_mode = resampling_mode
+        if bounds_srs is None:
+            self._bounds_srs = destination_srs
+        else:
+            self._bounds_srs = bounds_srs
+
+    def reproject(self, dataset: Union[str, gdal.Dataset]) -> gdal.Dataset:
+        if type(dataset) is str:
+            dataset = gdal.Open(dataset)
+        if self._resampling_mode is None:
+            resampling_mode = _get_resampling(dataset, self._bounds, self._x_res, self._y_res, self._bounds_srs,
+                                              self._destination_srs)
+        else:
+            resampling_mode = self._resampling_mode
+        warp_options = gdal.WarpOptions(format='Mem', outputBounds=self._bounds, outputBoundsSRS=self._bounds_srs,
+                                        xRes=self._x_res, yRes=self._y_res, dstSRS=self._destination_srs,
+                                        resampleAlg=resampling_mode)
+        reprojected_data_set = gdal.Warp('', dataset, options=warp_options)
+        return reprojected_data_set
+
+
 def reproject_image(source_img, target_img, dstSRSs=None):
-    #TODO: replace this method with the other functionality in this module
+    # TODO: replace this method with the other functionality in this module
     """Reprojects/Warps an image to fit exactly another image.
     Additionally, you can set the destination SRS if you want
     to or if it isn't defined in the source image."""
