@@ -43,6 +43,38 @@ class AttributeDict(object):
         return getattr(self, key)
 
 
+class FileRef:
+    """
+    A reference to the physical location of a file.
+    """
+
+    def __init__(self, url: str, start_time: str, end_time: str, mime_type: str):
+        self._url = url
+        self._start_time = start_time
+        self._end_time = end_time
+        self._mime_type = mime_type
+
+    @property
+    def url(self) -> str:
+        """The URL indicating where the file is physically located."""
+        return self._url
+
+    @property
+    def start_time(self) -> str:
+        """The dataset's start time."""
+        return self._start_time
+
+    @property
+    def end_time(self) -> str:
+        """The dataset's end time."""
+        return self._end_time
+
+    @property
+    def mime_type(self):
+        """The mime type of the file in question."""
+        return self._mime_type
+
+
 def compute_distance(lon_0: float, lat_0: float, lon_1: float, lat_1: float, sphere_radius: float) -> float:
     lat_0_rad = np.deg2rad(lat_0)
     lat_1_rad = np.deg2rad(lat_1)
@@ -72,7 +104,7 @@ def get_time_from_string(time_string: str, adjust_to_last_day: bool = False) -> 
         try:
             dt = datetime.strptime(time_string, f)
             if adjust:
-                td = timedelta(days=DataUtils.get_days_of_month(dt.year, dt.month), seconds=-1)
+                td = timedelta(days=get_days_of_month(dt.year, dt.month), seconds=-1)
             return dt + td if adjust_to_last_day else dt
         except ValueError:
             pass
@@ -92,7 +124,7 @@ def get_days_of_month(year: int, month: int) -> int:
         return 31
     if month in [4, 6, 9, 11]:
         return 30
-    if DataUtils.is_leap_year(year):
+    if is_leap_year(year):
         return 29
     return 28
 
