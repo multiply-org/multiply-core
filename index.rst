@@ -11,6 +11,7 @@ Welcome to MULTIPLY documentation!
    :caption: Contents:
 
    sar-pre-processing/docs/index
+   prior-engine/docs/index
 
 .. toctree::
     :maxdepth: 2
