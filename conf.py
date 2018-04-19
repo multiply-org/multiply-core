@@ -18,8 +18,6 @@ import os
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__))))
-import pdb
-pdb.set_trace()
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "prior-engine")))
 
 
@@ -69,8 +67,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'sar-pre-processing'
-copyright = u'2017, Thomas Weiß'
+project = u'MULTIPLY'
+copyright = u'2017, MULTIPLY Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -204,8 +202,9 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'sar_pre_processing-doc'
+htmlhelp_basename = 'MULTIPLYDocumentation'
 
+html_logo = '_static/logo/Multiply_multicolour_white_background.png'
 
 # -- Options for LaTeX output --------------------------------------------------
 
@@ -223,8 +222,8 @@ latex_elements = { 'classoptions': ',openany,oneside'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'user_guide.tex', u'sar-pre-processing Documentation',
-   u'Thomas Weiß', 'manual'),
+  ('index', 'MULTIPLYDocumentation.tex', u'MULTIPLY Documentation',
+   u'MULTIPLY Development Team', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -262,4 +261,5 @@ intersphinx_mapping = {
 
 # add numbered figures
 numfig = True
+
 
