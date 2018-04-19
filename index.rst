@@ -3,11 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to MULTIPLY documentation's documentation!
+Welcome to MULTIPLY documentation!
 ==================================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Contents:
 
    sar-pre-processing/docs/index
