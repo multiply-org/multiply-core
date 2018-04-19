@@ -6,7 +6,8 @@ requirements = [
     'gdal',
     'numpy',
     'osr',
-    'pytest'
+    'pytest',
+    'scipy'
 ]
 
 __version__ = None
@@ -17,6 +18,6 @@ setup(name='multiply-core',
       version=__version__,
       description='MULTIPLY Core',
       author='MULTIPLY Team',
-      packages=['multiply_core', 'multiply_core.util'],
+      packages=['multiply_core', 'multiply_core.util', 'multiply_core.observations'],
       install_requires=requirements
       )
