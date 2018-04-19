@@ -1,6 +1,3 @@
 [submodule "sar-pre-processing"]
 	path = sar-pre-processing
 	url = https://github.com/multiply-org/sar-pre-processing.git
-[submodule "prior-engine"]
-	path = prior-engine
-	url = https://github.com/multiply-org/prior-engine.git
