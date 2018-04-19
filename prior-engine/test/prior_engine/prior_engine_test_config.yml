@@ -1,0 +1,57 @@
+General:
+    roi: POLYGON ((48.0 11.3, 48.2 11.300, 48.1 11.1, 48.0 11, 48.0 11.3))
+    start_time: 2017-01-01
+    end_time: 2017-12-31
+    time_interval: 1 # 1 day
+    spatial_resolution : 10 # metres
+    state_mask: /path/to/my/state_mask.tif # Or shape?
+    output_directory_root: /some/where/
+    # output_prefix: my_test_33
+
+Inference: # inference config
+    - parameters:
+        - LAI
+        - soil_moisture
+    - optical_operator_library: some_operator.nc   # Optional
+    - sar_operator_library: some_other_operator.nc # Optional
+    - a: identity
+    - inflation: 1e3
+
+Prior:
+# Prior section conventions
+
+# - 1. sub-level contains all potential variables (sm, roughness, lai, ..)
+#   which are asked for/being inferred from Orchestrator/Inferrence Engine
+#   and for which prior information is provided.
+# - 2. sub-level contains prior type (ptype). These can be commented out
+#   to be omitted.
+
+  General:
+    directory_data: ./aux_data/Static/Vegetation/
+  sm:
+    climatology:
+      climatology_dir: ./aux_data/Climatology/SoilMoisture/
+    # dynamic:
+    #     type: dynamic
+    #     model:
+    #         - API
+    #         - other
+    # recent:
+    #   aux_data = ...
+    # static:
+    #       type: static
+  lai:
+    database:
+  cab:
+    database:
+    #climatology:
+    #  database: ../aux_data/new_geotiff
+    # model:
+  # veg:
+    # veg_pft:
+    #   type: pft
+    #   database: /aux_data/some_DB
+    # veg_spec:
+    #   type: species
+    #   database: /user_data/some_DB
+    # -

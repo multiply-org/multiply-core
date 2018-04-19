@@ -1,0 +1,21 @@
+about:
+  summary: "MULTIPLY prior engine package"
+  home: https://github.com/multiply-org/prior-engine
+
+package:
+  name: multiply_prior_engine
+  version: "0.1"
+
+source:
+  git_url: "https://github.com/multiply-org/prior-engine.git"
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
