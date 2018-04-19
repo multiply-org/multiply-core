@@ -28,19 +28,19 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "prio
 # DON'T FORGET: Check the box "Install your project inside a virtualenv using
 # setup.py install" in the RTD Advanced Settings.
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    import inspect
-    from sphinx import apidoc
+# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+# if on_rtd:
+#     import inspect
+#     from sphinx import apidoc
 
-    __location__ = os.path.join(os.getcwd(), os.path.dirname(
-        inspect.getfile(inspect.currentframe())))
+#     __location__ = os.path.join(os.getcwd(), os.path.dirname(
+#         inspect.getfile(inspect.currentframe())))
 
-    output_dir = os.path.join(__location__, "../docs/api")
-    module_dir = os.path.join(__location__, "../sar_pre_processing")
-    cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
-    cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
-    apidoc.main(cmd_line.split(" "))
+#     output_dir = os.path.join(__location__, "../docs/api")
+#     module_dir = os.path.join(__location__, "../sar_pre_processing")
+#     cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
+#     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
+#     apidoc.main(cmd_line.split(" "))
 
 # -- General configuration -----------------------------------------------------
 
@@ -202,7 +202,7 @@ html_static_path = ['_static']
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'MULTIPLYDocumentation'
+htmlhelp_basename = 'MULTIPLYDoc'
 
 html_logo = '_static/logo/Multiply_multicolour_white_background.png'
 
@@ -222,7 +222,7 @@ latex_elements = { 'classoptions': ',openany,oneside'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'MULTIPLYDocumentation.tex', u'MULTIPLY Documentation',
+  ('index', 'MULTIPLYDoc.tex', u'MULTIPLY Doc',
    u'MULTIPLY Development Team', 'manual'),
 ]
 
@@ -261,5 +261,4 @@ intersphinx_mapping = {
 
 # add numbered figures
 numfig = True
-
 
