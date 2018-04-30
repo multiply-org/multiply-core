@@ -1,3 +1,8 @@
+*.vrt
+*.tgz
+aux_data/
+prior_engine_runner*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -22,6 +27,12 @@ sdist/
 var/
 wheels/
 *.egg-info/
+
+*.pyc
+.cache/
+# emacs temp files
+.#*
+
 .installed.cfg
 *.egg
 
@@ -106,16 +117,3 @@ ENV/
 
 # SublimeText settings
 .sublime/
-
-# Scripts
-Scripts/
-
-# Build and docs folder/files
-build/*
-dist/*
-sdist/*
-docs/api/*
-docs/_build/*
-cover/*
-MANIFEST
-
