@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<n1:Level-1C_Tile_ID xmlns:n1="https://psd-12.sentinel2.eo.esa.int/PSD/S2_PDI_Level-1C_Tile_Metadata.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://psd-12.sentinel2.eo.esa.int/PSD/S2_PDI_Level-1C_Tile_Metadata.xsd /dpc/app/s2ipf/FORMAT_METADATA_TILE_L1C/02.10.02/scripts/../../../schemas/02.12.05/PSD/S2_PDI_Level-1C_Tile_Metadata.xsd">
+
+  <n1:General_Info>
+    <TILE_ID metadataLevel="Brief">S2A_OPER_MSI_L2A_TL_SGS__20170112T163115_A008142_T29SQB_N02.04</TILE_ID>
+    <DATASTRIP_ID metadataLevel="Standard">S2A_OPER_MSI_L1C_DS_SGS__20170112T163115_S20170112T112022_N02.04</DATASTRIP_ID>
+    <DOWNLINK_PRIORITY metadataLevel="Standard">NOMINAL</DOWNLINK_PRIORITY>
+    <SENSING_TIME metadataLevel="Standard">2017-01-12T11:20:22.847Z</SENSING_TIME>
+    <Archiving_Info metadataLevel="Expertise">
+      <ARCHIVING_CENTRE>SGS_</ARCHIVING_CENTRE>
+      <ARCHIVING_TIME>2017-01-12T17:49:28.966213Z</ARCHIVING_TIME>
+    </Archiving_Info>
+  </n1:General_Info>
+
+</n1:Level-1C_Tile_ID>

@@ -19,5 +19,10 @@ setup(name='multiply-core',
       description='MULTIPLY Core',
       author='MULTIPLY Team',
       packages=['multiply_core', 'multiply_core.util', 'multiply_core.observations'],
+      entry_points={
+          'observations_creators': [
+              's2_observation_creator = multiply_core.observations:s2_observations.S2ObservationsCreator',
+          ],
+      },
       install_requires=requirements
       )

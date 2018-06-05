@@ -7,12 +7,15 @@ This module defines the interface to MULTIPLY observations.
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+import pkg_resources
 import scipy.sparse as sp
 from typing import List
 
-from multiply_core.util import FileRef, Reprojection
+from multiply_core.util import FileRef
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
+
+OBSERVATIONS_CREATOR_REGISTRY = []
 
 
 class ObservationData(object):
@@ -46,12 +49,12 @@ class ObservationData(object):
         return self._emulator
 
 
-class Observations(metaclass=ABCMeta):
+class ProductObservations(metaclass=ABCMeta):
     """The interface to an Observations object. An observations object allows to access any EO data that comes from a
     file."""
 
     @abstractmethod
-    def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+    def get_band_data(self, band_index: int) -> ObservationData:
         """
         This method returns
         :param date_index: The temporal index of the products represented by the Observations class. This index is used
@@ -65,3 +68,85 @@ class Observations(metaclass=ABCMeta):
     def bands_per_observation(self):
         """Returns an array containing the number of bands this observations object provides access to per date."""
 
+
+class ProductObservationsCreator(metaclass=ABCMeta):
+    """The interface to an ObservationsCreator object. There shall be one for every Observations object. It is used to
+    create an Observations object from a file."""
+
+    @classmethod
+    def can_read(cls, file_ref: FileRef) -> bool:
+        """
+        Whether the Observations can read from the referenced file.
+        :param file_ref: The referenced file
+        :return: True, if the observations can be read
+        """
+
+    @classmethod
+    def create_observations(cls, file_ref: FileRef) -> ProductObservations:
+        """
+        Creates an Observations object for the given fileref object.
+        :param file_ref: A reference to a file containing data.
+        :return: An Observations object that encapsulates the data.
+        """
+
+
+def add_observations_creator_to_registry(observations_creator: ProductObservationsCreator):
+    OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
+
+
+registered_observations_creators = pkg_resources.iter_entry_points('observations_creators')
+for registered_observations_creator in registered_observations_creators:
+    add_observations_creator_to_registry(observations_creator=registered_observations_creator.load())
+
+
+class ObservationsWrapper(object):
+    """An Observations Object. Allows external components to access EO data."""
+
+    def __init__(self):
+        self._observations = []
+
+    def add_observations(self, observations: ProductObservations):
+        self._observations.append(observations)
+
+    def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+        """
+        This method returns
+        :param date_index: The temporal index of the products represented by the Observations class. This index is used
+        to identify the product.
+        :param band_index: The index of the band within the product.
+        :return: An ObservationData product according to the input.
+        """
+        return self._observations[date_index].get_band_data(band_index)
+
+    def bands_per_observation(self, date_index: int):
+        """Returns an array containing the number of bands this observations object provides access to per date."""
+        return self._observations[date_index].bands_per_observation()
+
+    def get_num_observations(self) -> int:
+        """Returns the number of observations wrapped by this class. Also corresponds to the number of date_indexes."""
+        return len(self._observations)
+
+
+def _create_observations(file_ref: FileRef) -> ProductObservations:
+    for observations_creator in OBSERVATIONS_CREATOR_REGISTRY:
+        if observations_creator.can_read(file_ref):
+            observations = observations_creator.create_observations(file_ref)
+            return observations
+
+
+def create_observations(file_refs: List[FileRef]) -> ObservationsWrapper:
+    observations_wrapper = ObservationsWrapper()
+    sort_file_ref_list(file_refs)
+    for file_ref in file_refs:
+        observations = _create_observations(file_ref)
+        if observations is not None:
+            observations_wrapper.add_observations(observations)
+    return observations_wrapper
+
+
+def _start_time(file_ref: FileRef):
+    return file_ref.start_time
+
+
+def sort_file_ref_list(file_refs: List[FileRef]):
+    file_refs.sort(key=_start_time)
