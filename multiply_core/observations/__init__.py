@@ -1,3 +1,3 @@
 from .observations import ProductObservations, ObservationData, ProductObservationsCreator, ObservationsFactory
 from .s2_observations import S2Observations, S2ObservationsCreator, extract_angles_from_metadata_file, extract_tile_id
-from .data_validation import DataValidator, Validation
+from .data_validation import DataValidator, add_validator, get_valid_type

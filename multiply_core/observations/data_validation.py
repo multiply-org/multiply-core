@@ -12,6 +12,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 
+VALIDATORS = []
 
 class DataValidator(metaclass=ABCMeta):
 
@@ -34,18 +35,19 @@ class AWS_S2_Validator(DataValidator):
         return False
 
 
-class Validation(object):
+# class Validation(object):
+#
+#     def __init__(self):
+#         TODO replace this with framework
+VALIDATORS.append(AWS_S2_Validator())
 
-    def __init__(self):
-        self.validators = []
-        # TODO replace this with framework
-        self.validators.append(AWS_S2_Validator())
 
-    def add_validator(self, validator: DataValidator):
-        self.validators.append(validator)
+def add_validator(validator: DataValidator):
+    VALIDATORS.append(validator)
 
-    def get_valid_type(self, path: str) -> str:
-        for validator in self.validators:
-            if validator.is_valid(path):
-                return validator.name()
-        return ''
+
+def get_valid_type(path: str) -> str:
+    for validator in VALIDATORS:
+        if validator.is_valid(path):
+            return validator.name()
+    return ''
