@@ -14,6 +14,7 @@ from abc import ABCMeta, abstractmethod
 
 VALIDATORS = []
 
+
 class DataValidator(metaclass=ABCMeta):
 
     @classmethod
