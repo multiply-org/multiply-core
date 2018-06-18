@@ -15,8 +15,6 @@ from multiply_core.util import FileRef
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
-OBSERVATIONS_CREATOR_REGISTRY = []
-
 
 class ObservationData(object):
     """A class encapsulating the access to an Observations object."""
@@ -90,15 +88,6 @@ class ProductObservationsCreator(metaclass=ABCMeta):
         """
 
 
-def add_observations_creator_to_registry(observations_creator: ProductObservationsCreator):
-    OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
-
-
-registered_observations_creators = pkg_resources.iter_entry_points('observations_creators')
-for registered_observations_creator in registered_observations_creators:
-    add_observations_creator_to_registry(observations_creator=registered_observations_creator.load())
-
-
 class ObservationsWrapper(object):
     """An Observations Object. Allows external components to access EO data."""
 
@@ -127,26 +116,34 @@ class ObservationsWrapper(object):
         return len(self._observations)
 
 
-def _create_observations(file_ref: FileRef) -> ProductObservations:
-    for observations_creator in OBSERVATIONS_CREATOR_REGISTRY:
-        if observations_creator.can_read(file_ref):
-            observations = observations_creator.create_observations(file_ref)
-            return observations
+class ObservationsFactory(object):
 
+    def __init__(self):
+        self.OBSERVATIONS_CREATOR_REGISTRY = []
+        registered_observations_creators = pkg_resources.iter_entry_points('observations_creators')
+        for registered_observations_creator in registered_observations_creators:
+            self.add_observations_creator_to_registry(observations_creator=registered_observations_creator.load())
 
-def create_observations(file_refs: List[FileRef]) -> ObservationsWrapper:
-    observations_wrapper = ObservationsWrapper()
-    sort_file_ref_list(file_refs)
-    for file_ref in file_refs:
-        observations = _create_observations(file_ref)
-        if observations is not None:
-            observations_wrapper.add_observations(observations)
-    return observations_wrapper
+    def add_observations_creator_to_registry(self, observations_creator: ProductObservationsCreator):
+        self.OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
 
+    def _create_observations(self, file_ref: FileRef) -> ProductObservations:
+        for observations_creator in self.OBSERVATIONS_CREATOR_REGISTRY:
+            if observations_creator.can_read(file_ref):
+                observations = observations_creator.create_observations(file_ref)
+                return observations
 
-def _start_time(file_ref: FileRef):
-    return file_ref.start_time
+    def create_observations(self, file_refs: List[FileRef]) -> ObservationsWrapper:
+        observations_wrapper = ObservationsWrapper()
+        self.sort_file_ref_list(file_refs)
+        for file_ref in file_refs:
+            observations = self._create_observations(file_ref)
+            if observations is not None:
+                observations_wrapper.add_observations(observations)
+        return observations_wrapper
 
+    def _start_time(self, file_ref: FileRef):
+        return file_ref.start_time
 
-def sort_file_ref_list(file_refs: List[FileRef]):
-    file_refs.sort(key=_start_time)
+    def sort_file_ref_list(self, file_refs: List[FileRef]):
+        file_refs.sort(key=self._start_time)

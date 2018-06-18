@@ -4,8 +4,7 @@ import re
 import scipy.sparse as sp
 
 from multiply_core.util import FileRef
-from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, \
-    add_observations_creator_to_registry, create_observations, sort_file_ref_list
+from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, ObservationsFactory
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -18,9 +17,8 @@ def test_sort_file_ref_list():
                  FileRef(url='loc3', start_time='2017-06-03', end_time='2017-06-10', mime_type='unknown mime type'),
                  FileRef(url='loc4', start_time='2017-06-02', end_time='2017-06-09', mime_type='unknown mime type'),
                  FileRef(url='loc5', start_time='2017-06-05', end_time='2017-06-08', mime_type='unknown mime type')]
-
-    sort_file_ref_list(file_refs)
-
+    observations_factory = ObservationsFactory()
+    observations_factory.sort_file_ref_list(file_refs)
     assert 5, len(file_refs)
     assert 'loc2', file_refs[0]
     assert 'loc4', file_refs[1]
@@ -55,11 +53,11 @@ def test_create_observations():
         def create_observations(cls, file_ref: FileRef) -> ProductObservations:
             if cls.can_read(file_ref):
                 return DummyObservations()
-
-    add_observations_creator_to_registry(DummyObservationsCreator())
+    observations_factory = ObservationsFactory()
+    observations_factory.add_observations_creator_to_registry(DummyObservationsCreator())
     file_refs = [FileRef(url=DUMMY_FILE, start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type'),
                  FileRef(url='tzzg', start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type')]
-    observations_wrapper = create_observations(file_refs)
+    observations_wrapper = observations_factory.create_observations(file_refs)
 
     assert 1, observations_wrapper.get_num_observations()
     assert 15, observations_wrapper.bands_per_observation(0)
