@@ -1,4 +1,4 @@
-from multiply_core.observations.data_validation import AWS_S2_Validator
+from multiply_core.observations.data_validation import AWS_S2_Validator, get_valid_types
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -16,3 +16,9 @@ def test_aws_s2_validator_is_valid():
     validator = AWS_S2_Validator()
 
     assert validator.is_valid(VALID_AWS_S2_DATA)
+
+def test_get_valid_types():
+    valid_types = get_valid_types()
+
+    assert 1 == len(valid_types)
+    assert 'AWS_S2_L1C' == valid_types[0]

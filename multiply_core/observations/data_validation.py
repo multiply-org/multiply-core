@@ -11,6 +11,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 from abc import ABCMeta, abstractmethod
+from typing import List
 import re
 import os
 
@@ -63,3 +64,11 @@ def get_valid_type(path: str) -> str:
         if validator.is_valid(path):
             return validator.name()
     return ''
+
+
+def get_valid_types() -> List[str]:
+    """Returns the names of all data types which can be valid."""
+    valid_types = []
+    for validator in VALIDATORS:
+        valid_types.append(validator.name())
+    return valid_types
