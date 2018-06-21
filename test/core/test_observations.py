@@ -3,7 +3,7 @@ import os
 import re
 import scipy.sparse as sp
 
-from multiply_core.util import FileRef
+from multiply_core.util import FileRef, Reprojection
 from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, ObservationsFactory
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
@@ -50,14 +50,15 @@ def test_create_observations():
                 return cls.DUMMY_PATTERN_MATCHER.search(file.name) is not None
 
         @classmethod
-        def create_observations(cls, file_ref: FileRef) -> ProductObservations:
+        def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
+                ProductObservations:
             if cls.can_read(file_ref):
                 return DummyObservations()
     observations_factory = ObservationsFactory()
     observations_factory.add_observations_creator_to_registry(DummyObservationsCreator())
     file_refs = [FileRef(url=DUMMY_FILE, start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type'),
                  FileRef(url='tzzg', start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type')]
-    observations_wrapper = observations_factory.create_observations(file_refs)
+    observations_wrapper = observations_factory.create_observations(file_refs, None, '')
 
     assert 1, observations_wrapper.get_num_observations()
     assert 15, observations_wrapper.bands_per_observation(0)

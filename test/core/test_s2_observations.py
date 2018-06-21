@@ -35,11 +35,7 @@ def test_bands_per_observation():
                                 bounds_srs=bounds_srs, resampling_mode=None)
     file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    required_band_names = ['B02_sur.tiff', 'B03_sur.tiff', 'B04_sur.tiff', 'B05_sur.tiff', 'B06_sur.tiff',
-                           'B07_sur.tiff',
-                           'B08_sur.tiff', 'B8A_sur.tiff', 'B09_sur.tiff', 'B12_sur.tiff']
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER,
-                                     required_band_names=required_band_names)
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
     assert len(s2_observations.bands_per_observation) == 1
     assert s2_observations.bands_per_observation[0] == 10
@@ -55,10 +51,7 @@ def test_get_band_data():
                                 bounds_srs=bounds_srs, resampling_mode=None)
     file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    required_band_names = ['B02_sur.tiff', 'B03_sur.tiff', 'B04_sur.tiff', 'B05_sur.tiff', 'B06_sur.tiff',
-                           'B07_sur.tiff', 'B08_sur.tiff', 'B8A_sur.tiff', 'B09_sur.tiff', 'B12_sur.tiff']
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER,
-                                     required_band_names=required_band_names)
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
     s2_observation_data = s2_observations.get_band_data(3)
     assert (327, 1328) == s2_observation_data.observations.shape
     assert 4, len(s2_observation_data.metadata.keys())

@@ -2,22 +2,24 @@ from gdal import Open
 import _pickle as cPickle
 import glob
 import os
-import re
 import numpy as np
 import scipy.sparse as sp
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as eT
 
-from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator
+from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, data_validation
 from multiply_core.util import FileRef, Reprojection
-from typing import List, Tuple
+from typing import Tuple
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
+# todo exchange this
 EMULATOR_BAND_MAP = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
+BAND_NAMES = ['B02_sur.tif', 'B03_sur.tif', 'B04_sur.tif', 'B05_sur.tif', 'B06_sur.tif', 'B07_sur.tif',
+              'B08_sur.tif', 'B8A_sur.tif', 'B09_sur.tif', 'B12_sur.tif']
 
 
 def _get_xml_root(xml_file_name: str):
-    tree = ET.parse(xml_file_name)
+    tree = eT.parse(xml_file_name)
     return tree.getroot()
 
 
@@ -91,22 +93,26 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
 
 class S2Observations(ProductObservations):
 
-    def __init__(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str,
-                 required_band_names: List[str]):
+    def __init__(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str):
         self._file_ref = file_ref
         self._reprojection = reprojection
-        self._required_band_names = required_band_names
         self._bands_per_observation = []
         meta_data_file = os.path.join(file_ref.url, "metadata.xml")
         sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
         self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
         self._band_emulator = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
-        self._bands_per_observation.append(len(self._required_band_names))
+        self._bands_per_observation.append(len(BAND_NAMES))
 
-    def get_band_data(self, band_index: int) -> ObservationData:
-        band_name = self._required_band_names[band_index]
+    def _get_data_set_url(self, band_index: int) -> str:
+        band_name = BAND_NAMES[band_index]
         data_set_base_url = self._file_ref.url
         data_set_url = '{}/{}'.format(data_set_base_url, band_name)
+        if not os.path.exists(data_set_url):
+            data_set_url = '{}/{}f'.format(data_set_base_url, band_name)
+        return data_set_url
+
+    def get_band_data(self, band_index: int) -> ObservationData:
+        data_set_url = self._get_data_set_url(band_index)
         data_set = Open(data_set_url)
         reprojected_data_set = self._reprojection.reproject(data_set)
         reprojected_data = reprojected_data_set.ReadAsArray()
@@ -133,24 +139,18 @@ class S2Observations(ProductObservations):
 
 class S2ObservationsCreator(ProductObservationsCreator):
 
-    S2_NAME_PATTERN = 'S2A_.*_MSI_L1C.*'
-    S2_NAME_PATTERN_MATCHER = re.compile(S2_NAME_PATTERN)
-
     @classmethod
     def can_read(cls, file_ref: FileRef) -> bool:
-        meta_data_file = os.path.join(file_ref.url, "metadata.xml")
-        if not os.path.exists(meta_data_file):
-            return False
-        tile_id = extract_tile_id(meta_data_file)
-        if tile_id is None:
-            return False
-        return cls.S2_NAME_PATTERN_MATCHER.match(tile_id) is not None
+        return data_validation.AWSS2L2Validator().is_valid(file_ref.url)
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef) -> ProductObservations:
+    def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
+            ProductObservations:
         """
         Creates an Observations object for the given fileref object.
         :param file_ref: A reference to a file containing data.
+        :param reprojection: A Reprojection object to reproject the data
+        :param emulator_folder: A folder containing the emulators for the observations.
         :return: An Observations object that encapsulates the data.
         """
-        # return S2Observations(file_ref, )
+        return S2Observations(file_ref, reprojection, emulator_folder)

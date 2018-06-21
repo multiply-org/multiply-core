@@ -28,13 +28,14 @@ class DataValidator(metaclass=ABCMeta):
     def is_valid(self, path: str) -> bool:
         """Whether the data at the given path is a valid data product for the type."""
 
-class AWS_S2_Validator(DataValidator):
+
+class AWSS2L1Validator(DataValidator):
 
     def __init__(self):
         self.AWS_S2_PATTERN = '.*/[0-9]{1,2}/[A-Z]/[A-Z]{2}/20[0-9][0-9]/[0-9]{1,2}/[0-9]{1,2}/[0-9]{1,2}'
         self.AWS_S2_MATCHER = re.compile(self.AWS_S2_PATTERN)
         self._expected_files = ['B01.jp2', 'B02.jp2', 'B03.jp2', 'B04.jp2', 'B05.jp2', 'B06.jp2', 'B07.jp2', 'B08.jp2',
-                               'B8A.jp2', 'B09.jp2', 'B10.jp2', 'B11.jp2', 'B12.jp2', 'metadata.xml']
+                                'B8A.jp2', 'B09.jp2', 'B10.jp2', 'B11.jp2', 'B12.jp2', 'metadata.xml']
 
     @classmethod
     def name(cls) -> str:
@@ -51,8 +52,37 @@ class AWS_S2_Validator(DataValidator):
     def matches_pattern(self, path: str) -> bool:
         return self.AWS_S2_MATCHER.match(path) is not None
 
+
+class AWSS2L2Validator(DataValidator):
+
+    def __init__(self):
+        self._expected_files = [['B01_sur.tif', 'B01_sur.tiff'], ['B02_sur.tif', 'B02_sur.tiff'],
+                                ['B03_sur.tif', 'B03_sur.tiff'], ['B04_sur.tif', 'B04_sur.tiff'],
+                                ['B05_sur.tif', 'B05_sur.tiff'], ['B06_sur.tif', 'B06_sur.tiff'],
+                                ['B07_sur.tif', 'B07_sur.tiff'], ['B08_sur.tif', 'B08_sur.tiff'],
+                                ['B8A_sur.tif', 'B8A_sur.tiff'], ['B09_sur.tif', 'B09_sur.tiff'],
+                                ['B10_sur.tif', 'B10_sur.tiff'], ['B11_sur.tif', 'B11_sur.tiff'],
+                                ['B12_sur.tif', 'B12_sur.tiff'], ['metadata.xml']]
+
+    @classmethod
+    def name(cls) -> str:
+        return 'AWS_S2_L2'
+
+    def is_valid(self, path: str) -> bool:
+        for files in self._expected_files:
+            found = False
+            for file in files:
+                if os.path.exists(path + '/' + file):
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+
 # TODO replace this with framework
-VALIDATORS.append(AWS_S2_Validator())
+VALIDATORS.append(AWSS2L1Validator())
+VALIDATORS.append(AWSS2L2Validator())
 
 
 def add_validator(validator: DataValidator):

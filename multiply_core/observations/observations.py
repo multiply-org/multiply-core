@@ -11,7 +11,7 @@ import pkg_resources
 import scipy.sparse as sp
 from typing import List
 
-from multiply_core.util import FileRef
+from multiply_core.util import FileRef, Reprojection
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -55,8 +55,6 @@ class ProductObservations(metaclass=ABCMeta):
     def get_band_data(self, band_index: int) -> ObservationData:
         """
         This method returns
-        :param date_index: The temporal index of the products represented by the Observations class. This index is used
-        to identify the product.
         :param band_index: The index of the band within the product.
         :return: An ObservationData product according to the input.
         """
@@ -80,9 +78,12 @@ class ProductObservationsCreator(metaclass=ABCMeta):
         """
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef) -> ProductObservations:
+    def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
+            ProductObservations:
         """
         Creates an Observations object for the given fileref object.
+        :param reprojection: A Reprojection object to reproject the data
+        :param emulator_folder: A folder containing the emulators for the observations.
         :param file_ref: A reference to a file containing data.
         :return: An Observations object that encapsulates the data.
         """
@@ -127,22 +128,25 @@ class ObservationsFactory(object):
     def add_observations_creator_to_registry(self, observations_creator: ProductObservationsCreator):
         self.OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
 
-    def _create_observations(self, file_ref: FileRef) -> ProductObservations:
+    def _create_observations(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
+            ProductObservations:
         for observations_creator in self.OBSERVATIONS_CREATOR_REGISTRY:
             if observations_creator.can_read(file_ref):
-                observations = observations_creator.create_observations(file_ref)
+                observations = observations_creator.create_observations(file_ref, reprojection, emulator_folder)
                 return observations
 
-    def create_observations(self, file_refs: List[FileRef]) -> ObservationsWrapper:
+    def create_observations(self, file_refs: List[FileRef], reprojection: Reprojection, emulator_folder: str) -> \
+            ObservationsWrapper:
         observations_wrapper = ObservationsWrapper()
         self.sort_file_ref_list(file_refs)
         for file_ref in file_refs:
-            observations = self._create_observations(file_ref)
+            observations = self._create_observations(file_ref, reprojection, emulator_folder)
             if observations is not None:
                 observations_wrapper.add_observations(observations)
         return observations_wrapper
 
-    def _start_time(self, file_ref: FileRef):
+    @staticmethod
+    def _start_time(file_ref: FileRef):
         return file_ref.start_time
 
     def sort_file_ref_list(self, file_refs: List[FileRef]):
