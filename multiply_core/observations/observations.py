@@ -100,7 +100,7 @@ class ObservationsWrapper(object):
     def add_observations(self, product_observations: ProductObservations, date: str):
         bands_per_observation = product_observations.bands_per_observation
         self._observations.append(product_observations)
-        date = get_time_from_string(date)
+        # date = get_time_from_string(date)
         self.dates.append(date)
         self.bands_per_observation.append(bands_per_observation)
 
