@@ -11,7 +11,7 @@ import pkg_resources
 import scipy.sparse as sp
 from typing import List
 
-from multiply_core.util import FileRef, Reprojection
+from multiply_core.util import FileRef, Reprojection, get_time_from_string
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -94,9 +94,11 @@ class ObservationsWrapper(object):
 
     def __init__(self):
         self._observations = []
+        self.dates = [] # datetime objects
 
-    def add_observations(self, observations: ProductObservations):
+    def add_observations(self, observations: ProductObservations, date: str):
         self._observations.append(observations)
+        self.dates.append(get_time_from_string(date))
 
     def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
         """
@@ -142,7 +144,7 @@ class ObservationsFactory(object):
         for file_ref in file_refs:
             observations = self._create_observations(file_ref, reprojection, emulator_folder)
             if observations is not None:
-                observations_wrapper.add_observations(observations)
+                observations_wrapper.add_observations(observations, file_ref.start_time)
         return observations_wrapper
 
     @staticmethod
