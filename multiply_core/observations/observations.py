@@ -97,9 +97,9 @@ class ObservationsWrapper(object):
         self.dates = []  # datetime objects
         self.bands_per_observation = []
 
-    def add_observations(self, observations: ProductObservations, date: str):
-        bands_per_observation = observations.bands_per_observation()
-        self._observations.append(observations)
+    def add_observations(self, product_observations: ProductObservations, date: str):
+        bands_per_observation = product_observations.bands_per_observation
+        self._observations.append(product_observations)
         date = get_time_from_string(date)
         self.dates.append(date)
         self.bands_per_observation.append(bands_per_observation)
@@ -116,7 +116,7 @@ class ObservationsWrapper(object):
 
     def bands_per_observation(self, date_index: int):
         """Returns an array containing the number of bands this observations object provides access to per date."""
-        return self._observations[date_index].bands_per_observation()
+        return self._observations[date_index].bands_per_observation
 
     def get_num_observations(self) -> int:
         """Returns the number of observations wrapped by this class. Also corresponds to the number of date_indexes."""
