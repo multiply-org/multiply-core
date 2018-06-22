@@ -94,14 +94,15 @@ class ObservationsWrapper(object):
 
     def __init__(self):
         self._observations = []
-        self.dates = [] # datetime objects
+        self.dates = []  # datetime objects
+        self.bands_per_observation = []
 
     def add_observations(self, observations: ProductObservations, date: str):
+        bands_per_observation = observations.bands_per_observation()
         self._observations.append(observations)
         date = get_time_from_string(date)
-        print(date)
-        print(type(date))
         self.dates.append(date)
+        self.bands_per_observation.append(bands_per_observation)
 
     def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
         """
