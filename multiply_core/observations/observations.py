@@ -117,7 +117,7 @@ class ObservationsWrapper(object):
         :param band_index: The index of the band within the product.
         :return: An ObservationData product according to the input.
         """
-        return self._observations[datetime].get_band_data(band_index)
+        return self._observations[date].get_band_data(band_index)
 
     def bands_per_observation(self, date: datetime) -> int:
     # def bands_per_observation(self, date_index: int) -> int:
