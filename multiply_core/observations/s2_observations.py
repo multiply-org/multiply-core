@@ -129,7 +129,8 @@ class S2Observations(ProductObservations):
     def _get_band_emulator(self, band_index: int):
         date_band_emulators = self._band_emulator
         if date_band_emulators is not None:
-            return date_band_emulators["S2A_MSI_{:02d}".format(EMULATOR_BAND_MAP[band_index])]
+            s2_band = bytes("S2A_MSI_{:02d}".format(EMULATOR_BAND_MAP[band_index]), 'latin1')
+            return date_band_emulators[s2_band]
         return None
 
     @property
