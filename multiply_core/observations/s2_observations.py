@@ -88,7 +88,6 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
     e3 = raas == raas[np.argmin(np.abs(raas - raa))]
     iloc = np.where(e1 * e2 * e3)[0][0]
     emulator_file = emulator_files[iloc]
-    print(emulator_file)
     return cPickle.load(open(emulator_file, 'rb'), encoding='latin1')
 
 
