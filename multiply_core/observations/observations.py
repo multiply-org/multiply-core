@@ -98,7 +98,9 @@ class ObservationsWrapper(object):
 
     def add_observations(self, observations: ProductObservations, date: str):
         self._observations.append(observations)
-        self.dates.append(get_time_from_string(date))
+        date = get_time_from_string(date)
+        print(date)
+        self.dates.append(date)
 
     def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
         """
