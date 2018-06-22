@@ -100,6 +100,7 @@ class ObservationsWrapper(object):
         self._observations.append(observations)
         date = get_time_from_string(date)
         print(date)
+        print(type(date))
         self.dates.append(date)
 
     def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
