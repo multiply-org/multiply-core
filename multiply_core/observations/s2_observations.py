@@ -96,12 +96,12 @@ class S2Observations(ProductObservations):
     def __init__(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str):
         self._file_ref = file_ref
         self._reprojection = reprojection
-        self._bands_per_observation = []
+        # self._bands_per_observation = []
         meta_data_file = os.path.join(file_ref.url, "metadata.xml")
         sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
         self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
         self._band_emulator = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
-        self._bands_per_observation.append(len(BAND_NAMES))
+        self._bands_per_observation = len(BAND_NAMES)
 
     def _get_data_set_url(self, band_index: int) -> str:
         band_name = BAND_NAMES[band_index]

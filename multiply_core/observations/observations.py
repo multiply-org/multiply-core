@@ -61,8 +61,9 @@ class ProductObservations(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def bands_per_observation(self):
-        """Returns an array containing the number of bands this observations object provides access to per date."""
+    def bands_per_observation(self) -> int:
+        """Returns the number of bands this observations object provides access to."""
+        # """Returns an array containing the number of bands this observations object provides access to per date."""
 
 
 class ProductObservationsCreator(metaclass=ABCMeta):
@@ -114,7 +115,7 @@ class ObservationsWrapper(object):
         """
         return self._observations[date_index].get_band_data(band_index)
 
-    def bands_per_observation(self, date_index: int):
+    def bands_per_observation(self, date_index: int) -> int:
         """Returns an array containing the number of bands this observations object provides access to per date."""
         return self._observations[date_index].bands_per_observation
 
