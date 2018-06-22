@@ -127,7 +127,7 @@ def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: 
 class Reprojection(object):
 
     def __init__(self, bounds: Sequence[float], x_res: int, y_res: int, destination_srs: osr.SpatialReference,
-                 bounds_srs: Optional[osr.SpatialReference], resampling_mode: Optional[str]):
+                 bounds_srs: Optional[osr.SpatialReference]=None, resampling_mode: Optional[str]=None):
         self._bounds = bounds
         self._x_res = x_res
         self._y_res = y_res
