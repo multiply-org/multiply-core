@@ -5,6 +5,7 @@ Description
 This module defines the interface to MULTIPLY observations.
 """
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
 
 import numpy as np
 import pkg_resources
@@ -94,18 +95,21 @@ class ObservationsWrapper(object):
     """An Observations Object. Allows external components to access EO data."""
 
     def __init__(self):
-        self._observations = []
+        # self._observations = []
+        self._observations = {}
         self.dates = []  # datetime objects
         self.bands_per_observation = {}
 
     def add_observations(self, product_observations: ProductObservations, date: str):
         bands_per_observation = product_observations.bands_per_observation
-        self._observations.append(product_observations)
+        # self._observations.append(product_observations)
         date = get_time_from_string(date)
         self.dates.append(date)
+        self._observations[date] = product_observations
         self.bands_per_observation[date] = bands_per_observation
 
-    def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+    # def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+    def get_band_data(self, date: datetime, band_index: int) -> ObservationData:
         """
         This method returns
         :param date_index: The temporal index of the products represented by the Observations class. This index is used
@@ -113,11 +117,12 @@ class ObservationsWrapper(object):
         :param band_index: The index of the band within the product.
         :return: An ObservationData product according to the input.
         """
-        return self._observations[date_index].get_band_data(band_index)
+        return self._observations[datetime].get_band_data(band_index)
 
-    def bands_per_observation(self, date_index: int) -> int:
+    def bands_per_observation(self, date: datetime) -> int:
+    # def bands_per_observation(self, date_index: int) -> int:
         """Returns an array containing the number of bands this observations object provides access to per date."""
-        return self._observations[date_index].bands_per_observation
+        return self._observations[date].bands_per_observation
 
     def get_num_observations(self) -> int:
         """Returns the number of observations wrapped by this class. Also corresponds to the number of date_indexes."""
