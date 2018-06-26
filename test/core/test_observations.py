@@ -4,7 +4,8 @@ import re
 import scipy.sparse as sp
 
 from multiply_core.util import FileRef, Reprojection
-from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, ObservationsFactory
+from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, \
+    ObservationsFactory
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
