@@ -1,9 +1,10 @@
+import datetime
 import numpy as np
 import os
 import re
 import scipy.sparse as sp
 
-from multiply_core.util import FileRef, Reprojection
+from multiply_core.util import FileRef, Reprojection, get_time_from_string
 from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, \
     ObservationsFactory
 
@@ -57,12 +58,15 @@ def test_create_observations():
                 return DummyObservations()
     observations_factory = ObservationsFactory()
     observations_factory.add_observations_creator_to_registry(DummyObservationsCreator())
-    file_refs = [FileRef(url=DUMMY_FILE, start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type'),
-                 FileRef(url='tzzg', start_time='2017-06-04', end_time='2017-06-07', mime_type='unknown mime type')]
+
+    start_time = '2017-06-04'
+    file_refs = [FileRef(url=DUMMY_FILE, start_time=start_time, end_time='2017-06-07', mime_type='unknown mime type'),
+                 FileRef(url='tzzg', start_time='2017-06-07', end_time='2017-06-10', mime_type='unknown mime type')]
     observations_wrapper = observations_factory.create_observations(file_refs, None, '')
 
     assert 1, observations_wrapper.get_num_observations()
     assert 15, observations_wrapper.bands_per_observation(0)
-    data = observations_wrapper.get_band_data(0, 0)
+    start_time = get_time_from_string(start_time)
+    data = observations_wrapper.get_band_data(start_time, 0)
     assert 1, len(data.observations)
     assert 0.5, data.observations[0]

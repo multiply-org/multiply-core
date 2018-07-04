@@ -37,8 +37,7 @@ def test_bands_per_observation():
                        mime_type='unknown mime type')
     s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
-    assert len(s2_observations.bands_per_observation) == 1
-    assert s2_observations.bands_per_observation[0] == 10
+    assert s2_observations.bands_per_observation == 10
 
 
 def test_get_band_data():
