@@ -76,7 +76,7 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
     if len(emulator_files) == 0:
         return None
     emulator_files.sort()
-    raa = vaa - saa
+    raa = np.abs(vaa - saa)
     vzas = np.array([float(s.split("_")[-3])
                      for s in emulator_files])
     szas = np.array([float(s.split("_")[-2])
