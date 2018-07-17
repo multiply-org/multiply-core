@@ -11,11 +11,17 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 from typing import List
 import re
 import os
 
 VALIDATORS = []
+
+
+class DataTypeConstants(object):
+    AWS_S2_L1C = 'AWS_S2_L1C'
+    AWS_S2_L2 = 'AWS_S2_L2'
 
 
 class DataValidator(metaclass=ABCMeta):
@@ -48,7 +54,7 @@ class AWSS2L1Validator(DataValidator):
 
     @classmethod
     def name(cls) -> str:
-        return 'AWS_S2_L1C'
+        return DataTypeConstants.AWS_S2_L1C
 
     def is_valid(self, path: str) -> bool:
         if not self._matches_pattern(path):
@@ -79,7 +85,7 @@ class AWSS2L2Validator(DataValidator):
 
     @classmethod
     def name(cls) -> str:
-        return 'AWS_S2_L2'
+        return DataTypeConstants.AWS_S2_L2
 
     def is_valid(self, path: str) -> bool:
         for files in self._expected_files:
