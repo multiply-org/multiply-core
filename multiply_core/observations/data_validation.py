@@ -27,6 +27,7 @@ class DataTypeConstants(object):
 class DataValidator(metaclass=ABCMeta):
 
     @classmethod
+    @abstractmethod
     def name(cls) -> str:
         """The name of the data type supported by this checker."""
 
