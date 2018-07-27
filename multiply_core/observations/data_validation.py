@@ -118,6 +118,13 @@ def get_valid_type(path: str) -> str:
     return ''
 
 
+def is_valid(path: str, type: str) -> bool:
+    for validator in VALIDATORS:
+        if validator.name() == type:
+            return validator.is_valid(path)
+    return False
+
+
 def get_valid_types() -> List[str]:
     """Returns the names of all data types which can be valid."""
     valid_types = []
