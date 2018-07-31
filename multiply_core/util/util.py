@@ -152,6 +152,8 @@ def get_mime_type(file_name: str):
         return 'application/zip'
     elif file_name.endswith('.json'):
         return 'application/json'
+    elif file_name.endswith('.hdf'):
+        return 'application /x-hdf'
     elif os.path.isdir(file_name):
         return 'application/x-directory'
     return 'unknown mime type'
