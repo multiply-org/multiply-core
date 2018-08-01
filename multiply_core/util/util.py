@@ -153,7 +153,13 @@ def get_mime_type(file_name: str):
     elif file_name.endswith('.json'):
         return 'application/json'
     elif file_name.endswith('.hdf'):
-        return 'application /x-hdf'
+        return 'application/x-hdf'
+    elif file_name.endswith('.pkl'):
+        return 'application/octet-stream'
+    elif file_name.endswith('tiff') or file_name.endswith('tif'):
+        return 'image/tiff'
+    elif file_name.endswith('.vrt'):
+        return 'x-world/x-vrt'
     elif os.path.isdir(file_name):
         return 'application/x-directory'
     return 'unknown mime type'
