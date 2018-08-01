@@ -23,6 +23,7 @@ class DataTypeConstants(object):
     AWS_S2_L1C = 'AWS_S2_L1C'
     AWS_S2_L2 = 'AWS_S2_L2'
     MODIS_MCD_43 = 'MCD43A1.006'
+    CAMS = 'CAMS'
 
 
 class DataValidator(metaclass=ABCMeta):
@@ -121,10 +122,28 @@ class ModisMCD43Validator(DataValidator):
         return ''
 
 
+class CamsValidator(DataValidator):
+
+    def __init__(self):
+        self.CAMS_NAME_PATTERN = '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
+        self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.CAMS
+
+    def is_valid(self, path: str) -> bool:
+        return self.CAMS_NAME_MATCHER.match(path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+
 # TODO replace this with framework
 VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
 VALIDATORS.append(ModisMCD43Validator())
+VALIDATORS.append(CamsValidator())
 
 
 def add_validator(validator: DataValidator):
