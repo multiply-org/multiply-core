@@ -27,6 +27,7 @@ class DataTypeConstants(object):
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     WV_EMULATOR = 'wv_MSI_retrieval_S2A.pkl'
+    ASTER = 'ASTER'
 
 
 class DataValidator(metaclass=ABCMeta):
@@ -189,6 +190,23 @@ class WVEmulatorValidator(DataValidator):
         return ''
 
 
+class AsterValidator(DataValidator):
+
+    def __init__(self):
+        self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
+        self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.ASTER
+
+    def is_valid(self, path: str) -> bool:
+        return self.ASTER_NAME_MATCHER.match(path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+
 # TODO replace this with framework
 VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
@@ -197,6 +215,7 @@ VALIDATORS.append(CamsValidator())
 VALIDATORS.append(S2AEmulatorValidator())
 VALIDATORS.append(S2BEmulatorValidator())
 VALIDATORS.append(WVEmulatorValidator())
+VALIDATORS.append(AsterValidator())
 
 
 def add_validator(validator: DataValidator):
