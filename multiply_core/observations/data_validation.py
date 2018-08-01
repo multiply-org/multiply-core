@@ -24,6 +24,9 @@ class DataTypeConstants(object):
     AWS_S2_L2 = 'AWS_S2_L2'
     MODIS_MCD_43 = 'MCD43A1.006'
     CAMS = 'CAMS'
+    S2A_EMULATOR = 'ISO_MSI_A_EMU'
+    S2B_EMULATOR = 'ISO_MSI_B_EMU'
+    WV_EMULATOR = 'wv_MSI_retrieval_S2A.pkl'
 
 
 class DataValidator(metaclass=ABCMeta):
@@ -139,11 +142,61 @@ class CamsValidator(DataValidator):
         return ''
 
 
+class S2AEmulatorValidator(DataValidator):
+
+    def __init__(self):
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_[correction|optimization]_x[a|b|c]p_S2A.pkl'
+        self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.S2A_EMULATOR
+
+    def is_valid(self, path: str) -> bool:
+        return self.EMULATOR_NAME_MATCHER.match(path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+
+class S2BEmulatorValidator(DataValidator):
+
+    def __init__(self):
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_[correction|optimization]_x[a|b|c]p_S2B.pkl'
+        self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.S2B_EMULATOR
+
+    def is_valid(self, path: str) -> bool:
+        return self.EMULATOR_NAME_MATCHER.match(path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+
+class WVEmulatorValidator(DataValidator):
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.S2B_EMULATOR
+
+    def is_valid(self, path: str) -> bool:
+        return path == 'wv_MSI_retrieval_S2A.pkl'
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+
 # TODO replace this with framework
 VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
 VALIDATORS.append(ModisMCD43Validator())
 VALIDATORS.append(CamsValidator())
+VALIDATORS.append(S2AEmulatorValidator())
+VALIDATORS.append(S2BEmulatorValidator())
+VALIDATORS.append(WVEmulatorValidator())
 
 
 def add_validator(validator: DataValidator):
