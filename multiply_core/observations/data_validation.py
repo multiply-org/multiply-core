@@ -11,8 +11,10 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 from abc import ABCMeta, abstractmethod
-from enum import Enum
+from shapely.geometry import Polygon
 from typing import List
+from datetime import datetime
+import numpy as np
 import re
 import os
 
@@ -26,7 +28,7 @@ class DataTypeConstants(object):
     CAMS = 'CAMS'
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
-    WV_EMULATOR = 'wv_MSI_retrieval_S2A.pkl'
+    WV_EMULATOR = 'WV_EMU'
     ASTER = 'ASTER'
 
 
@@ -46,6 +48,24 @@ class DataValidator(metaclass=ABCMeta):
         """
         :param path: Path to a file.
         :return: The part of the path which is relevant for a product to be identified as product of this type.
+        """
+
+    @abstractmethod
+    def get_file_pattern(self) -> str:
+        """
+        :return: the pattern used by the validator
+        """
+
+    @abstractmethod
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime) -> bool:
+        """
+        Returns true if the path is valid in the sense that the data intersects with the polygon and that it lies
+        between the start time and the end time.
+        :param path:
+        :param roi:
+        :param start_time:
+        :param end_time:
+        :return:
         """
 
 
@@ -78,6 +98,12 @@ class AWSS2L1Validator(DataValidator):
         start_pos, end_pos = self.BASIC_AWS_S2_MATCHER.search(path).regs[0]
         return path[start_pos + 1:end_pos]
 
+    def get_file_pattern(self) -> str:
+        return self.BASIC_AWS_S2_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        raise NotImplementedError()
+
 
 class AWSS2L2Validator(DataValidator):
 
@@ -108,6 +134,12 @@ class AWSS2L2Validator(DataValidator):
     def get_relative_path(self, path:str) -> str:
         return ''
 
+    def get_file_pattern(self) -> str:
+        return ''
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        return True # we are not checking paths here
+
 
 class ModisMCD43Validator(DataValidator):
 
@@ -124,6 +156,13 @@ class ModisMCD43Validator(DataValidator):
 
     def get_relative_path(self, path: str) -> str:
         return ''
+
+    def get_file_pattern(self) -> str:
+        return self.MCD_43_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        # todo implement
+        raise NotImplementedError()
 
 
 class CamsValidator(DataValidator):
@@ -142,11 +181,20 @@ class CamsValidator(DataValidator):
     def get_relative_path(self, path: str) -> str:
         return ''
 
+    def get_file_pattern(self) -> str:
+        return self.CAMS_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        if self.is_valid(path):
+            cams_time = datetime.strptime(path[:-3], '%Y-%m-%d')
+            return start_time <= cams_time <= end_time
+        return False
+
 
 class S2AEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_[correction|optimization]_x[a|b|c]p_S2A.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(correction|optimization)_x(a|b|c)p_S2A.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -159,11 +207,17 @@ class S2AEmulatorValidator(DataValidator):
     def get_relative_path(self, path: str) -> str:
         return ''
 
+    def get_file_pattern(self):
+        return self.EMULATOR_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        return self.is_valid(path)
+
 
 class S2BEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_[correction|optimization]_x[a|b|c]p_S2B.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(correction|optimization)_x(a|b|c)p_S2B.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -176,12 +230,18 @@ class S2BEmulatorValidator(DataValidator):
     def get_relative_path(self, path: str) -> str:
         return ''
 
+    def get_file_pattern(self) -> str:
+        return self.EMULATOR_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        return self.is_valid(path)
+
 
 class WVEmulatorValidator(DataValidator):
 
     @classmethod
     def name(cls) -> str:
-        return DataTypeConstants.S2B_EMULATOR
+        return DataTypeConstants.WV_EMULATOR
 
     def is_valid(self, path: str) -> bool:
         return path == 'wv_MSI_retrieval_S2A.pkl'
@@ -189,11 +249,17 @@ class WVEmulatorValidator(DataValidator):
     def get_relative_path(self, path: str) -> str:
         return ''
 
+    def get_file_pattern(self) -> str:
+        return 'wv_MSI_retrieval_S2A.pkl'
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        return self.is_valid(path)
+
 
 class AsterValidator(DataValidator):
 
     def __init__(self):
-        self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
+        self.ASTER_NAME_PATTERN = 'ASTGTM2_(N|S)[0-8][0-9](E|W)[0|1][0-9][0-9]_dem.tif'
         self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
 
     @classmethod
@@ -205,6 +271,27 @@ class AsterValidator(DataValidator):
 
     def get_relative_path(self, path: str) -> str:
         return ''
+
+    def get_file_pattern(self):
+        return self.ASTER_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+        if self.is_valid(path):
+            min_x, min_y, max_x, max_y  = roi.bounds
+            min_lon = np.floor(min_x)
+            max_lon = np.ceil(max_x)
+            min_lat = np.floor(min_y)
+            max_lat = np.floor(max_y)
+            path_lat_id = path[8:9]
+            path_lat = float(path[9:11])
+            if path_lat_id == 'S':
+                path_lat *= -1
+            path_lon_id = path[11:12]
+            path_lon = float(path[12:15])
+            if path_lon_id == 'W':
+                path_lon *= -1
+            return min_lon <= path_lon <= max_lon and min_lat <= path_lat <= max_lat
+        return False
 
 
 # TODO replace this with framework
@@ -236,12 +323,27 @@ def is_valid(path: str, type: str) -> bool:
     return False
 
 
+def get_file_pattern(type: str) -> str:
+    for validator in VALIDATORS:
+        if validator.name() == type:
+            return validator.get_file_pattern()
+    return ''
+
+
+def is_valid_for(path: str, type: str, roi: Polygon, start_time: datetime, end_time: datetime) -> bool:
+    for validator in VALIDATORS:
+        if validator.name() == type:
+            return validator.is_valid_for(path, roi, start_time, end_time)
+    return False
+
+
 def get_valid_types() -> List[str]:
     """Returns the names of all data types which can be valid."""
     valid_types = []
     for validator in VALIDATORS:
         valid_types.append(validator.name())
     return valid_types
+
 
 def get_data_type_path(data_type: str, path: str) -> str:
     """
