@@ -194,7 +194,7 @@ class CamsValidator(DataValidator):
 class S2AEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(correction|optimization)_x(a|b|c)p_S2A.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -217,7 +217,7 @@ class S2AEmulatorValidator(DataValidator):
 class S2BEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(correction|optimization)_x(a|b|c)p_S2B.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -259,7 +259,7 @@ class WVEmulatorValidator(DataValidator):
 class AsterValidator(DataValidator):
 
     def __init__(self):
-        self.ASTER_NAME_PATTERN = 'ASTGTM2_(N|S)[0-8][0-9](E|W)[0|1][0-9][0-9]_dem.tif'
+        self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
         self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
 
     @classmethod
@@ -276,22 +276,20 @@ class AsterValidator(DataValidator):
         return self.ASTER_NAME_PATTERN
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
-        if self.is_valid(path):
-            min_x, min_y, max_x, max_y  = roi.bounds
-            min_lon = np.floor(min_x)
-            max_lon = np.ceil(max_x)
-            min_lat = np.floor(min_y)
-            max_lat = np.floor(max_y)
-            path_lat_id = path[8:9]
-            path_lat = float(path[9:11])
-            if path_lat_id == 'S':
-                path_lat *= -1
-            path_lon_id = path[11:12]
-            path_lon = float(path[12:15])
-            if path_lon_id == 'W':
-                path_lon *= -1
-            return min_lon <= path_lon <= max_lon and min_lat <= path_lat <= max_lat
-        return False
+        if not self.is_valid(path):
+            return False
+        min_lon, min_lat, max_lon, max_lat = roi.bounds
+        path_lat_id = path[8:9]
+        path_lat = float(path[9:11])
+        if path_lat_id == 'S':
+            path_lat *= -1
+        path_lon_id = path[11:12]
+        path_lon = float(path[12:15])
+        if path_lon_id == 'W':
+            path_lon *= -1
+        if min_lon > path_lon + 1 or max_lon < path_lon or min_lat > path_lat + 1 or max_lat < path_lat:
+            return False
+        return True
 
 
 # TODO replace this with framework
