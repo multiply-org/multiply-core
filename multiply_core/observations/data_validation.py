@@ -144,7 +144,7 @@ class AWSS2L2Validator(DataValidator):
 class ModisMCD43Validator(DataValidator):
 
     def __init__(self):
-        self.MCD_43_PATTERN = 'MCD43A1.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
+        self.MCD_43_PATTERN = '.*MCD43A1.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
         self.MCD_43_MATCHER = re.compile(self.MCD_43_PATTERN)
 
     @classmethod
@@ -168,7 +168,7 @@ class ModisMCD43Validator(DataValidator):
 class CamsValidator(DataValidator):
 
     def __init__(self):
-        self.CAMS_NAME_PATTERN = '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
+        self.CAMS_NAME_PATTERN = '.*20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
         self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
 
     @classmethod
@@ -194,7 +194,7 @@ class CamsValidator(DataValidator):
 class S2AEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
+        self.EMULATOR_NAME_PATTERN = '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -217,7 +217,7 @@ class S2AEmulatorValidator(DataValidator):
 class S2BEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
+        self.EMULATOR_NAME_PATTERN = '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -239,18 +239,22 @@ class S2BEmulatorValidator(DataValidator):
 
 class WVEmulatorValidator(DataValidator):
 
+    def __init__(self):
+        self.WV_NAME_PATTERN = '.*wv_MSI_retrieval_S2A.pkl'
+        self.WV_NAME_MATCHER = re.compile(self.WV_NAME_PATTERN)
+
     @classmethod
     def name(cls) -> str:
         return DataTypeConstants.WV_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        return path == 'wv_MSI_retrieval_S2A.pkl'
+        return self.WV_NAME_MATCHER.match(path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
 
     def get_file_pattern(self) -> str:
-        return 'wv_MSI_retrieval_S2A.pkl'
+        return '.*wv_MSI_retrieval_S2A.pkl'
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
         return self.is_valid(path)
@@ -259,7 +263,7 @@ class WVEmulatorValidator(DataValidator):
 class AsterValidator(DataValidator):
 
     def __init__(self):
-        self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
+        self.ASTER_NAME_PATTERN = '.*ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
         self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
 
     @classmethod

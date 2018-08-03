@@ -59,7 +59,7 @@ def test_cams_is_valid():
 def test_cams_get_file_pattern():
     validator = CamsValidator()
 
-    assert '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc' == validator.get_file_pattern()
+    assert '.*20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc' == validator.get_file_pattern()
 
 
 def test_cams_is_valid_for():
@@ -91,7 +91,7 @@ def test_s2a_is_valid():
 def test_s2a_get_file_pattern():
     validator = S2AEmulatorValidator()
 
-    assert 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl' == validator.get_file_pattern()
+    assert '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl' == validator.get_file_pattern()
 
 
 def test_s2b_emulator_name():
@@ -115,7 +115,7 @@ def test_s2b_is_valid():
 def test_s2b_get_file_pattern():
     validator = S2BEmulatorValidator()
 
-    assert 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl' == validator.get_file_pattern()
+    assert '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl' == validator.get_file_pattern()
 
 
 def test_wv_emulator_name():
@@ -134,7 +134,7 @@ def test_wv_is_valid():
 def test_wv_get_file_pattern():
     validator = WVEmulatorValidator()
 
-    assert 'wv_MSI_retrieval_S2A.pkl' == validator.get_file_pattern()
+    assert '.*wv_MSI_retrieval_S2A.pkl' == validator.get_file_pattern()
 
 
 def test_aster_name():
@@ -155,7 +155,7 @@ def test_aster_is_valid():
 def test_aster_get_file_pattern():
     validator = AsterValidator()
 
-    assert 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif' == validator.get_file_pattern()
+    assert '.*ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif' == validator.get_file_pattern()
 
 
 def test_aster_is_valid_for():
