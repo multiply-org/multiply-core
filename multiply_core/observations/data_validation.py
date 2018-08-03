@@ -144,7 +144,7 @@ class AWSS2L2Validator(DataValidator):
 class ModisMCD43Validator(DataValidator):
 
     def __init__(self):
-        self.MCD_43_PATTERN = '.*MCD43A1.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
+        self.MCD_43_PATTERN = 'MCD43A1.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
         self.MCD_43_MATCHER = re.compile(self.MCD_43_PATTERN)
 
     @classmethod
@@ -152,7 +152,8 @@ class ModisMCD43Validator(DataValidator):
         return DataTypeConstants.MODIS_MCD_43
 
     def is_valid(self, path: str) -> bool:
-        return self.MCD_43_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.MCD_43_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
@@ -168,7 +169,7 @@ class ModisMCD43Validator(DataValidator):
 class CamsValidator(DataValidator):
 
     def __init__(self):
-        self.CAMS_NAME_PATTERN = '.*20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
+        self.CAMS_NAME_PATTERN = '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
         self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
 
     @classmethod
@@ -176,7 +177,8 @@ class CamsValidator(DataValidator):
         return DataTypeConstants.CAMS
 
     def is_valid(self, path: str) -> bool:
-        return self.CAMS_NAME_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.CAMS_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
@@ -186,7 +188,8 @@ class CamsValidator(DataValidator):
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
         if self.is_valid(path):
-            cams_time = datetime.strptime(path[:-3], '%Y-%m-%d')
+            end_of_path = path.split('/')[-1]
+            cams_time = datetime.strptime(end_of_path[:-3], '%Y-%m-%d')
             return start_time <= cams_time <= end_time
         return False
 
@@ -194,7 +197,7 @@ class CamsValidator(DataValidator):
 class S2AEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -202,7 +205,8 @@ class S2AEmulatorValidator(DataValidator):
         return DataTypeConstants.S2A_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        return self.EMULATOR_NAME_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.EMULATOR_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
@@ -217,7 +221,7 @@ class S2AEmulatorValidator(DataValidator):
 class S2BEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.EMULATOR_NAME_PATTERN = '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
+        self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
     @classmethod
@@ -225,7 +229,8 @@ class S2BEmulatorValidator(DataValidator):
         return DataTypeConstants.S2B_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        return self.EMULATOR_NAME_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.EMULATOR_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
@@ -240,7 +245,7 @@ class S2BEmulatorValidator(DataValidator):
 class WVEmulatorValidator(DataValidator):
 
     def __init__(self):
-        self.WV_NAME_PATTERN = '.*wv_MSI_retrieval_S2A.pkl'
+        self.WV_NAME_PATTERN = 'wv_MSI_retrieval_S2A.pkl'
         self.WV_NAME_MATCHER = re.compile(self.WV_NAME_PATTERN)
 
     @classmethod
@@ -248,13 +253,14 @@ class WVEmulatorValidator(DataValidator):
         return DataTypeConstants.WV_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        return self.WV_NAME_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.WV_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
 
     def get_file_pattern(self) -> str:
-        return '.*wv_MSI_retrieval_S2A.pkl'
+        return self.WV_NAME_PATTERN
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
         return self.is_valid(path)
@@ -263,7 +269,7 @@ class WVEmulatorValidator(DataValidator):
 class AsterValidator(DataValidator):
 
     def __init__(self):
-        self.ASTER_NAME_PATTERN = '.*ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
+        self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
         self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
 
     @classmethod
@@ -271,7 +277,8 @@ class AsterValidator(DataValidator):
         return DataTypeConstants.ASTER
 
     def is_valid(self, path: str) -> bool:
-        return self.ASTER_NAME_MATCHER.match(path) is not None
+        end_of_path = path.split('/')[-1]
+        return self.ASTER_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
         return ''
@@ -283,12 +290,13 @@ class AsterValidator(DataValidator):
         if not self.is_valid(path):
             return False
         min_lon, min_lat, max_lon, max_lat = roi.bounds
-        path_lat_id = path[8:9]
-        path_lat = float(path[9:11])
+        end_of_path = path.split('/')[-1]
+        path_lat_id = end_of_path[8:9]
+        path_lat = float(end_of_path[9:11])
         if path_lat_id == 'S':
             path_lat *= -1
-        path_lon_id = path[11:12]
-        path_lon = float(path[12:15])
+        path_lon_id = end_of_path[11:12]
+        path_lon = float(end_of_path[12:15])
         if path_lon_id == 'W':
             path_lon *= -1
         if min_lon > path_lon + 1 or max_lon < path_lon or min_lat > path_lat + 1 or max_lat < path_lat:

@@ -37,6 +37,7 @@ def test_modis_mcd_43_validator_is_valid():
     assert validator.is_valid('MCD43A1.A2001001.h00v00.006.herebesomething.hdf')
     assert validator.is_valid('MCD43A1.A2017365.h35v17.006.herebesomething.hdf')
     assert validator.is_valid('MCD43A1.A2016366.h35v17.006.herebesomething.hdf')
+    assert validator.is_valid('some/path/MCD43A1.A2016366.h35v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A1999275.h35v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002475.h35v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002275.h40v17.006.herebesomething.hdf')
@@ -52,6 +53,7 @@ def test_cams_is_valid():
     validator = CamsValidator()
 
     assert validator.is_valid('2017-09-14.nc')
+    assert validator.is_valid('/some/path/2017-09-14.nc')
     assert not validator.is_valid('2017-09-14')
     assert not validator.is_valid('1000-29-34.nc')
 
@@ -59,7 +61,7 @@ def test_cams_is_valid():
 def test_cams_get_file_pattern():
     validator = CamsValidator()
 
-    assert '.*20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc' == validator.get_file_pattern()
+    assert '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc' == validator.get_file_pattern()
 
 
 def test_cams_is_valid_for():
@@ -67,6 +69,7 @@ def test_cams_is_valid_for():
 
     assert validator.is_valid_for('2017-09-14.nc', Polygon(), datetime(2017, 9, 14), datetime(2017, 9, 14))
     assert validator.is_valid_for('2017-09-14.nc', Polygon(), datetime(2017, 9, 13), datetime(2017, 9, 15))
+    assert validator.is_valid_for('/some/path/2017-09-14.nc', Polygon(), datetime(2017, 9, 13), datetime(2017, 9, 15))
     assert not validator.is_valid_for('2017-09-14.nc', Polygon(), datetime(2017, 9, 10), datetime(2017, 9, 12))
 
 
@@ -85,13 +88,14 @@ def test_s2a_is_valid():
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xap_S2A.pkl')
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xbp_S2A.pkl')
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xcp_S2A.pkl')
+    assert validator.is_valid('/some/path/isotropic_MSI_emulators_optimization_xcp_S2A.pkl')
     assert not validator.is_valid('isotropic_MSI_emulators_optimization_xdp_S2A.pkl')
 
 
 def test_s2a_get_file_pattern():
     validator = S2AEmulatorValidator()
 
-    assert '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl' == validator.get_file_pattern()
+    assert 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl' == validator.get_file_pattern()
 
 
 def test_s2b_emulator_name():
@@ -109,13 +113,14 @@ def test_s2b_is_valid():
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xap_S2B.pkl')
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xbp_S2B.pkl')
     assert validator.is_valid('isotropic_MSI_emulators_optimization_xcp_S2B.pkl')
+    assert validator.is_valid('/some/path/isotropic_MSI_emulators_optimization_xcp_S2B.pkl')
     assert not validator.is_valid('isotropic_MSI_emulators_optimization_xdp_S2B.pkl')
 
 
 def test_s2b_get_file_pattern():
     validator = S2BEmulatorValidator()
 
-    assert '.*isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl' == validator.get_file_pattern()
+    assert 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl' == validator.get_file_pattern()
 
 
 def test_wv_emulator_name():
@@ -128,13 +133,15 @@ def test_wv_is_valid():
     validator = WVEmulatorValidator()
 
     assert validator.is_valid('wv_MSI_retrieval_S2A.pkl')
+    assert validator.is_valid('wv_MSI_retrieval_S2A.pkl')
+    assert validator.is_valid('/some/path/wv_MSI_retrieval_S2A.pkl')
     assert not validator.is_valid('wv_MSI_ratrieval_S2A.pkl')
 
 
 def test_wv_get_file_pattern():
     validator = WVEmulatorValidator()
 
-    assert '.*wv_MSI_retrieval_S2A.pkl' == validator.get_file_pattern()
+    assert 'wv_MSI_retrieval_S2A.pkl' == validator.get_file_pattern()
 
 
 def test_aster_name():
@@ -148,6 +155,7 @@ def test_aster_is_valid():
 
     assert validator.is_valid('ASTGTM2_N00E000_dem.tif')
     assert validator.is_valid('ASTGTM2_S11W111_dem.tif')
+    assert validator.is_valid('/some/path/ASTGTM2_S11W111_dem.tif')
     assert not validator.is_valid('ASTGTM2_W11S111_dem.tif')
     assert not validator.is_valid('ASTGTM2_N90E200_dem.tif')
 
@@ -155,7 +163,7 @@ def test_aster_is_valid():
 def test_aster_get_file_pattern():
     validator = AsterValidator()
 
-    assert '.*ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif' == validator.get_file_pattern()
+    assert 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif' == validator.get_file_pattern()
 
 
 def test_aster_is_valid_for():
@@ -166,6 +174,7 @@ def test_aster_is_valid_for():
     assert validator.is_valid_for('ASTGTM2_N11E134_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N11E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
+    assert validator.is_valid_for('/some/path/ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert not validator.is_valid_for('ASTGTM2_N13E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
 
 
