@@ -7,6 +7,7 @@ requirements = [
     'numpy',
     'osr',
     'pytest',
+    'shapely',
     'scipy'
 ]
 
