@@ -79,3 +79,13 @@ def test_block_as_numpy_matrix():
         for i in range(value_length):
             for j in range(value_length):
                 assert matrices[k][i][j] == coo_matrix_array[k * value_length + i][k * value_length + j]
+
+def test_are_polygons_almost_equal():
+    polygon_1 = "POLYGON((5 5, 20 5, 20 20, 5 20, 5 5))"
+    polygon_2 = "POLYGON((5 5, 5 20, 20 20, 20 5, 5 5))"
+    polygon_3 = "POLYGON((5 5, 5 20, 19 19, 20 5, 5 5))"
+
+    assert util.are_polygons_almost_equal(polygon_1, polygon_1)
+    assert util.are_polygons_almost_equal(polygon_1, polygon_2)
+    assert not util.are_polygons_almost_equal(polygon_1, polygon_3)
+    assert not util.are_polygons_almost_equal(polygon_2, polygon_3)

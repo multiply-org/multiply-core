@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 import scipy.sparse
 import numpy as np
 import os
+from shapely.geometry import Point, Polygon
+from shapely.wkt import loads
+from typing import Union
 
 __author__ = "MULTIPLY Team"
 
@@ -165,6 +168,14 @@ def is_leap_year(year: int) -> bool:
     return True
 
 
+def are_times_equal(time_1: Union[str, datetime], time_2: Union[str, datetime]):
+    if type(time_1) == str:
+        time_1 = get_time_from_string(time_1)
+    if type(time_2) == str:
+        time_2 = get_time_from_string(time_2)
+    return time_1 == time_2
+
+
 def get_mime_type(file_name: str):
     if file_name.endswith('.nc'):
         return 'application/x-netcdf'
@@ -183,6 +194,21 @@ def get_mime_type(file_name: str):
     elif os.path.isdir(file_name):
         return 'application/x-directory'
     return 'unknown mime type'
+
+
+def are_polygons_almost_equal(polygon_1: Union[str, Polygon], polygon_2: Union[str, Polygon]):
+    if type(polygon_2) == str:
+        polygon_2 = loads(polygon_2)
+    if type(polygon_1 == str):
+        polygon_1 = loads(polygon_1)
+    if polygon_1.almost_equals(polygon_2):
+        return True
+    x_list, y_list = polygon_1.exterior.coords.xy
+    reversed_points = []
+    for i in range(len(x_list) - 1, -1, -1):
+        reversed_points.append(Point(x_list[i], y_list[i]))
+    reversed_polygon = Polygon([[p.x, p.y] for p in reversed_points])
+    return reversed_polygon.almost_equals(polygon_2)
 
 
 def block_diag(matrices, format: str=None, dtype: type=None) -> scipy.sparse.coo.coo_matrix:
