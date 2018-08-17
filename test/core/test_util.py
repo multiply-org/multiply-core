@@ -89,3 +89,12 @@ def test_are_polygons_almost_equal():
     assert util.are_polygons_almost_equal(polygon_1, polygon_2)
     assert not util.are_polygons_almost_equal(polygon_1, polygon_3)
     assert not util.are_polygons_almost_equal(polygon_2, polygon_3)
+
+
+def test_get_time_from_year_and_day_of_year():
+    year = 2017
+    doy = 238
+
+    datetime = util.get_time_from_year_and_day_of_year(year, doy)
+    assert 8 == datetime.month
+    assert 26 == datetime.day
