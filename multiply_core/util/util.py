@@ -121,7 +121,6 @@ def get_time_from_year_and_day_of_year(year: int, day_of_year: int):
     :param day_of_year: The day of year. Supposed to start with 1 for January 1st.
     :return: A datetime object reperesenting the year and the day of year
     """
-    print('year:{}, doy:{}'.format(year, day_of_year))
     days_per_months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     if is_leap_year(year):
         days_per_months[1] = 29
@@ -129,11 +128,10 @@ def get_time_from_year_and_day_of_year(year: int, day_of_year: int):
     month = 0
     for i, days_per_month in enumerate(days_per_months):
         month += 1
-        if accumulated_days + days_per_month > day_of_year:
+        if accumulated_days + days_per_month >= day_of_year:
             break
         accumulated_days += days_per_month
     day_of_month = day_of_year - accumulated_days
-    print('year:{}, month:{}, day_of_month:{}'.format(year, month, day_of_month))
     return datetime(year, month, day_of_month)
 
 
