@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import scipy.sparse
+import logging
 import numpy as np
 import os
 from shapely.geometry import Point, Polygon
@@ -77,6 +78,24 @@ class FileRef:
     def mime_type(self):
         """The mime type of the file in question."""
         return self._mime_type
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    A convenience method to get a well-formatted logger
+    :param name: The name
+    :return: The logger
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - MULTIPLY - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    logger.propagate = False
+    return logger
 
 
 def compute_distance(lon_0: float, lat_0: float, lon_1: float, lat_1: float, sphere_radius: float) -> float:
