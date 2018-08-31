@@ -119,6 +119,8 @@ def _need_to_sample_up(dataset: gdal.Dataset, bounds: Sequence[float], x_res: fl
 
 
 def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: float):
+    # this method is not suited for computing actual geographic distances! It only serves to determine the coarse
+    # distance between points
     x_dist = np.sqrt(np.square(source_coordinates[0] - source_coordinates[2]))
     y_dist = np.sqrt(np.square(source_coordinates[1] - source_coordinates[3]))
     return (x_dist / x_res) * (y_dist / y_res)
