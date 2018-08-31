@@ -95,7 +95,7 @@ def test_need_to_sample_up():
 
 
 def test_get_dist_measure():
-    assert 8.0 == reproject._get_dist_measure([50.0, 10.0, 100.0, 50.0], 25.0, 10.0)
+    assert 8.0 == pytest.approx(reproject._get_dist_measure([50.0, 10.0, 100.0, 50.0], 25.0, 10.0))
 
 
 def test_reproject_image():
