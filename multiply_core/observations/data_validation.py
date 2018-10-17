@@ -12,9 +12,8 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from shapely.geometry import Polygon
-from typing import List
+from typing import List, Optional
 from datetime import datetime
-import numpy as np
 import re
 import os
 
@@ -57,7 +56,8 @@ class DataValidator(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime) -> bool:
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]) \
+            -> bool:
         """
         Returns true if the path is valid in the sense that the data intersects with the polygon and that it lies
         between the start time and the end time.
@@ -101,7 +101,7 @@ class AWSS2L1Validator(DataValidator):
     def get_file_pattern(self) -> str:
         return self.BASIC_AWS_S2_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         raise NotImplementedError()
 
 
@@ -137,7 +137,7 @@ class AWSS2L2Validator(DataValidator):
     def get_file_pattern(self) -> str:
         return ''
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return True # we are not checking paths here
 
 
@@ -161,7 +161,7 @@ class ModisMCD43Validator(DataValidator):
     def get_file_pattern(self) -> str:
         return self.MCD_43_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         # todo implement
         raise NotImplementedError()
 
@@ -186,7 +186,7 @@ class CamsValidator(DataValidator):
     def get_file_pattern(self) -> str:
         return self.CAMS_NAME_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if self.is_valid(path):
             end_of_path = path.split('/')[-1]
             cams_time = datetime.strptime(end_of_path[:-3], '%Y-%m-%d')
@@ -214,7 +214,7 @@ class S2AEmulatorValidator(DataValidator):
     def get_file_pattern(self):
         return self.EMULATOR_NAME_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
 
@@ -238,7 +238,7 @@ class S2BEmulatorValidator(DataValidator):
     def get_file_pattern(self) -> str:
         return self.EMULATOR_NAME_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
 
@@ -262,7 +262,7 @@ class WVEmulatorValidator(DataValidator):
     def get_file_pattern(self) -> str:
         return self.WV_NAME_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
 
@@ -286,7 +286,7 @@ class AsterValidator(DataValidator):
     def get_file_pattern(self):
         return self.ASTER_NAME_PATTERN
 
-    def is_valid_for(self, path: str, roi: Polygon, start_time: datetime, end_time: datetime):
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if not self.is_valid(path):
             return False
         min_lon, min_lat, max_lon, max_lat = roi.bounds
@@ -340,7 +340,8 @@ def get_file_pattern(type: str) -> str:
     return ''
 
 
-def is_valid_for(path: str, type: str, roi: Polygon, start_time: datetime, end_time: datetime) -> bool:
+def is_valid_for(path: str, type: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]) \
+        -> bool:
     for validator in VALIDATORS:
         if validator.name() == type:
             return validator.is_valid_for(path, roi, start_time, end_time)
