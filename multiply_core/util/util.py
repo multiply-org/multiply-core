@@ -5,7 +5,7 @@ import numpy as np
 import os
 from shapely.geometry import Point, Polygon
 from shapely.wkt import loads
-from typing import Union
+from typing import Optional, Union
 
 __author__ = "MULTIPLY Team"
 
@@ -109,15 +109,19 @@ def compute_distance(lon_0: float, lat_0: float, lon_1: float, lat_1: float, sph
     return distance
 
 
-def get_time_from_string(time_string: str, adjust_to_last_day: bool = False) -> datetime:
+def get_time_from_string(time_string: str, adjust_to_last_day: bool = False) -> Optional[datetime]:
     # note: This an excerpt of a method in cate_core
     """
-    Retrieves a datetime object from a string. If this is not possible, a ValueError is thrown.
+    Retrieves a datetime object from a string. If the string is empty, None is returned.
+    If the extraction failed, a ValueError is thrown.
     :param time_string: A string in UTC time format
     :param adjust_to_last_day: If true (and if the time string has no information about the number of days of
     the month), the returned datetime will be set to the last day of the month; otherwise to the first.
-    :return: A datetime object corresponding to the UTC string that ahs been passed in.
+    :return: A datetime object corresponding to the UTC string that has been passed in or None if the string is
+    empty.
     """
+    if time_string == '':
+        return None
     format_to_timedelta = [("%Y-%m-%dT%H:%M:%S", timedelta(), False),
                            ("%Y-%m-%d %H:%M:%S", timedelta(), False),
                            ("%Y-%m-%d", timedelta(hours=24, seconds=-1), False),

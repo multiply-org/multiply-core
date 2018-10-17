@@ -62,6 +62,7 @@ def test_block_diag():
             for j in range(value_length):
                 assert matrices[k][i][j] == coo_matrix_array[k * value_length + i][k * value_length + j]
 
+
 def test_block_as_numpy_matrix():
     matrices = np.empty((3, 10, 10), dtype=np.float32)
     values_1 = np.array([0.01, 0.2, 0.01, 0.05, 0.01, 0.01, 0.50, 0.1, 0.1, 0.1])
@@ -80,6 +81,7 @@ def test_block_as_numpy_matrix():
             for j in range(value_length):
                 assert matrices[k][i][j] == coo_matrix_array[k * value_length + i][k * value_length + j]
 
+
 def test_are_polygons_almost_equal():
     polygon_1 = "POLYGON((5 5, 20 5, 20 20, 5 20, 5 5))"
     polygon_2 = "POLYGON((5 5, 5 20, 20 20, 20 5, 5 5))"
@@ -89,6 +91,10 @@ def test_are_polygons_almost_equal():
     assert util.are_polygons_almost_equal(polygon_1, polygon_2)
     assert not util.are_polygons_almost_equal(polygon_1, polygon_3)
     assert not util.are_polygons_almost_equal(polygon_2, polygon_3)
+
+
+def test_get_time_from_string_is_empty():
+    assert util.get_time_from_string('') is None
 
 
 def test_get_time_from_year_and_day_of_year_238():
@@ -107,3 +113,36 @@ def test_get_time_from_year_and_day_of_year_151():
     datetime = util.get_time_from_year_and_day_of_year(year, doy)
     assert 5 == datetime.month
     assert 31 == datetime.day
+
+
+def test_meta_info_provider_get_days_of_month():
+    assert util.get_days_of_month(2017, 1) == 31
+    assert util.get_days_of_month(2017, 2) == 28
+    assert util.get_days_of_month(2017, 3) == 31
+    assert util.get_days_of_month(2017, 4) == 30
+    assert util.get_days_of_month(2017, 5) == 31
+    assert util.get_days_of_month(2017, 6) == 30
+    assert util.get_days_of_month(2017, 7) == 31
+    assert util.get_days_of_month(2017, 8) == 31
+    assert util.get_days_of_month(2017, 9) == 30
+    assert util.get_days_of_month(2017, 10) == 31
+    assert util.get_days_of_month(2017, 11) == 30
+    assert util.get_days_of_month(2017, 12) == 31
+    assert util.get_days_of_month(2016, 2) == 29
+    assert util.get_days_of_month(2000, 2) == 29
+    assert util.get_days_of_month(1900, 2) == 28
+    assert util.get_days_of_month(1600, 2) == 29
+
+
+def test_is_leap_year():
+    assert util.is_leap_year(2004)
+    assert not util.is_leap_year(2003)
+    assert util.is_leap_year(2000)
+    assert not util.is_leap_year(1900)
+
+
+def test_get_mime_type():
+    assert 'application/x-netcdf' == util.get_mime_type('ctfthdbdr.nc')
+    assert 'application/zip' == util.get_mime_type('ctfthdbdr.zip')
+    assert 'application/json' == util.get_mime_type('ctfthdbdr.json')
+    assert 'unknown mime type' == util.get_mime_type('ctfthdbdr')
