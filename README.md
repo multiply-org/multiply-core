@@ -2,7 +2,7 @@
 
 
 [![Build Status](https://travis-ci.org/multiply-org/multiply-core.svg?branch=master)](https://travis-ci.org/multiply-org/multiply-core)
-[![Documentation Status](https://readthedocs.org/projects/multiply/badge/?version=latest)](http://multiply.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/multiply/badge/?version=latest)](https://multiply.readthedocs.io/)
                 
 # MULTIPLY Core
 
@@ -48,7 +48,7 @@ To import it into your python application, use
 ## Generating the Documentation
 
 We use [Sphinx](http://www.sphinx-doc.org/en/stable/rest.html) to generate the documentation of the MULTIPLY platform 
-on [ReadTheDocs](http://multiply.readthedocs.io/en/latest/). 
+on [ReadTheDocs](https://multiply.readthedocs.io/). 
 If there is a need to build the docs locally, these additional software packages are required:
 
     $ conda install sphinx sphinx_rtd_theme mock
