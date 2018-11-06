@@ -47,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Multiply'
-copyright = '2017'
+copyright = '2018'
 author = 'MULTIPLY Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -56,7 +56,7 @@ author = 'MULTIPLY Development Team'
 #
 # The short X.Y version.
 from multiply_core.version import __version__
-version = __version__
+version = ".".join(__version__.split('.')[:3])
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
