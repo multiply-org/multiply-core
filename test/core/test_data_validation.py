@@ -7,7 +7,7 @@ from shapely.wkt import loads
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
-VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23'
+VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
 
 
 def test_aws_s2_validator_matches_pattern():

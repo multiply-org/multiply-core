@@ -170,8 +170,11 @@ class ModisMCD43Validator(DataValidator):
 class CamsTiffValidator(DataValidator):
 
     def __init__(self):
-        self.CAMS_NAME_PATTERN = '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]'
+        self.BASIC_CAMS_NAME_PATTERN = '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]'
+        self.BASIC_CAMS_NAME_MATCHER = re.compile(self.BASIC_CAMS_NAME_PATTERN)
+        self.CAMS_NAME_PATTERN = '.*20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]'
         self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
+
         self._expected_file_patterns = ['20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_aod550.tif',
                                         '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_bcaod550.tif',
                                         '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_duaod550.tif',
@@ -186,8 +189,9 @@ class CamsTiffValidator(DataValidator):
         return DataTypeConstants.CAMS_TIFF
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
-        if self.CAMS_NAME_MATCHER.match(end_of_path) is None:
+        if not os.path.exists(path) or not os.path.isdir(path):
+            return False
+        if self.CAMS_NAME_MATCHER.search(path) is None:
             return False
         files_in_path = os.listdir(path)
         for file in files_in_path:
@@ -201,15 +205,18 @@ class CamsTiffValidator(DataValidator):
         return True
 
     def get_relative_path(self, path: str) -> str:
-        start_pos, end_pos = self.CAMS_NAME_MATCHER.search(path).regs[0]
+        start_pos, end_pos = self.BASIC_CAMS_NAME_MATCHER.search(path).regs[0]
         return path[start_pos:end_pos]
 
     def get_file_pattern(self) -> str:
-        return self.CAMS_NAME_PATTERN
+        return self.BASIC_CAMS_NAME_PATTERN
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
-        if self.is_valid(path):
-            end_of_path = path.split('/')[-1]
+        if self.CAMS_NAME_MATCHER.search(path) is not None:
+            if path.endswith('/'):
+                end_of_path = path.split('/')[-2]
+            else:
+                end_of_path = path.split('/')[-1]
             cams_time = datetime.strptime(end_of_path, '%Y_%m_%d')
             return start_time <= cams_time <= end_time
         return False
@@ -381,6 +388,13 @@ def is_valid(path: str, type: str) -> bool:
         if validator.name() == type:
             return validator.is_valid(path)
     return False
+
+
+def get_relative_path(path: str, type: str):
+    for validator in VALIDATORS:
+        if validator.name() == type:
+            return validator.get_relative_path(path)
+    return ''
 
 
 def get_file_pattern(type: str) -> str:
