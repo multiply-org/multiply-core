@@ -1,12 +1,13 @@
 from datetime import datetime
 from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, CamsValidator, \
-    S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types
+    S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, CamsTiffValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
+VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23'
 
 
 def test_aws_s2_validator_matches_pattern():
@@ -42,6 +43,38 @@ def test_modis_mcd_43_validator_is_valid():
     assert not validator.is_valid('MCD43A1.A2002475.h35v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002275.h40v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002275.h10v20.006.herebesomething.hdf')
+
+
+def test_cams_tiff_name():
+    validator = CamsTiffValidator()
+    assert 'CAMS_TIFF' == validator.name()
+
+
+def test_cams_tiff_is_valid():
+    validator = CamsTiffValidator()
+
+    assert validator.is_valid(VALID_CAMS_TIFF_DATA)
+    assert not validator.is_valid('./test/test_data/2018_10_24/')
+
+
+def test_cams_tiff_validator_get_relative_path():
+    validator = CamsTiffValidator()
+
+    assert '2016_04_21' == validator.get_relative_path('/the/non/relative/part/2016_04_21/')
+
+
+def test_cams_tiff_get_file_pattern():
+    validator = CamsTiffValidator()
+
+    assert '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]' == validator.get_file_pattern()
+
+
+def test_cams_tiff_is_valid_for():
+    validator = CamsTiffValidator()
+
+    assert validator.is_valid_for(VALID_CAMS_TIFF_DATA, Polygon(), datetime(2018, 10, 20), datetime(2018, 10, 25))
+    assert not validator.is_valid_for(VALID_CAMS_TIFF_DATA, Polygon(), datetime(2018, 10, 20), datetime(2018, 10, 22))
+    assert not validator.is_valid_for('/some/path/2016-09-14', Polygon(), datetime(2016, 9, 1), datetime(2016, 9, 10))
 
 
 def test_cams_name():
@@ -181,12 +214,13 @@ def test_aster_is_valid_for():
 def test_get_valid_types():
     valid_types = get_valid_types()
 
-    assert 8 == len(valid_types)
-    assert 'AWS_S2_L1C' == valid_types[0]
-    assert 'AWS_S2_L2' == valid_types[1]
-    assert 'MCD43A1.006' == valid_types[2]
-    assert 'CAMS' == valid_types[3]
-    assert 'ISO_MSI_A_EMU' == valid_types[4]
-    assert 'ISO_MSI_B_EMU' == valid_types[5]
-    assert 'WV_EMU' == valid_types[6]
-    assert 'ASTER' == valid_types[7]
+    assert 9 == len(valid_types)
+    assert 'AWS_S2_L1C' in valid_types
+    assert 'AWS_S2_L2' in valid_types
+    assert 'MCD43A1.006' in valid_types
+    assert 'CAMS' in valid_types
+    assert 'CAMS_TIFF' in valid_types
+    assert 'ISO_MSI_A_EMU' in valid_types
+    assert 'ISO_MSI_B_EMU' in valid_types
+    assert 'WV_EMU' in valid_types
+    assert 'ASTER' in valid_types

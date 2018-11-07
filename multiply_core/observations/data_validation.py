@@ -25,6 +25,7 @@ class DataTypeConstants(object):
     AWS_S2_L2 = 'AWS_S2_L2'
     MODIS_MCD_43 = 'MCD43A1.006'
     CAMS = 'CAMS'
+    CAMS_TIFF = 'CAMS_TIFF'
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     WV_EMULATOR = 'WV_EMU'
@@ -164,6 +165,54 @@ class ModisMCD43Validator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         # todo implement
         raise NotImplementedError()
+
+
+class CamsTiffValidator(DataValidator):
+
+    def __init__(self):
+        self.CAMS_NAME_PATTERN = '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]'
+        self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
+        self._expected_file_patterns = ['20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_aod550.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_bcaod550.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_duaod550.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_gtco3.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_omaod550.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_suaod550.tif',
+                                        '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_tcwv.tif']
+        self._expected_file_matchers = [re.compile(pattern) for pattern in self._expected_file_patterns]
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.CAMS_TIFF
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = path.split('/')[-1]
+        if self.CAMS_NAME_MATCHER.match(end_of_path) is None:
+            return False
+        files_in_path = os.listdir(path)
+        for file in files_in_path:
+            found = False
+            for matcher in self._expected_file_matchers:
+                if matcher.match(file) is not None:
+                    found = True
+                    break
+            if not found:
+                return False
+        return True
+
+    def get_relative_path(self, path: str) -> str:
+        start_pos, end_pos = self.CAMS_NAME_MATCHER.search(path).regs[0]
+        return path[start_pos:end_pos]
+
+    def get_file_pattern(self) -> str:
+        return self.CAMS_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
+        if self.is_valid(path):
+            end_of_path = path.split('/')[-1]
+            cams_time = datetime.strptime(end_of_path, '%Y_%m_%d')
+            return start_time <= cams_time <= end_time
+        return False
 
 
 class CamsValidator(DataValidator):
@@ -309,6 +358,7 @@ VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
 VALIDATORS.append(ModisMCD43Validator())
 VALIDATORS.append(CamsValidator())
+VALIDATORS.append(CamsTiffValidator())
 VALIDATORS.append(S2AEmulatorValidator())
 VALIDATORS.append(S2BEmulatorValidator())
 VALIDATORS.append(WVEmulatorValidator())
