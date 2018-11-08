@@ -90,7 +90,6 @@ class AWSS2L1Validator(DataValidator):
             return False
         for file in self._expected_files:
             if not os.path.exists(path + '/' + file):
-                logging.info('Missing file {}'.format(file))
                 return False
         return True
 
@@ -125,12 +124,14 @@ class AWSS2L2Validator(DataValidator):
 
     def is_valid(self, path: str) -> bool:
         for files in self._expected_files:
-            found = False
+            missing_file = None
             for file in files:
+                missing_file = file
                 if os.path.exists(path + '/' + file):
-                    found = True
+                    missing_file = None
                     break
-            if not found:
+            if missing_file is not None:
+                logging.info('Missing file {}'.format(missing_file))
                 return False
         return True
 
