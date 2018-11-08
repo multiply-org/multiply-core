@@ -131,7 +131,6 @@ class AWSS2L2Validator(DataValidator):
                     missing_file = None
                     break
             if missing_file is not None:
-                logging.info('Missing file {}'.format(missing_file))
                 return False
         return True
 
