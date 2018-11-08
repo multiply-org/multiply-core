@@ -126,7 +126,7 @@ class AWSS2L2Validator(DataValidator):
         for files in self._expected_files:
             missing_file = None
             for file in files:
-                missing_file = file
+                missing_file = path + '/' + file
                 if os.path.exists(path + '/' + file):
                     missing_file = None
                     break
