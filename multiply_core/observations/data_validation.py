@@ -11,6 +11,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 from abc import ABCMeta, abstractmethod
+import logging
 from shapely.geometry import Polygon
 from typing import List, Optional
 from datetime import datetime
@@ -89,6 +90,7 @@ class AWSS2L1Validator(DataValidator):
             return False
         for file in self._expected_files:
             if not os.path.exists(path + '/' + file):
+                logging.info('Missing file {}'.format(file))
                 return False
         return True
 
