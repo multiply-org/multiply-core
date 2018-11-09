@@ -1,4 +1,5 @@
 sphinxcontrib-bibtex
+pip>=18.1
 pyproj
 netCDF4
 shapely
@@ -11,12 +12,6 @@ matplotlib==2.1.2
 pytest==3.2.1
 PyYAML==3.12
 sentinelhub
-alabaster>=0.7.10,<1
-Babel>=2.5.3,<3
-CaseInsensitiveDict>=1.0.0,<2
-certifi>=2018.1.18
-chardet==3.0.4
-docutils==0.14
 GDAL>=2.1.0,<3
 GeoAlchemy2>=0.4.0,<1
 idna==2.6
