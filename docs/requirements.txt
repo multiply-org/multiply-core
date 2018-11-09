@@ -25,7 +25,6 @@ Jinja2>=2.10,<3
 MarkupSafe==1.0
 measurement>=1.8.0,<2
 mock>=2.0.0,<3
-numpy>=1.13.3,<2
 Pygments==2.2.0
 pyparsing>=2.2.0
 pytz>=2018.3
