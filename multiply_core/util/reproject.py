@@ -1,4 +1,5 @@
 import gdal
+import logging
 import numpy as np
 import osr
 from typing import Optional, Sequence, Union
@@ -119,6 +120,8 @@ def _need_to_sample_up(dataset: gdal.Dataset, bounds: Sequence[float], x_res: fl
 
 
 def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: float):
+    # this method is not suited for computing actual geographic distances! It only serves to determine the coarse
+    # distance between points
     x_dist = np.sqrt(np.square(source_coordinates[0] - source_coordinates[2]))
     y_dist = np.sqrt(np.square(source_coordinates[1] - source_coordinates[3]))
     return (x_dist / x_res) * (y_dist / y_res)
@@ -127,7 +130,7 @@ def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: 
 class Reprojection(object):
 
     def __init__(self, bounds: Sequence[float], x_res: int, y_res: int, destination_srs: osr.SpatialReference,
-                 bounds_srs: Optional[osr.SpatialReference], resampling_mode: Optional[str]):
+                 bounds_srs: Optional[osr.SpatialReference]=None, resampling_mode: Optional[str]=None):
         self._bounds = bounds
         self._x_res = x_res
         self._y_res = y_res
