@@ -1,7 +1,7 @@
 .. _authors:
 
-Authors
-========
+Developers
+==========
 
 Data access
 ------------
