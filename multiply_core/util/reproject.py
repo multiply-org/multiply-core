@@ -124,10 +124,6 @@ def _get_dist_measure(source_coordinates: Sequence[float], x_res: float, y_res: 
     # distance between points
     x_dist = np.sqrt(np.square(source_coordinates[0] - source_coordinates[2]))
     y_dist = np.sqrt(np.square(source_coordinates[1] - source_coordinates[3]))
-    logging.info('xdist: {}'.format(type(x_dist)))
-    logging.info('x_res: {}'.format(type(x_res)))
-    logging.info('y_dist: {}'.format(type(y_dist)))
-    logging.info('y_res: {}'.format(type(y_res)))
     return (x_dist / x_res) * (y_dist / y_res)
 
 
