@@ -18,9 +18,14 @@ import os
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__))))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "prior-engine/multiply_prior_engine")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "prior-engine")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "sar-pre-processing/sar_pre_processing")))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "sar-pre-processing")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "data-access/multiply_data_access")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "data-access")))
+sys.path.insert(0, os.path.abspath('multiply_core'))
+sys.path.insert(0, os.path.abspath('multiply_core/util'))
 
 # -- Hack for ReadTheDocs ------------------------------------------------------
 # This hack is necessary since RTD does not issue `sphinx-apidoc` before running

@@ -7,6 +7,7 @@ In this section, the various components that form the MULTIPLY platform are expl
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
-   
+
+   data-access/doc/source/index
    sar-pre-processing/docs/index
    prior-engine/docs/index
