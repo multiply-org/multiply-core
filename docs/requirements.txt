@@ -10,6 +10,5 @@ pandas==0.22.0
 matplotlib==2.1.2
 pytest==3.2.1
 PyYAML==3.12
-osgeo
 lightgdm
 sentinelhub
