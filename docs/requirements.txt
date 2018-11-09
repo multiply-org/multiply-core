@@ -1,5 +1,4 @@
 sphinxcontrib-bibtex
-pip>=18.1
 pyproj
 netCDF4
 shapely
