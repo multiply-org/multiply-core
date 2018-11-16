@@ -21,5 +21,7 @@ dependencies:
   - netCDF4
   - pyproj
   - poppler<0.66
+  - xarray
+  - sentinelhub
 
 
