@@ -1,4 +1,5 @@
 sphinxcontrib-bibtex
+sentinelhub
 pyproj
 netCDF4
 shapely
