@@ -1,13 +1,2 @@
 sphinxcontrib-bibtex
-<!-- pyproj
-netCDF4
-shapely
-scipy
-python-dateutil
-numpy==1.13.1
-h5py==2.7.1
-pandas==0.22.0
-matplotlib==2.1.2
-pytest==3.2.1
-PyYAML==3.12 -->
 sentinelhub
