@@ -1,6 +1,9 @@
 sphinxcontrib-bibtex
 pyproj
+<<<<<<< HEAD
 sentinelhub
+=======
+>>>>>>> parent of c2284fe... debug doc
 netCDF4
 shapely
 scipy
