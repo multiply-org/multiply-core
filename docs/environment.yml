@@ -10,4 +10,4 @@ dependencies:
   - six
   - requests
   - scikit-learn
-- scikit-image
+  - scikit-image
