@@ -21,3 +21,9 @@ dependencies:
   - pytest =3.8.0
   - mock = 2.0.0
   - netCDF4
+  - pyproj
+  - python-dateutil
+  - h5py==2.7.1
+  - pandas==0.22.0
+  - matplotlib==2.1.2
+  - sentinelhub
