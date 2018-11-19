@@ -6,20 +6,22 @@ dependencies:
   - python=3.6*
   - gdal>2.1
   - lightgbm
-  - psutil
-  - six
-  - requests
-  - scikit-learn
-  - scikit-image
-  - beautifulsoup4 = 4.6.0
-  - shapely = 1.6.2
-  - html5lib = 1.0.1
-  - pyyaml = 3.12
-  - requests = 2.18.4
-  - pytest =3.8.0
-  - mock = 2.0.0
-  - netCDF4
-  - pyproj
   - poppler<0.66
-  - xarray
+  - pip
+  - pip:
+    - sphinxcontrib-bibtex
+    - sentinelhub
+    - pyproj
+    - netCDF4
+    - shapely
+    - scipy
+    - python-dateutil
+    - numpy==1.13.1
+    - h5py==2.7.1
+    - pandas==0.22.0
+    - matplotlib==2.1.2
+    - pytest==3.2.1
+    - PyYAML==3.12
+    - xarray
+
 
