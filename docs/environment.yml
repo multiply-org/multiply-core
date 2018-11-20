@@ -15,5 +15,7 @@ dependencies:
     - matplotlib
     - xarray
     - sphinxcontrib-bibtex
+    - very-good-setuptools-git-version
+
 
 
