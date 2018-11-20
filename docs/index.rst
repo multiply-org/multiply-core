@@ -1,5 +1,5 @@
-Welcome to MULTIPLY documentation!
-==================================================
+Welcome to the documentation of the MULTIPLY platform!
+======================================================
 
 .. toctree::
    :maxdepth: 1
@@ -19,3 +19,9 @@ Welcome to MULTIPLY documentation!
     License <license>
     Authors <authors>
 
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

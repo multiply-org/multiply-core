@@ -13,5 +13,7 @@ dependencies:
     - netCDF4
     - pyyaml
     - matplotlib
+    - xarray
+    - sphinxcontrib-bibtex
 
 
