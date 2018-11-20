@@ -16,8 +16,8 @@ Welcome to the documentation of the MULTIPLY platform!
     :maxdepth: 1
     :caption: anything else
 
-    License <license>
     Authors <authors>
+    Change log <changes>
 
 Indices and tables
 ------------------
