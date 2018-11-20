@@ -11,5 +11,7 @@ dependencies:
   - pip:
     - sentinelhub
     - netCDF4
+    - pyyaml
+    - matplotlib
 
 
