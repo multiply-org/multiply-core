@@ -5,6 +5,7 @@ Developers
 
 Data access
 ------------
+.. include:: data_access/AUTHORS.rst
 
 Atmospheric correction
 ----------------------
