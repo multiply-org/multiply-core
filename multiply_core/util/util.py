@@ -138,10 +138,12 @@ def get_time_from_string(time_string: str, adjust_to_last_day: bool = False) -> 
     raise ValueError('Invalid date/time value: "%s"' % time_string)
 
 
-def get_time_from_year_and_day_of_year(year: int, day_of_year: int):
+def get_time_from_year_and_day_of_year(year: int, day_of_year: int, set_to_end: bool=False):
     """
     :param year: The year
     :param day_of_year: The day of year. Supposed to start with 1 for January 1st.
+    :param set_to_end: If true, the datetime object will be set to the last second of the day;
+    if False, to the first second. False is the default.
     :return: A datetime object reperesenting the year and the day of year
     """
     days_per_months = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -155,6 +157,8 @@ def get_time_from_year_and_day_of_year(year: int, day_of_year: int):
             break
         accumulated_days += days_per_month
     day_of_month = day_of_year - accumulated_days
+    if set_to_end:
+        return datetime(year, month, day_of_month, 23, 59, 59)
     return datetime(year, month, day_of_month)
 
 
