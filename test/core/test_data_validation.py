@@ -1,6 +1,7 @@
 from datetime import datetime
-from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, CamsValidator, \
-    S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, CamsTiffValidator
+from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, ModisMCD15A2HValidator,\
+    CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, \
+    CamsTiffValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -43,6 +44,39 @@ def test_modis_mcd_43_validator_is_valid():
     assert not validator.is_valid('MCD43A1.A2002475.h35v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002275.h40v17.006.herebesomething.hdf')
     assert not validator.is_valid('MCD43A1.A2002275.h10v20.006.herebesomething.hdf')
+
+
+def test_modis_mcd_15_validator_name():
+    validator = ModisMCD15A2HValidator()
+
+    assert 'MCD15A2H.006' == validator.name()
+
+
+def test_modis_mcd_15_validator_is_valid():
+    validator = ModisMCD15A2HValidator()
+
+    assert validator.is_valid('MCD15A2H.A2017250.h17v05.006.2017261201257.hdf')
+    assert validator.is_valid('MCD15A2H.A2017250.h17v05.006.herebesomething.hdf')
+    assert validator.is_valid('MCD15A2H.A2001001.h00v00.006.herebesomething.hdf')
+    assert validator.is_valid('MCD15A2H.A2017365.h35v17.006.herebesomething.hdf')
+    assert validator.is_valid('MCD15A2H.A2016366.h35v17.006.herebesomething.hdf')
+    assert validator.is_valid('some/path/MCD15A2H.A2016366.h35v17.006.herebesomething.hdf')
+    assert not validator.is_valid('MCD15A2H.A1999275.h35v17.006.herebesomething.hdf')
+    assert not validator.is_valid('MCD15A2H.A2002475.h35v17.006.herebesomething.hdf')
+    assert not validator.is_valid('MCD15A2H.A2002275.h40v17.006.herebesomething.hdf')
+    assert not validator.is_valid('MCD15A2H.A2002275.h10v20.006.herebesomething.hdf')
+
+
+def test_modis_mcd_15_validator_get_relative_path():
+    validator = ModisMCD15A2HValidator()
+
+    assert '' == validator.get_relative_path('some/path/MCD15A2H.A2016366.h35v17.006.herebesomething.hdf')
+
+
+def test_modis_mcd_15_validator_get_file_pattern():
+    validator = ModisMCD15A2HValidator()
+
+    assert 'MCD15A2H.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf' == validator.get_file_pattern()
 
 
 def test_cams_tiff_name():
@@ -214,10 +248,11 @@ def test_aster_is_valid_for():
 def test_get_valid_types():
     valid_types = get_valid_types()
 
-    assert 9 == len(valid_types)
+    assert 10 == len(valid_types)
     assert 'AWS_S2_L1C' in valid_types
     assert 'AWS_S2_L2' in valid_types
     assert 'MCD43A1.006' in valid_types
+    assert 'MCD15A2H.006' in valid_types
     assert 'CAMS' in valid_types
     assert 'CAMS_TIFF' in valid_types
     assert 'ISO_MSI_A_EMU' in valid_types
