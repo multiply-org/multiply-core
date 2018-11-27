@@ -25,6 +25,7 @@ class DataTypeConstants(object):
     AWS_S2_L1C = 'AWS_S2_L1C'
     AWS_S2_L2 = 'AWS_S2_L2'
     MODIS_MCD_43 = 'MCD43A1.006'
+    MODIS_MCD_15_A2 = 'MCD15A2H.006'
     CAMS = 'CAMS'
     CAMS_TIFF = 'CAMS_TIFF'
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
@@ -163,6 +164,31 @@ class ModisMCD43Validator(DataValidator):
 
     def get_file_pattern(self) -> str:
         return self.MCD_43_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
+        # todo implement
+        raise NotImplementedError()
+
+
+class ModisMCD15A2HValidator(DataValidator):
+
+    def __init__(self):
+        self.MCD_15_PATTERN = 'MCD15A2H.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
+        self.MCD_15_MATCHER = re.compile(self.MCD_15_PATTERN)
+
+    @classmethod
+    def name(cls) -> str:
+        return DataTypeConstants.MODIS_MCD_15_A2
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = path.split('/')[-1]
+        return self.MCD_15_MATCHER.match(end_of_path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+    def get_file_pattern(self) -> str:
+        return self.MCD_15_PATTERN
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         # todo implement
@@ -366,6 +392,7 @@ class AsterValidator(DataValidator):
 VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
 VALIDATORS.append(ModisMCD43Validator())
+VALIDATORS.append(ModisMCD15A2HValidator())
 VALIDATORS.append(CamsValidator())
 VALIDATORS.append(CamsTiffValidator())
 VALIDATORS.append(S2AEmulatorValidator())
