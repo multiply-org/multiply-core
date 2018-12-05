@@ -6,9 +6,10 @@ import numpy as np
 import scipy.sparse as sp
 import xml.etree.ElementTree as eT
 
-from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, data_validation
+from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, \
+    data_validation
 from multiply_core.util import FileRef, Reprojection
-from typing import Tuple
+from typing import Optional, Tuple
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -93,14 +94,15 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
 
 class S2Observations(ProductObservations):
 
-    def __init__(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str):
+    def __init__(self, file_ref: FileRef, reprojection: Optional[Reprojection], emulator_folder: Optional[str]):
         self._file_ref = file_ref
         self._reprojection = reprojection
-        # self._bands_per_observation = []
         meta_data_file = os.path.join(file_ref.url, "metadata.xml")
         sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
         self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
-        self._band_emulator = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
+        self._band_emulators = None
+        if emulator_folder is not None:
+            self._band_emulators = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
         self._bands_per_observation = len(BAND_NAMES)
 
     def _get_data_set_url(self, band_index: int) -> str:
@@ -111,31 +113,39 @@ class S2Observations(ProductObservations):
             data_set_url = '{}/{}f'.format(data_set_base_url, band_name)
         return data_set_url
 
+    def get_band_data_by_name(self, band_name: str) -> ObservationData:
+        if band_name in BAND_NAMES:
+            return self.get_band_data(BAND_NAMES.index(band_name))
+
     def get_band_data(self, band_index: int) -> ObservationData:
         data_set_url = self._get_data_set_url(band_index)
         data_set = Open(data_set_url)
-        reprojected_data_set = self._reprojection.reproject(data_set)
-        reprojected_data = reprojected_data_set.ReadAsArray()
-        mask = reprojected_data > 0
-        reprojected_data = np.where(mask, reprojected_data / 10000., 0)
+        if self._reprojection is not None:
+            data_set = self._reprojection.reproject(data_set)
+        data = data_set.ReadAsArray()
+        mask = data > 0
+        data = np.where(mask, data / 10000., 0)
 
-        uncertainty = _get_uncertainty(reprojected_data, mask)
+        uncertainty = _get_uncertainty(data, mask)
         band_emulator = self._get_band_emulator(band_index)
 
-        observation_data = ObservationData(observations=reprojected_data, uncertainty=uncertainty, mask=mask,
+        observation_data = ObservationData(observations=data, uncertainty=uncertainty, mask=mask,
                                            metadata=self._meta_data_infos, emulator=band_emulator)
         return observation_data
 
     def _get_band_emulator(self, band_index: int):
-        date_band_emulators = self._band_emulator
-        if date_band_emulators is not None:
+        if self._band_emulators is not None:
             s2_band = bytes("S2A_MSI_{:02d}".format(EMULATOR_BAND_MAP[band_index]), 'latin1')
-            return date_band_emulators[s2_band]
+            return self._band_emulators[s2_band]
         return None
 
     @property
-    def bands_per_observation(self):
+    def bands_per_observation(self) -> int:
         return self._bands_per_observation
+
+    @property
+    def data_type(self) -> str:
+        return data_validation.DataTypeConstants.AWS_S2_L2
 
 
 class S2ObservationsCreator(ProductObservationsCreator):
@@ -145,8 +155,8 @@ class S2ObservationsCreator(ProductObservationsCreator):
         return data_validation.AWSS2L2Validator().is_valid(file_ref.url)
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
-            ProductObservations:
+    def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+                            emulator_folder: Optional[str]) -> ProductObservations:
         """
         Creates an Observations object for the given fileref object.
         :param file_ref: A reference to a file containing data.

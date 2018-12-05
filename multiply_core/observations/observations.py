@@ -10,7 +10,7 @@ from datetime import datetime
 import numpy as np
 import pkg_resources
 import scipy.sparse as sp
-from typing import List
+from typing import List, Optional
 
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
 
@@ -53,6 +53,14 @@ class ProductObservations(metaclass=ABCMeta):
     file."""
 
     @abstractmethod
+    def get_band_data_by_name(self, band_name: str) -> ObservationData:
+        """
+        This method returns
+        :param band_name: The name of the band.
+        :return: An ObservationData product according to the input.
+        """
+
+    @abstractmethod
     def get_band_data(self, band_index: int) -> ObservationData:
         """
         This method returns
@@ -64,7 +72,11 @@ class ProductObservations(metaclass=ABCMeta):
     @abstractmethod
     def bands_per_observation(self) -> int:
         """Returns the number of bands this observations object provides access to."""
-        # """Returns an array containing the number of bands this observations object provides access to per date."""
+
+    @property
+    @abstractmethod
+    def data_type(self) -> str:
+        """The type of data accessed by this observations class."""
 
 
 class ProductObservationsCreator(metaclass=ABCMeta):
@@ -80,8 +92,8 @@ class ProductObservationsCreator(metaclass=ABCMeta):
         """
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
-            ProductObservations:
+    def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+                            emulator_folder: Optional[str]) -> ProductObservations:
         """
         Creates an Observations object for the given fileref object.
         :param reprojection: A Reprojection object to reproject the data
@@ -95,38 +107,50 @@ class ObservationsWrapper(object):
     """An Observations Object. Allows external components to access EO data."""
 
     def __init__(self):
-        # self._observations = []
         self._observations = {}
         self.dates = []  # datetime objects
         self.bands_per_observation = {}
 
     def add_observations(self, product_observations: ProductObservations, date: str):
         bands_per_observation = product_observations.bands_per_observation
-        # self._observations.append(product_observations)
         date = get_time_from_string(date)
         self.dates.append(date)
         self._observations[date] = product_observations
         self.bands_per_observation[date] = bands_per_observation
 
-    # def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+    def get_band_data_by_name(self, date: datetime, band_name: str) -> ObservationData:
+        """
+        This method returns
+        :param date: The time of the products represented by the Observations class. It is used to identify the product.
+        :param band_name: The name of the band within the product.
+        :return: An ObservationData product according to the input.
+        """
+        return self._observations[date].get_band_data_by_name(band_name)
+
     def get_band_data(self, date: datetime, band_index: int) -> ObservationData:
         """
         This method returns
-        :param date_index: The temporal index of the products represented by the Observations class. This index is used
-        to identify the product.
+        :param date: The time of the products represented by the Observations class. It is used to identify the product.
         :param band_index: The index of the band within the product.
         :return: An ObservationData product according to the input.
         """
         return self._observations[date].get_band_data(band_index)
 
     def bands_per_observation(self, date: datetime) -> int:
-    # def bands_per_observation(self, date_index: int) -> int:
         """Returns an array containing the number of bands this observations object provides access to per date."""
         return self._observations[date].bands_per_observation
 
     def get_num_observations(self) -> int:
         """Returns the number of observations wrapped by this class. Also corresponds to the number of date_indexes."""
         return len(self._observations)
+
+    def get_data_type(self, date: datetime) -> str:
+        """
+        Returns the data type of the observations from the given date.
+        :param date: The time of the products represented by the Observations class. It is used to identify the product.
+        :return: The data type of the observations on the given date
+        """
+        return self._observations[date].data_type
 
 
 class ObservationsFactory(object):
@@ -140,14 +164,15 @@ class ObservationsFactory(object):
     def add_observations_creator_to_registry(self, observations_creator: ProductObservationsCreator):
         self.OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
 
-    def _create_observations(self, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
-            ProductObservations:
+    def _create_observations(self, file_ref: FileRef, reprojection: Optional[Reprojection],
+                             emulator_folder: Optional[str]) -> ProductObservations:
         for observations_creator in self.OBSERVATIONS_CREATOR_REGISTRY:
             if observations_creator.can_read(file_ref):
                 observations = observations_creator.create_observations(file_ref, reprojection, emulator_folder)
                 return observations
 
-    def create_observations(self, file_refs: List[FileRef], reprojection: Reprojection, emulator_folder: str) -> \
+    def create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection],
+                            emulator_folder: Optional[str]) -> \
             ObservationsWrapper:
         observations_wrapper = ObservationsWrapper()
         self.sort_file_ref_list(file_refs)

@@ -7,6 +7,7 @@ import scipy.sparse as sp
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
 from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, \
     ObservationsFactory
+from typing import Optional
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -33,6 +34,10 @@ def test_create_observations():
 
     class DummyObservations(ProductObservations):
 
+        def get_band_data_by_name(self, band_name: str) -> ObservationData:
+            return ObservationData(observations=np.array([0.5]), uncertainty=sp.lil_matrix((1, 1)), mask=np.array([0]),
+                                   metadata={}, emulator=None)
+
         def get_band_data(self, band_index: int) -> ObservationData:
             return ObservationData(observations=np.array([0.5]), uncertainty=sp.lil_matrix((1, 1)), mask=np.array([0]),
                                    metadata={}, emulator=None)
@@ -40,6 +45,10 @@ def test_create_observations():
         @property
         def bands_per_observation(self):
             return 15
+
+        @property
+        def data_type(self):
+            return 'dummy_type'
 
     class DummyObservationsCreator(ProductObservationsCreator):
         DUMMY_PATTERN = 'dfghztm_[0-9]{4}_dvfgbh'
@@ -52,8 +61,8 @@ def test_create_observations():
                 return cls.DUMMY_PATTERN_MATCHER.search(file.name) is not None
 
         @classmethod
-        def create_observations(cls, file_ref: FileRef, reprojection: Reprojection, emulator_folder: str) -> \
-                ProductObservations:
+        def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+                                emulator_folder: Optional[str]) -> ProductObservations:
             if cls.can_read(file_ref):
                 return DummyObservations()
     observations_factory = ObservationsFactory()
@@ -70,3 +79,7 @@ def test_create_observations():
     data = observations_wrapper.get_band_data(start_time, 0)
     assert 1, len(data.observations)
     assert 0.5, data.observations[0]
+    other_data = observations_wrapper.get_band_data_by_name(start_time, 'name')
+    assert 1, len(other_data.observations)
+    assert 0.5, other_data.observations[0]
+    assert 'dummy_type' == observations_wrapper.get_data_type(start_time)
