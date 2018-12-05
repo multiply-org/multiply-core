@@ -82,6 +82,8 @@ class GeoTiffWriter(Writer):
                 d = d.reshape(width, height)
             elif d.shape == (self.num_bands[i], width * height):
                 d = d.reshape(self.num_bands[i], width, height)
+            if d.shape == (self.num_bands[i], width, height) and self.num_bands[i] == 1:
+                d = d.reshape(width, height)
             assert d.shape == (width, height) or d.shape == (self.num_bands[i], width, height)
             if self.num_bands[i] > 1:
                 for band in range(self.num_bands[i]):
