@@ -155,6 +155,9 @@ class Reprojection(object):
         reprojected_data_set = gdal.Warp('', dataset, options=warp_options)
         return reprojected_data_set
 
+    def get_destination_srs(self) -> osr.SpatialReference:
+        return self._destination_srs
+
 
 def reproject_image(source_img, target_img, dstSRSs=None):
     # TODO: replace this method with the other functionality in this module
