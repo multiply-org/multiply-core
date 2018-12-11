@@ -22,20 +22,24 @@ class S1Observations(Observations):
         self._reprojection = reprojection
         self._emulators = emulators
 
-    def get_band_data(self, date_index: int, band_index: int) -> ObservationData:
+    def get_band_data(self, date_index: int, band_index: int, retrieve_uncertainty:bool = True) -> ObservationData:
         data_set = self._file_refs[date_index]
         polarisation = self._polarisations[band_index]
         sigma_band_name = 'sigma0_{:s}'.format(polarisation)
         sigma_band = data_set.GetRasterBand(sigma_band_name)
         sigma = sigma_band.ReadAsArray()
-        uncertainty = self._calculate_uncertainty(sigma)
         mask = self._get_mask(sigma)
-        R_mat = uncertainty
-        R_mat[np.logical_not(mask)] = 0.
-        N = mask.ravel().shape[0]
-        R_mat_sp = sp.lil_matrix((N, N))
-        R_mat_sp.setdiag(1. / (R_mat.ravel()) ** 2)
-        R_mat_sp = R_mat_sp.tocsr()
+        if retrieve_uncertainty:
+            uncertainty = self._calculate_uncertainty(sigma)
+            R_mat = uncertainty
+            R_mat[np.logical_not(mask)] = 0.
+            N = mask.ravel().shape[0]
+            R_mat_sp = sp.lil_matrix((N, N))
+            R_mat_sp.setdiag(1. / (R_mat.ravel()) ** 2)
+            R_mat_sp = R_mat_sp.tocsr()
+        else:
+            R_mat_sp = None
+
 
         theta_band = data_set.GetRasterBand("theta")
         theta = theta_band.ReadAsArray()

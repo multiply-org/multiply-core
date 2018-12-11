@@ -10,7 +10,7 @@ from datetime import datetime
 import numpy as np
 import pkg_resources
 import scipy.sparse as sp
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
 
@@ -53,7 +53,7 @@ class ProductObservations(metaclass=ABCMeta):
     file."""
 
     @abstractmethod
-    def get_band_data_by_name(self, band_name: str) -> ObservationData:
+    def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         """
         This method returns
         :param band_name: The name of the band.
@@ -61,7 +61,7 @@ class ProductObservations(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def get_band_data(self, band_index: int) -> ObservationData:
+    def get_band_data(self, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
         """
         This method returns
         :param band_index: The index of the band within the product.
@@ -77,6 +77,10 @@ class ProductObservations(metaclass=ABCMeta):
     @abstractmethod
     def data_type(self) -> str:
         """The type of data accessed by this observations class."""
+
+    @abstractmethod
+    def set_no_data_value(self, band: Union[str, int], no_data_value: float):
+        """Sets a new no data value to a band."""
 
 
 class ProductObservationsCreator(metaclass=ABCMeta):
@@ -118,23 +122,26 @@ class ObservationsWrapper(object):
         self._observations[date] = product_observations
         self.bands_per_observation[date] = bands_per_observation
 
-    def get_band_data_by_name(self, date: datetime, band_name: str) -> ObservationData:
+    def get_band_data_by_name(self, date: datetime, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         """
         This method returns
         :param date: The time of the products represented by the Observations class. It is used to identify the product.
         :param band_name: The name of the band within the product.
         :return: An ObservationData product according to the input.
         """
-        return self._observations[date].get_band_data_by_name(band_name)
+        return self._observations[date].get_band_data_by_name(band_name, retrieve_uncertainty)
 
-    def get_band_data(self, date: datetime, band_index: int) -> ObservationData:
+    def get_band_data(self, date: datetime, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
         """
         This method returns
         :param date: The time of the products represented by the Observations class. It is used to identify the product.
         :param band_index: The index of the band within the product.
         :return: An ObservationData product according to the input.
         """
-        return self._observations[date].get_band_data(band_index)
+        return self._observations[date].get_band_data(band_index, retrieve_uncertainty)
+
+    def set_no_data_value(self, date: datetime, band: Union[str, int], no_data_value: float):
+        self._observations[date].set_no_data_value(band, no_data_value)
 
     def bands_per_observation(self, date: datetime) -> int:
         """Returns an array containing the number of bands this observations object provides access to per date."""
@@ -171,8 +178,8 @@ class ObservationsFactory(object):
                 observations = observations_creator.create_observations(file_ref, reprojection, emulator_folder)
                 return observations
 
-    def create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection],
-                            emulator_folder: Optional[str]) -> \
+    def create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection] = None,
+                            emulator_folder: Optional[str] = None) -> \
             ObservationsWrapper:
         observations_wrapper = ObservationsWrapper()
         self.sort_file_ref_list(file_refs)

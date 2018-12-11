@@ -7,7 +7,7 @@ import scipy.sparse as sp
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
 from multiply_core.observations import ObservationData, ProductObservations, ProductObservationsCreator, \
     ObservationsFactory
-from typing import Optional
+from typing import Optional, Union
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -34,11 +34,11 @@ def test_create_observations():
 
     class DummyObservations(ProductObservations):
 
-        def get_band_data_by_name(self, band_name: str) -> ObservationData:
+        def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
             return ObservationData(observations=np.array([0.5]), uncertainty=sp.lil_matrix((1, 1)), mask=np.array([0]),
                                    metadata={}, emulator=None)
 
-        def get_band_data(self, band_index: int) -> ObservationData:
+        def get_band_data(self, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
             return ObservationData(observations=np.array([0.5]), uncertainty=sp.lil_matrix((1, 1)), mask=np.array([0]),
                                    metadata={}, emulator=None)
 
@@ -49,6 +49,10 @@ def test_create_observations():
         @property
         def data_type(self):
             return 'dummy_type'
+
+        def set_no_data_value(self, band: Union[str, int], no_data_value: float):
+            pass
+
 
     class DummyObservationsCreator(ProductObservationsCreator):
         DUMMY_PATTERN = 'dfghztm_[0-9]{4}_dvfgbh'

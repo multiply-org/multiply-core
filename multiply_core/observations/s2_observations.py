@@ -9,14 +9,15 @@ import xml.etree.ElementTree as eT
 from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, \
     data_validation
 from multiply_core.util import FileRef, Reprojection
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 # todo exchange this
 EMULATOR_BAND_MAP = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
 BAND_NAMES = ['B02_sur.tif', 'B03_sur.tif', 'B04_sur.tif', 'B05_sur.tif', 'B06_sur.tif', 'B07_sur.tif',
-              'B08_sur.tif', 'B8A_sur.tif', 'B09_sur.tif', 'B12_sur.tif']
+              'B08_sur.tif', 'B8A_sur.tif', 'B09_sur.tif', 'B12_sur.tif', 'B01_sur.tif', 'B10_sur.tif', 'B11_sur.tif']
+NO_DATA_VALUES = [0.0] * len(BAND_NAMES)
 
 
 def _get_xml_root(xml_file_name: str):
@@ -103,7 +104,10 @@ class S2Observations(ProductObservations):
         self._band_emulators = None
         if emulator_folder is not None:
             self._band_emulators = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
-        self._bands_per_observation = len(BAND_NAMES)
+        # todo this is not correct! This is not the number of observations but the number of observations for which
+        # emulators are available! revise this by setting up an emulator description
+        self._bands_per_observation = len(EMULATOR_BAND_MAP)
+        self._no_data_values = NO_DATA_VALUES
 
     def _get_data_set_url(self, band_index: int) -> str:
         band_name = BAND_NAMES[band_index]
@@ -113,20 +117,23 @@ class S2Observations(ProductObservations):
             data_set_url = '{}/{}f'.format(data_set_base_url, band_name)
         return data_set_url
 
-    def get_band_data_by_name(self, band_name: str) -> ObservationData:
+    def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         if band_name in BAND_NAMES:
-            return self.get_band_data(BAND_NAMES.index(band_name))
+            return self.get_band_data(BAND_NAMES.index(band_name), retrieve_uncertainty)
 
-    def get_band_data(self, band_index: int) -> ObservationData:
+    def get_band_data(self, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
         data_set_url = self._get_data_set_url(band_index)
         data_set = Open(data_set_url)
         if self._reprojection is not None:
             data_set = self._reprojection.reproject(data_set)
         data = data_set.ReadAsArray()
         mask = data > 0
-        data = np.where(mask, data / 10000., 0)
+        data = np.where(mask, data / 10000., self._no_data_values[band_index])
 
-        uncertainty = _get_uncertainty(data, mask)
+        if retrieve_uncertainty:
+            uncertainty = _get_uncertainty(data, mask)
+        else:
+            uncertainty = None
         band_emulator = self._get_band_emulator(band_index)
 
         observation_data = ObservationData(observations=data, uncertainty=uncertainty, mask=mask,
@@ -146,6 +153,11 @@ class S2Observations(ProductObservations):
     @property
     def data_type(self) -> str:
         return data_validation.DataTypeConstants.AWS_S2_L2
+
+    def set_no_data_value(self, band: Union[str, int], no_data_value: float):
+        if type(band) is str:
+            band = BAND_NAMES.index(band)
+        self._no_data_values[band] = no_data_value
 
 
 class S2ObservationsCreator(ProductObservationsCreator):
