@@ -1,3 +1,13 @@
+## Version 0.4.1
+
+### Improvements and new Features
+* Added CAMS TIFF as new data type
+* Added MCD15A2 as new data type
+* Added Writer PlugIn
+* Added GeoTiff Writer
+* Extended Observation Interfaces
+
+
 ## Version 0.4
 
 ### Improvements and new Features
