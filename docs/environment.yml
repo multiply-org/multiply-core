@@ -1,0 +1,21 @@
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.6*
+  - gdal>2.1
+  - poppler<0.66
+  - cftime
+  - pip
+  - pip:
+    - sentinelhub
+    - netCDF4
+    - pyyaml
+    - matplotlib
+    - xarray
+    - sphinxcontrib-bibtex
+    - very-good-setuptools-git-version
+
+
+
