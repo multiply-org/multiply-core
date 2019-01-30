@@ -1,6 +1,6 @@
 channels:
   - conda-forge
-  - defaults
+  # - defaults
 
 dependencies:
   - python=3.6*
@@ -8,15 +8,15 @@ dependencies:
   - poppler<0.66
   - cftime
   - mock = 2.0.0
-  - pip
-  - pip:
-    - sentinelhub
-    - netCDF4
-    - pyyaml
-    - matplotlib
-    - xarray
-    - sphinxcontrib-bibtex
-    - very-good-setuptools-git-version
+  # - pip
+  # - pip:
+  #   - sentinelhub
+  #   - netCDF4
+  #   - pyyaml
+  #   - matplotlib
+  #   - xarray
+  #   - sphinxcontrib-bibtex
+  #   - very-good-setuptools-git-version
 
 
 
