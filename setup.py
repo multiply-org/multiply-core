@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
 from setuptools import setup
+import os
 
-requirements = [
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    requirements = ['mock']
+else:
+    requirements = [
     'gdal',
     'numpy',
     'osr',
     'pytest',
     'shapely',
-    'scipy'
-]
+    'scipy']
 
 __version__ = None
 with open('multiply_core/version.py') as f:

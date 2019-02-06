@@ -1,0 +1,15 @@
+[submodule "docs/sar-pre-processing"]
+	path = docs/sar-pre-processing
+	url = https://github.com/multiply-org/sar-pre-processing.git
+[submodule "docs/prior-engine"]
+	path = docs/prior-engine
+	url = https://github.com/multiply-org/prior-engine.git
+[submodule "docs/data-access"]
+	path = docs/data-access
+	url = https://github.com/multiply-org/data-access.git
+[submodule "docs/atmospheric_correction"]
+	path = docs/atmospheric_correction
+	url = https://github.com/multiply-org/atmospheric_correction.git
+[submodule "docs/gp_emulator"]
+	path = docs/gp_emulator
+	url = https://github.com/jgomezdans/gp_emulator.git

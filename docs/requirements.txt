@@ -1,0 +1,11 @@
+
+
+cftime
+pip
+sentinelhub
+netCDF4
+pyyaml
+matplotlib
+xarray
+sphinxcontrib-bibtex
+very-good-setuptools-git-version
