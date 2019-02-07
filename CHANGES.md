@@ -1,3 +1,9 @@
+## Version 0.4.2
+
+### Improvements
+* Extended documentation
+* Updated dependencies for general multiply environment
+
 ## Version 0.4.1
 
 ### Improvements and new Features
