@@ -8,7 +8,7 @@ if on_rtd:
     requirements = ['mock']
 else:
     requirements = [
-    'gdal==2.3.3',
+    'gdal',
     'numpy',
     'osr',
     'pytest',
