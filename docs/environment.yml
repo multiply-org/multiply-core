@@ -29,6 +29,7 @@ dependencies:
   - setuptools
   - psutil
   - pyproj
+  - xarray
   #- datetime
   #- pickle
   #- xml
