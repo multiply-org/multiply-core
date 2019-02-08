@@ -1,22 +1,39 @@
 channels:
   - conda-forge
-  # - defaults
+  - defaults
 
 dependencies:
-  - python=3.6*
-  - gdal>2.1
-  - poppler<0.66
-  - cftime
+  - python =3.6*
+
+  # - poppler<0.66
+  # - cftime
+  #
+  # runtime dependencies
+  #
+  - beautifulsoup4 = 4.6.0
+  - shapely = 1.6.4
+  - gdal = 2.3.3
+  - numpy = 1.15
+  - h5py = 2.9.0
+  - html5lib = 1.0.1
+  - pyyaml = 3.12
+  - requests = 2.18.4
+  - pytest =3.8.0
+  - matplotlib >= 2.1.2
   - mock = 2.0.0
+  - netcdf4 >= 1.4.0
+  #- osr
+  - pandas >= 0.22.0
+  - scipy=1.0
+  - scikit-learn
+  - setuptools
+  #- datetime
+  #- pickle
+  #- xml
+  # - poppler<0.66
+  # - cftime
   - pip
   - pip:
-  #   - sentinelhub
-  #   - netCDF4
-  #   - pyyaml
-  #   - matplotlib
-  #   - xarray
     - sphinxcontrib-bibtex
-  #   - very-good-setuptools-git-version
-
-
+    - very-good-setuptools-git-version
 
