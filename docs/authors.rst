@@ -13,7 +13,7 @@ Atmospheric correction
 
 GP Emulator
 ------------
-
+.. include:: gp_emulator/AUTHORS.rst
 
 SAR pre processing
 -------------------
