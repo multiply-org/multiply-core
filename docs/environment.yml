@@ -27,6 +27,8 @@ dependencies:
   - scipy=1.0
   - scikit-learn
   - setuptools
+  - psutil
+  - pyproj
   #- datetime
   #- pickle
   #- xml

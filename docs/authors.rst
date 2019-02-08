@@ -9,7 +9,7 @@ Data access
 
 Atmospheric correction
 ----------------------
-
+.. include:: atmospheric_correction/AUTHORS.rst
 
 GP Emulator
 ------------
@@ -21,4 +21,4 @@ SAR pre processing
 
 Prior engine
 -------------
-
+.. include:: prior-engine/AUTHORS.rst
