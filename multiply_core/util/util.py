@@ -296,10 +296,13 @@ def block_diag(matrices, format: str=None, dtype: type=None) -> scipy.sparse.coo
         else:
             mats_[ia] = coo_matrix(a)
 
-    if any(mat.shape != mats_[-1].shape for mat in mats_) or (any(issparse(mat) for mat in mats_)):
-        data = []
-        col = []
-        row = []
+    data = []
+    col = []
+    row = []
+
+    if num_matrices == 0:
+        total_shape = (0, 0)
+    elif any(mat.shape != mats_[-1].shape for mat in mats_) or (any(issparse(mat) for mat in mats_)):
         origin = np.array([0, 0], dtype=np.int)
         for mat in mats_:
             if issparse(mat):
