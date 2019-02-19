@@ -39,4 +39,4 @@ dependencies:
   - pip:
     - sphinxcontrib-bibtex
     - very-good-setuptools-git-version
-
+    - m2r
