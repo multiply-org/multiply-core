@@ -14,7 +14,7 @@ import mock
 
 
 MOCK_MODULES = ['bs4', 'html5lib', 'multiply_core.util', 'multiply_core.observations', 'multiply_core',
-                'shapely.geometry', 'shapely.geometry.base', 'shapely.ops', 'shapely.wkt', 'yaml', 'request', 'gdal',
+                'shapely.geometry', 'shapely.geometry.base', 'shapely.ops', 'shapely.wkt', 'yaml', 'yaml.load', 'request', 'gdal',
                 'osr', 'sentinelhub']
 
 for mod_name in MOCK_MODULES:
@@ -284,4 +284,3 @@ intersphinx_mapping = {
 
 # add numbered figures
 numfig = True
-
