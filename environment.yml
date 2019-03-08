@@ -26,6 +26,7 @@ dependencies:
   - scipy=1.0
   - scikit-learn
   - setuptools
+  - sphinx=1.8.4
   #- datetime
   #- pickle
   #- xml
