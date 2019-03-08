@@ -11,10 +11,10 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 from abc import ABCMeta, abstractmethod
-import logging
+from datetime import datetime
+from multiply_core.variables import get_variables
 from shapely.geometry import Polygon
 from typing import List, Optional
-from datetime import datetime
 import re
 import os
 
@@ -32,13 +32,13 @@ class DataTypeConstants(object):
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     WV_EMULATOR = 'WV_EMU'
     ASTER = 'ASTER'
+    VARIABLE = 'VARIABLE'
 
 
 class DataValidator(metaclass=ABCMeta):
 
-    @classmethod
     @abstractmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         """The name of the data type supported by this checker."""
 
     @abstractmethod
@@ -82,8 +82,7 @@ class AWSS2L1Validator(DataValidator):
         self._expected_files = ['B01.jp2', 'B02.jp2', 'B03.jp2', 'B04.jp2', 'B05.jp2', 'B06.jp2', 'B07.jp2', 'B08.jp2',
                                 'B8A.jp2', 'B09.jp2', 'B10.jp2', 'B11.jp2', 'B12.jp2', 'metadata.xml']
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.AWS_S2_L1C
 
     def is_valid(self, path: str) -> bool:
@@ -119,8 +118,7 @@ class AWSS2L2Validator(DataValidator):
                                 ['B10_sur.tif', 'B10_sur.tiff'], ['B11_sur.tif', 'B11_sur.tiff'],
                                 ['B12_sur.tif', 'B12_sur.tiff'], ['metadata.xml']]
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.AWS_S2_L2
 
     def is_valid(self, path: str) -> bool:
@@ -151,8 +149,7 @@ class ModisMCD43Validator(DataValidator):
         self.MCD_43_PATTERN = 'MCD43A1.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
         self.MCD_43_MATCHER = re.compile(self.MCD_43_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.MODIS_MCD_43
 
     def is_valid(self, path: str) -> bool:
@@ -176,8 +173,7 @@ class ModisMCD15A2HValidator(DataValidator):
         self.MCD_15_PATTERN = 'MCD15A2H.A20[0-9][0-9][0-3][0-9][0-9].h[0-3][0-9]v[0-1][0-9].006.*.hdf'
         self.MCD_15_MATCHER = re.compile(self.MCD_15_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.MODIS_MCD_15_A2
 
     def is_valid(self, path: str) -> bool:
@@ -212,8 +208,7 @@ class CamsTiffValidator(DataValidator):
                                         '20[0-9][0-9]_[0-1][0-9]_[0-3][0-9]_tcwv.tif']
         self._expected_file_matchers = [re.compile(pattern) for pattern in self._expected_file_patterns]
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.CAMS_TIFF
 
     def is_valid(self, path: str) -> bool:
@@ -256,8 +251,7 @@ class CamsValidator(DataValidator):
         self.CAMS_NAME_PATTERN = '20[0-9][0-9]-[0-1][0-9]-[0-3][0-9].nc'
         self.CAMS_NAME_MATCHER = re.compile(self.CAMS_NAME_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.CAMS
 
     def is_valid(self, path: str) -> bool:
@@ -284,8 +278,7 @@ class S2AEmulatorValidator(DataValidator):
         self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2A.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.S2A_EMULATOR
 
     def is_valid(self, path: str) -> bool:
@@ -308,8 +301,7 @@ class S2BEmulatorValidator(DataValidator):
         self.EMULATOR_NAME_PATTERN = 'isotropic_MSI_emulators_(?:correction|optimization)_x[a|b|c]p_S2B.pkl'
         self.EMULATOR_NAME_MATCHER = re.compile(self.EMULATOR_NAME_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.S2B_EMULATOR
 
     def is_valid(self, path: str) -> bool:
@@ -332,8 +324,7 @@ class WVEmulatorValidator(DataValidator):
         self.WV_NAME_PATTERN = 'wv_MSI_retrieval_S2A.pkl'
         self.WV_NAME_MATCHER = re.compile(self.WV_NAME_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.WV_EMULATOR
 
     def is_valid(self, path: str) -> bool:
@@ -356,8 +347,7 @@ class AsterValidator(DataValidator):
         self.ASTER_NAME_PATTERN = 'ASTGTM2_[N|S][0-8][0-9][E|W][0|1][0-9][0-9]_dem.tif'
         self.ASTER_NAME_MATCHER = re.compile(self.ASTER_NAME_PATTERN)
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return DataTypeConstants.ASTER
 
     def is_valid(self, path: str) -> bool:
@@ -388,6 +378,35 @@ class AsterValidator(DataValidator):
         return True
 
 
+class VariableValidator(DataValidator):
+
+    def __init__(self, variable_name: str):
+        self.variable_name = variable_name
+        self.VARIABLE_NAME_PATTERN = '{}_A20[0-9][0-9][0-3][0-9][0-9].tif'.format(variable_name)
+        self.VARIABLE_NAME_MATCHER = re.compile(self.VARIABLE_NAME_PATTERN)
+
+    def name(self) -> str:
+        return self.variable_name
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = path.split('/')[-1]
+        return self.VARIABLE_NAME_MATCHER.match(end_of_path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+    def get_file_pattern(self):
+        return self.VARIABLE_NAME_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
+        if not self.is_valid(path):
+            return False
+        end_of_path = path.split('/')[-1]
+        date_part = end_of_path.split('_')[-1].split('.tif')[0]
+        time = datetime.strptime(date_part, "A%Y%j")
+        return start_time <= time <= end_time
+
+
 # TODO replace this with framework
 VALIDATORS.append(AWSS2L1Validator())
 VALIDATORS.append(AWSS2L2Validator())
@@ -399,6 +418,10 @@ VALIDATORS.append(S2AEmulatorValidator())
 VALIDATORS.append(S2BEmulatorValidator())
 VALIDATORS.append(WVEmulatorValidator())
 VALIDATORS.append(AsterValidator())
+
+variables = get_variables()
+for variable in variables:
+    VALIDATORS.append(VariableValidator(variable.short_name))
 
 
 def add_validator(validator: DataValidator):
