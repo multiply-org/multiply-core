@@ -47,6 +47,8 @@ def get_default_variables():
 
 
 def _set_up_variable_registry():
+    if len(ALL_VARIABLES) > 0:
+        return
     variable_entry_points = pkg_resources.iter_entry_points('variables')
     for variable_entry in variable_entry_points:
         variable_dict_list_function = variable_entry.load()
