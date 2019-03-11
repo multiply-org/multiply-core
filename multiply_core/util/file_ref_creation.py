@@ -9,7 +9,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from multiply_core.util import FileRef
-from multiply_core.variables import get_variables
+from multiply_core.variables import get_registered_variables
 from typing import Optional
 from datetime import datetime
 import xml.etree.ElementTree as eT
@@ -71,7 +71,7 @@ class FileRefCreation(object):
     def __init__(self):
         self.FILE_REF_CREATORS = []
         self.add_file_ref_creator(AWSS2L2FileRefCreator())
-        variables = get_variables()
+        variables = get_registered_variables()
         for variable in variables:
             self.add_file_ref_creator(VariableFileRefCreator(variable.short_name))
 

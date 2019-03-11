@@ -1,4 +1,4 @@
-from typing import List, Tuple, Union
+from typing import List, Optional
 import pkg_resources
 import yaml
 
@@ -55,6 +55,18 @@ def _set_up_variable_registry():
             ALL_VARIABLES.append(Variable(variable_dict['Variable']))
 
 
-def get_variables():
+def get_registered_variables() -> List[Variable]:
     _set_up_variable_registry()
     return ALL_VARIABLES
+
+
+def get_registered_variable(variable_name: str) -> Optional[Variable]:
+    """
+    :param variable_name: The name of the requested variable.
+    :return: The requested variable if registered, otherwise None.
+    """
+    _set_up_variable_registry()
+    for variable in ALL_VARIABLES:
+        if variable_name == variable.short_name:
+            return variable
+    return None

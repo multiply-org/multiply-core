@@ -12,7 +12,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from multiply_core.variables import get_variables
+from multiply_core.variables import get_registered_variables
 from shapely.geometry import Polygon
 from typing import List, Optional
 import re
@@ -419,7 +419,7 @@ VALIDATORS.append(S2BEmulatorValidator())
 VALIDATORS.append(WVEmulatorValidator())
 VALIDATORS.append(AsterValidator())
 
-variables = get_variables()
+variables = get_registered_variables()
 for variable in variables:
     VALIDATORS.append(VariableValidator(variable.short_name))
 

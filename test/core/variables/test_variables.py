@@ -1,4 +1,4 @@
-from multiply_core.variables import get_variables, Variable
+from multiply_core.variables import get_registered_variable, get_registered_variables, Variable
 
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
@@ -20,6 +20,16 @@ def test_create_variable_from_dict():
     assert 'dtft' == variable.applications[2]
 
 
-def test_get_variables():
-    variables = get_variables()
+def test_get_registered_variables():
+    variables = get_registered_variables()
     assert len(variables) > 0
+
+
+def test_get_registered_variable():
+    variable = get_registered_variable('')
+    assert variable is None
+    variable = get_registered_variable('rvghhz')
+    assert variable is None
+    variable = get_registered_variable('h')
+    assert 'h' == variable.short_name
+    assert 'hotspot parameter' == variable.display_name
