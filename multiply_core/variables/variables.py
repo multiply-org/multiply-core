@@ -17,6 +17,16 @@ class Variable(object):
         self._range = variable_as_dict['range']
         self._applications = variable_as_dict['applications']
 
+    def __repr__(self):
+        return 'Variable:\n' \
+               '  Name: {}, \n' \
+               '  Short Name: {}, \n' \
+               '  Unit: {}, \n' \
+               '  Range: {}, \n' \
+               '  Description: {}, \n' \
+               '  Applications: {}\n'.format(self.display_name, self.short_name, self.unit, self.range,
+                                             self.description, self.applications)
+
     @property
     def short_name(self) -> str:
         return self._short_name
