@@ -51,6 +51,16 @@ class Variable(object):
     def applications(self) -> List[str]:
         return self._applications
 
+    # noinspection PyUnresolvedReferences
+    def equals(self, other: object) -> bool:
+        """
+        Checks whether another object is equal to this variable.
+        :param other:
+        :return:
+        """
+        return type(other) == Variable and self.short_name == other.short_name and \
+               self.display_name == other.display_name and self.unit == other.unit and self.range == other.range
+
 
 def get_default_variables():
     return yaml.safe_load(pkg_resources.resource_stream(__name__, 'default_variables_library.yaml'))
