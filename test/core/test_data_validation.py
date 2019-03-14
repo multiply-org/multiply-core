@@ -1,5 +1,5 @@
 from datetime import datetime
-from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, ModisMCD15A2HValidator,\
+from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, ModisMCD15A2HValidator, \
     CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, \
     CamsTiffValidator, VariableValidator
 from shapely.geometry import Polygon
@@ -241,7 +241,8 @@ def test_aster_is_valid_for():
     assert validator.is_valid_for('ASTGTM2_N11E134_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N11E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
-    assert validator.is_valid_for('/some/path/ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
+    assert validator.is_valid_for('/some/path/ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1),
+                                  datetime(1000, 1, 3))
     assert not validator.is_valid_for('ASTGTM2_N13E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
 
 
@@ -259,7 +260,8 @@ def test_variable_validator_is_valid():
     assert not validator.is_valid('something/something/cvfgfs_A2017111.tif')
     assert not validator.is_valid('something/something/cvgfs_A2017111.jpg')
     assert not validator.is_valid('something/something/cvgfs_A2017400.tif')
-    assert not validator.is_valid('something/something/cvgfs_2017111.tif')
+    assert validator.is_valid('something/cvgfs_20171010.tif')
+    assert validator.is_valid('something/cvgfs_20171010_20171011.tif')
 
 
 def test_variable_validator_get_relative_path():
@@ -271,7 +273,8 @@ def test_variable_validator_get_relative_path():
 def test_variable_validator_get_file_pattern():
     validator = VariableValidator('cvgfs')
 
-    assert 'cvgfs_A20[0-9][0-9][0-3][0-9][0-9].tif' == validator.get_file_pattern()
+    assert 'cvgfs_(A)?20[0-9][0-9]([0-3][0-9][0-9]|[0-1][0-9][0-1][0-9]|[0-1][0-9][0-1][0-9]_' \
+           '20[0-9][0-9][0-1][0-9][0-1][0-9]).tif' == validator.get_file_pattern()
 
 
 def test_variable_validator_is_valid_for():
@@ -282,6 +285,21 @@ def test_variable_validator_is_valid_for():
     assert validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 20), datetime(2017, 4, 22))
     assert not validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 22), datetime(2017, 4, 23))
     assert not validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 19), datetime(2017, 4, 20))
+    assert validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 10), datetime(2017, 10, 12))
+    assert not validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 12), datetime(2017, 10, 13))
+    assert not validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 9), datetime(2017, 10, 10))
+
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 10), datetime(2017, 10, 13))
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 10), datetime(2017, 10, 11))
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 12), datetime(2017, 10, 14))
+
+    assert not validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                      polygon, datetime(2017, 10, 9), datetime(2017, 10, 10))
+    assert not validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                      polygon, datetime(2017, 10, 13), datetime(2017, 10, 14))
 
 
 def test_get_valid_types():

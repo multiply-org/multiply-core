@@ -382,7 +382,8 @@ class VariableValidator(DataValidator):
 
     def __init__(self, variable_name: str):
         self.variable_name = variable_name
-        self.VARIABLE_NAME_PATTERN = '{}_A20[0-9][0-9][0-3][0-9][0-9].tif'.format(variable_name)
+        self.VARIABLE_NAME_PATTERN = '{}_(A)?20[0-9][0-9]([0-3][0-9][0-9]|[0-1][0-9][0-1][0-9]|' \
+                                     '[0-1][0-9][0-1][0-9]_20[0-9][0-9][0-1][0-9][0-1][0-9]).tif'.format(variable_name)
         self.VARIABLE_NAME_MATCHER = re.compile(self.VARIABLE_NAME_PATTERN)
 
     def name(self) -> str:
@@ -401,10 +402,23 @@ class VariableValidator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if not self.is_valid(path):
             return False
-        end_of_path = path.split('/')[-1]
-        date_part = end_of_path.split('_')[-1].split('.tif')[0]
-        time = datetime.strptime(date_part, "A%Y%j")
-        return start_time <= time <= end_time
+        end_of_path = path.split('/')[-1].replace('.tif', '')
+        date_part_1 = end_of_path.split('_')[-2]
+        date_part_2 = end_of_path.split('_')[-1]
+        try:
+            date_start_time = datetime.strptime(date_part_1, "%Y%m%d")
+            date_end_time = datetime.strptime(date_part_2, "%Y%m%d")
+            return start_time <= date_end_time and date_start_time <= end_time
+        except ValueError:
+            try:
+                time = datetime.strptime(date_part_2, "A%Y%j")
+                return start_time <= time <= end_time
+            except ValueError:
+                try:
+                    time = datetime.strptime(date_part_2, "%Y%m%d")
+                    return start_time <= time <= end_time
+                except ValueError:
+                    return False
 
 
 def _set_up_validators():
