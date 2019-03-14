@@ -18,7 +18,7 @@ from typing import List, Optional
 import re
 import os
 
-VALIDATORS = []
+DATA_VALIDATORS = {}
 
 
 class DataTypeConstants(object):
@@ -407,67 +407,69 @@ class VariableValidator(DataValidator):
         return start_time <= time <= end_time
 
 
-# TODO replace this with framework
-VALIDATORS.append(AWSS2L1Validator())
-VALIDATORS.append(AWSS2L2Validator())
-VALIDATORS.append(ModisMCD43Validator())
-VALIDATORS.append(ModisMCD15A2HValidator())
-VALIDATORS.append(CamsValidator())
-VALIDATORS.append(CamsTiffValidator())
-VALIDATORS.append(S2AEmulatorValidator())
-VALIDATORS.append(S2BEmulatorValidator())
-VALIDATORS.append(WVEmulatorValidator())
-VALIDATORS.append(AsterValidator())
-
-variables = get_registered_variables()
-for variable in variables:
-    VALIDATORS.append(VariableValidator(variable.short_name))
+def _set_up_validators():
+    add_validator(AWSS2L1Validator())
+    add_validator(AWSS2L2Validator())
+    add_validator(ModisMCD43Validator())
+    add_validator(ModisMCD15A2HValidator())
+    add_validator(CamsValidator())
+    add_validator(CamsTiffValidator())
+    add_validator(S2AEmulatorValidator())
+    add_validator(S2BEmulatorValidator())
+    add_validator(WVEmulatorValidator())
+    add_validator(AsterValidator())
+    variables = get_registered_variables()
+    for variable in variables:
+        add_validator(VariableValidator(variable.short_name))
 
 
 def add_validator(validator: DataValidator):
-    VALIDATORS.append(validator)
+    if validator.name() not in DATA_VALIDATORS:
+        DATA_VALIDATORS[validator.name()] = validator
 
 
 def get_valid_type(path: str) -> str:
-    for validator in VALIDATORS:
+    _set_up_validators()
+    for validator in DATA_VALIDATORS:
         if validator.is_valid(path):
             return validator.name()
     return ''
 
 
 def is_valid(path: str, type: str) -> bool:
-    for validator in VALIDATORS:
-        if validator.name() == type:
-            return validator.is_valid(path)
+    _set_up_validators()
+    if type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[type].is_valid(path)
     return False
 
 
 def get_relative_path(path: str, type: str):
-    for validator in VALIDATORS:
-        if validator.name() == type:
-            return validator.get_relative_path(path)
+    _set_up_validators()
+    if type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[type].get_relative_path(path)
     return ''
 
 
 def get_file_pattern(type: str) -> str:
-    for validator in VALIDATORS:
-        if validator.name() == type:
-            return validator.get_file_pattern()
+    _set_up_validators()
+    if type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[type].get_file_pattern()
     return ''
 
 
 def is_valid_for(path: str, type: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]) \
         -> bool:
-    for validator in VALIDATORS:
-        if validator.name() == type:
-            return validator.is_valid_for(path, roi, start_time, end_time)
+    _set_up_validators()
+    if type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[type].is_valid_for(path, roi, start_time, end_time)
     return False
 
 
 def get_valid_types() -> List[str]:
     """Returns the names of all data types which can be valid."""
+    _set_up_validators()
     valid_types = []
-    for validator in VALIDATORS:
+    for validator in DATA_VALIDATORS:
         valid_types.append(validator.name())
     return valid_types
 
@@ -479,7 +481,7 @@ def get_data_type_path(data_type: str, path: str) -> str:
     :return: The part of the path which is relevant for a product to be identified as product of this type. None,
     if data type is not found.
     """
-    for validator in VALIDATORS:
-        if validator.name() == data_type:
-            return validator.get_relative_path(path)
+    _set_up_validators()
+    if type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[data_type].get_relative_path(path)
     return ''
