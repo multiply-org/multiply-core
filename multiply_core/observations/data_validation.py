@@ -430,7 +430,7 @@ def add_validator(validator: DataValidator):
 
 def get_valid_type(path: str) -> str:
     _set_up_validators()
-    for validator in DATA_VALIDATORS:
+    for validator in DATA_VALIDATORS.values():
         if validator.is_valid(path):
             return validator.name()
     return ''
@@ -469,7 +469,7 @@ def get_valid_types() -> List[str]:
     """Returns the names of all data types which can be valid."""
     _set_up_validators()
     valid_types = []
-    for validator in DATA_VALIDATORS:
+    for validator in DATA_VALIDATORS.values():
         valid_types.append(validator.name())
     return valid_types
 
