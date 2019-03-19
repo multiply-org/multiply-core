@@ -12,6 +12,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from multiply_core.util import get_time_from_string
 from multiply_core.variables import get_registered_variables
 from shapely.geometry import Polygon
 from typing import List, Optional
@@ -22,17 +23,17 @@ DATA_VALIDATORS = {}
 
 
 class DataTypeConstants(object):
+    ASTER = 'ASTER'
     AWS_S2_L1C = 'AWS_S2_L1C'
     AWS_S2_L2 = 'AWS_S2_L2'
-    MODIS_MCD_43 = 'MCD43A1.006'
-    MODIS_MCD_15_A2 = 'MCD15A2H.006'
     CAMS = 'CAMS'
     CAMS_TIFF = 'CAMS_TIFF'
+    MODIS_MCD_43 = 'MCD43A1.006'
+    MODIS_MCD_15_A2 = 'MCD15A2H.006'
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
+    S2_L1C = 'S2_L1C'
     WV_EMULATOR = 'WV_EMU'
-    ASTER = 'ASTER'
-    VARIABLE = 'VARIABLE'
 
 
 class DataValidator(metaclass=ABCMeta):
@@ -70,6 +71,42 @@ class DataValidator(metaclass=ABCMeta):
         :param end_time:
         :return:
         """
+
+
+class S2L1CValidator(DataValidator):
+
+    def __init__(self):
+        self.S2_PATTERN = '(S2A|S2B|S2_)_([A-Z|0-9]{4})_([A-Z|0-9|_]{4})([A-Z|0-9|_]{6})_([A-Z|0-9|_]{4})_([0-9]{8}T[0-9]{6})_.*.SAFE'
+        self.S2_MATCHER = re.compile(self.S2_PATTERN)
+        self._manifest_file_name = 'manifest.safe'
+
+    def name(self) -> str:
+        return DataTypeConstants.S2_L1C
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = path.split('/')[-1]
+        return self.S2_MATCHER.match(end_of_path) is not None and\
+               os.path.exists('{}/{}'.format(path, self._manifest_file_name))
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+    def get_file_pattern(self) -> str:
+        return self.S2_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime],
+                     end_time: Optional[datetime]) -> bool:
+        if not self.is_valid(path):
+            return False
+        end_of_path = path.split('/')[-1]
+        date_part = end_of_path.split('_')[5]
+        try:
+            time = get_time_from_string(date_part)
+        except ValueError:
+            return False
+        if time is None:
+            return False
+        return start_time <= time <= end_time
 
 
 class AWSS2L1Validator(DataValidator):

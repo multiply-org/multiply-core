@@ -1,7 +1,7 @@
 from datetime import datetime
-from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, ModisMCD15A2HValidator, \
-    CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, \
-    CamsTiffValidator, VariableValidator
+from multiply_core.observations.data_validation import S2L1CValidator, AWSS2L1Validator, ModisMCD43Validator, \
+    ModisMCD15A2HValidator, CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, \
+    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -9,6 +9,7 @@ __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
 VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
+VALID_S2_PATH ='./test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
 
 
 def test_aws_s2_validator_matches_pattern():
@@ -29,6 +30,44 @@ def test_aws_s2_validator_get_relative_path():
     validator = AWSS2L1Validator()
 
     assert '29/S/QB/2017/9/4/0' == validator.get_relative_path('/the/non/relative/part/29/S/QB/2017/9/4/0')
+
+
+def test_s2_validator_name():
+    validator = S2L1CValidator()
+    assert 'S2_L1C' == validator.name()
+
+
+def test_s2_is_valid():
+    validator = S2L1CValidator()
+    assert validator.is_valid(VALID_S2_PATH)
+    assert not validator.is_valid('S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
+    assert not validator.is_valid(
+        './test/test_data/S2B_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
+
+
+def test_s2_get_relative_path():
+    validator = S2L1CValidator()
+    assert '' == validator.get_relative_path(VALID_S2_PATH)
+
+def test_s2_get_file_pattern():
+    validator = S2L1CValidator()
+    assert '(S2A|S2B|S2_)_([A-Z|0-9]{4})_([A-Z|0-9|_]{4})([A-Z|0-9|_]{6})_([A-Z|0-9|_]{4})_([0-9]{8}T[0-9]{6})_.*.SAFE' \
+           == validator.get_file_pattern()
+
+
+def test_s2_is_valid_for():
+    validator = S2L1CValidator()
+    assert validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 13), datetime(2015, 7, 15))
+    assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 12), datetime(2015, 7, 13))
+    assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 15), datetime(2015, 7, 16))
+
+
+def test_s2_validator_matches_pattern():
+    validator = AWSS2L1Validator()
+
+    assert validator._matches_pattern('/29/S/QB/2017/9/4/0')
+    assert validator._matches_pattern(VALID_AWS_S2_DATA)
+    assert not validator._matches_pattern('fcsfzvdbt/chvs/201')
 
 
 def test_modis_mcd_43_validator_is_valid():
