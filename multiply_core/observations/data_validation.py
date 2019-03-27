@@ -487,32 +487,32 @@ def get_valid_type(path: str) -> str:
     return ''
 
 
-def is_valid(path: str, type: str) -> bool:
+def is_valid(path: str, data_type: str) -> bool:
     _set_up_validators()
-    if type in DATA_VALIDATORS:
-        return DATA_VALIDATORS[type].is_valid(path)
+    if data_type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[data_type].is_valid(path)
     return False
 
 
-def get_relative_path(path: str, type: str):
+def get_relative_path(path: str, data_type: str):
     _set_up_validators()
-    if type in DATA_VALIDATORS:
-        return DATA_VALIDATORS[type].get_relative_path(path)
+    if data_type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[data_type].get_relative_path(path)
     return ''
 
 
-def get_file_pattern(type: str) -> str:
+def get_file_pattern(data_type: str) -> str:
     _set_up_validators()
-    if type in DATA_VALIDATORS:
-        return DATA_VALIDATORS[type].get_file_pattern()
+    if data_type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[data_type].get_file_pattern()
     return ''
 
 
-def is_valid_for(path: str, type: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]) \
+def is_valid_for(path: str, data_type: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]) \
         -> bool:
     _set_up_validators()
-    if type in DATA_VALIDATORS:
-        return DATA_VALIDATORS[type].is_valid_for(path, roi, start_time, end_time)
+    if data_type in DATA_VALIDATORS:
+        return DATA_VALIDATORS[data_type].is_valid_for(path, roi, start_time, end_time)
     return False
 
 
@@ -533,6 +533,6 @@ def get_data_type_path(data_type: str, path: str) -> str:
     if data type is not found.
     """
     _set_up_validators()
-    if type in DATA_VALIDATORS:
+    if data_type in DATA_VALIDATORS:
         return DATA_VALIDATORS[data_type].get_relative_path(path)
     return ''
