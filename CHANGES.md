@@ -1,3 +1,14 @@
+## Version 0.5
+
+## New Features
+* Added Variable Library
+* Added Generic Variable Validators
+* Added S2 L1C Data in .SAFE-format as data type
+
+### Improvements
+* Extended Documentation
+
+
 ## Version 0.4.2
 
 ### Improvements
