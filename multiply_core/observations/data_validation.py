@@ -80,7 +80,7 @@ class S2L1CValidator(DataValidator):
         self.S2_MATCHER = re.compile(self.S2_PATTERN)
         self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
         self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
-        self._manifest_file_name = 'manifest.safe'
+        self._manifest_file_name = 'MTD_MSIL1C.xml'
 
     def name(self) -> str:
         return DataTypeConstants.S2_L1C
