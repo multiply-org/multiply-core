@@ -76,8 +76,10 @@ class DataValidator(metaclass=ABCMeta):
 class S2L1CValidator(DataValidator):
 
     def __init__(self):
-        self.S2_PATTERN = '(S2A|S2B|S2_)_([A-Z|0-9]{4})_([A-Z|0-9|_]{4})([A-Z|0-9|_]{6})_([A-Z|0-9|_]{4})_([0-9]{8}T[0-9]{6})_.*.SAFE'
+        self.S2_PATTERN = '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?'
         self.S2_MATCHER = re.compile(self.S2_PATTERN)
+        self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
+        self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
         self._manifest_file_name = 'manifest.safe'
 
     def name(self) -> str:
@@ -99,7 +101,13 @@ class S2L1CValidator(DataValidator):
         if not self.is_valid(path):
             return False
         end_of_path = path.split('/')[-1]
-        date_part = end_of_path.split('_')[5]
+        date_part = ''
+        for path_part in end_of_path.split('_'):
+            if self.TIME_MATCHER.match(path_part) is not None:
+                date_part = path_part
+                break
+        if date_part == '':
+            return False
         try:
             time = get_time_from_string(date_part)
         except ValueError:
@@ -469,6 +477,7 @@ def _set_up_validators():
     add_validator(S2BEmulatorValidator())
     add_validator(WVEmulatorValidator())
     add_validator(AsterValidator())
+    add_validator(S2L1CValidator())
     variables = get_registered_variables()
     for variable in variables:
         add_validator(VariableValidator(variable.short_name))

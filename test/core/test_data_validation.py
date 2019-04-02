@@ -9,7 +9,8 @@ __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
 VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
-VALID_S2_PATH ='./test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
+VALID_S2_PATH = './test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
+ANOTHER_VALID_S2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300'
 
 
 def test_aws_s2_validator_matches_pattern():
@@ -43,6 +44,9 @@ def test_s2_is_valid():
     assert not validator.is_valid('S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
     assert not validator.is_valid(
         './test/test_data/S2B_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
+    assert validator.is_valid(ANOTHER_VALID_S2_PATH)
+    assert not validator.is_valid('S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300')
+    assert not validator.is_valid('./test/test_data/S2A_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300')
 
 
 def test_s2_get_relative_path():
@@ -51,7 +55,7 @@ def test_s2_get_relative_path():
 
 def test_s2_get_file_pattern():
     validator = S2L1CValidator()
-    assert '(S2A|S2B|S2_)_([A-Z|0-9]{4})_([A-Z|0-9|_]{4})([A-Z|0-9|_]{6})_([A-Z|0-9|_]{4})_([0-9]{8}T[0-9]{6})_.*.SAFE' \
+    assert '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?' \
            == validator.get_file_pattern()
 
 
@@ -60,6 +64,9 @@ def test_s2_is_valid_for():
     assert validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 13), datetime(2015, 7, 15))
     assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 12), datetime(2015, 7, 13))
     assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 15), datetime(2015, 7, 16))
+    assert validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 18), datetime(2018, 8, 20))
+    assert not validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 17), datetime(2018, 8, 18))
+    assert not validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 20), datetime(2018, 8, 21))
 
 
 def test_s2_validator_matches_pattern():
