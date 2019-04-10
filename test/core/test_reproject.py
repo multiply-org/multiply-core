@@ -13,6 +13,15 @@ EPSG_32632_WKT = 'PROJCS["WGS 84 / UTM zone 32N",GEOGCS["WGS 84",DATUM["WGS_1984
 EPSG_32232_WKT = 'PROJCS["WGS 72 / UTM zone 32N",GEOGCS["WGS 72",DATUM["World Geodetic System 1972",SPHEROID["WGS 72",6378135.0,298.26,AUTHORITY["EPSG","7043"]],TOWGS84[0.0,0.0,4.5,0.0,0.0,0.554,0.219],AUTHORITY["EPSG","6322"]],PRIMEM["Greenwich",0.0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.017453292519943295],AXIS["Geodetic longitude",EAST],AXIS["Geodetic latitude",NORTH],AUTHORITY["EPSG","4322"]],PROJECTION["Transverse_Mercator",AUTHORITY["EPSG","9807"]],PARAMETER["central_meridian",9.0],PARAMETER["latitude_of_origin",0.0],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000.0],PARAMETER["false_northing",0.0],UNIT["m",1.0],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","32232"]]'
 
 
+def test_reproject_to_wgs84():
+    roi = 'POLYGON((685700. 6462200., 685700. 6470700., 697660. 6470700., 697660. 6462200., 685700. 6462200.))'
+    roi_grid = 'EPSG:3301'
+    transformed_roi = reproject.reproject_to_wgs84(roi, roi_grid)
+    assert transformed_roi == 'POLYGON ((27.1647563115467534 58.2611263320005577, ' \
+                              '27.1716005869326196 58.3373581174386473, 27.3755330955532621 58.3321196269764286, ' \
+                              '27.3682501734918766 58.2558991181697223, 27.1647563115467534 58.2611263320005577))'
+
+
 def test_transform_coordinates_0():
     ala_dataset = gdal.Open(ALA_TIFF_FILE)
     ala_srs = reproject.get_spatial_reference_system_from_dataset(ala_dataset)
