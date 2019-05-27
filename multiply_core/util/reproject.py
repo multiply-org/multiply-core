@@ -1,11 +1,36 @@
 import gdal
-import logging
 import numpy as np
 import osr
+import pyproj
+from functools import partial
+from shapely.geometry import Polygon
+from shapely.ops import transform
+from shapely.wkt import dumps, loads
 from typing import Optional, Sequence, Union
 
 __author__ = "José Luis Gómez-Dans (University College London)," \
              "Tonio Fincke (Brockmann Consult GmbH)"
+
+
+def reproject_to_wgs84(roi: Union[str, Polygon], roi_grid: str) -> str:
+    if roi == '':
+        return roi
+    if not roi_grid.startswith('EPSG'):
+        raise ValueError('ROI grid must be given as EPSG code (e.g., EPSG:4326)')
+    if type(roi) is str:
+        roi_as_string = roi
+        roi_as_polygon = loads(roi)
+    else:
+        roi_as_string = dumps(roi)
+        roi_as_polygon = roi
+    if roi_grid == 'EPSG:4326':
+        return roi_as_string
+    project = partial(
+        pyproj.transform,
+        pyproj.Proj(init=roi_grid),
+        pyproj.Proj(init='EPSG:4326'))
+    transformed_roi = transform(project, roi_as_polygon)
+    return dumps(transformed_roi)
 
 
 def transform_coordinates(source: osr.SpatialReference, target: osr.SpatialReference,

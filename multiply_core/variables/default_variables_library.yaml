@@ -1,0 +1,77 @@
+- Variable:
+    short_name: lai
+    display_name: Effective Leaf Area Index
+    unit: m2/m2
+    description: Effective Leaf Area Index
+    range:
+    applications:
+- Variable:
+    short_name: cab
+    display_name: Leaf Chlorophyll Content
+    unit: ug/cm2
+    description: Leaf Chlorophyll Content
+    range:
+    applications:
+- Variable:
+    short_name: cb
+    display_name: Leaf Senescent material
+    unit:
+    description: Leaf Senescent material
+    range:
+    applications:
+- Variable:
+    short_name: car
+    display_name: Leaf Carotonoid Content
+    unit: ug/cm2
+    description: Leaf Carotonoid Content
+    range:
+    applications:
+- Variable:
+    short_name: cw
+    display_name: Leaf Water Content
+    unit: cm
+    description: Leaf Water Content
+    range:
+    applications:
+- Variable:
+    short_name: cdm
+    display_name: Leaf Dry Mass
+    unit: g/cm2
+    description: Leaf Dry Mass
+    range:
+    applications:
+- Variable:
+    short_name: n
+    display_name: Structural Parameter
+    unit:
+    description: Structural Parameter
+    range:
+    applications:
+- Variable:
+    short_name: ala
+    display_name: Average Leaf Angle
+    unit: degrees
+    description: Average Leaf Angle
+    range:
+    applications:
+- Variable:
+    short_name: h
+    display_name: hotspot parameter
+    unit:
+    description: hotspot parameter
+    range:
+    applications:
+- Variable:
+    short_name: bsoil
+    display_name: Soil Brightness parameter
+    unit:
+    description: Soil Brightness parameter
+    range:
+    applications:
+- Variable:
+    short_name: psoil
+    display_name: Soil Wetness parameter
+    unit:
+    description: Soil Wetness parameter
+    range:
+    applications:

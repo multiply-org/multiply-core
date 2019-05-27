@@ -1,7 +1,7 @@
 from datetime import datetime
-from multiply_core.observations.data_validation import AWSS2L1Validator, ModisMCD43Validator, ModisMCD15A2HValidator,\
-    CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, AsterValidator, get_valid_types, \
-    CamsTiffValidator
+from multiply_core.observations.data_validation import S2L1CValidator, AWSS2L1Validator, ModisMCD43Validator, \
+    ModisMCD15A2HValidator, CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, \
+    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -9,6 +9,8 @@ __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
 VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
+VALID_S2_PATH = './test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
+ANOTHER_VALID_S2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300'
 
 
 def test_aws_s2_validator_matches_pattern():
@@ -29,6 +31,50 @@ def test_aws_s2_validator_get_relative_path():
     validator = AWSS2L1Validator()
 
     assert '29/S/QB/2017/9/4/0' == validator.get_relative_path('/the/non/relative/part/29/S/QB/2017/9/4/0')
+
+
+def test_s2_validator_name():
+    validator = S2L1CValidator()
+    assert 'S2_L1C' == validator.name()
+
+
+def test_s2_is_valid():
+    validator = S2L1CValidator()
+    assert validator.is_valid(VALID_S2_PATH)
+    assert not validator.is_valid('S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
+    assert not validator.is_valid(
+        './test/test_data/S2B_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE')
+    assert validator.is_valid(ANOTHER_VALID_S2_PATH)
+    assert not validator.is_valid('S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300')
+    assert not validator.is_valid('./test/test_data/S2A_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300')
+
+
+def test_s2_get_relative_path():
+    validator = S2L1CValidator()
+    assert '' == validator.get_relative_path(VALID_S2_PATH)
+
+def test_s2_get_file_pattern():
+    validator = S2L1CValidator()
+    assert '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?' \
+           == validator.get_file_pattern()
+
+
+def test_s2_is_valid_for():
+    validator = S2L1CValidator()
+    assert validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 13), datetime(2015, 7, 15))
+    assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 12), datetime(2015, 7, 13))
+    assert not validator.is_valid_for(VALID_S2_PATH, Polygon(), datetime(2015, 7, 15), datetime(2015, 7, 16))
+    assert validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 18), datetime(2018, 8, 20))
+    assert not validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 17), datetime(2018, 8, 18))
+    assert not validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 20), datetime(2018, 8, 21))
+
+
+def test_s2_validator_matches_pattern():
+    validator = AWSS2L1Validator()
+
+    assert validator._matches_pattern('/29/S/QB/2017/9/4/0')
+    assert validator._matches_pattern(VALID_AWS_S2_DATA)
+    assert not validator._matches_pattern('fcsfzvdbt/chvs/201')
 
 
 def test_modis_mcd_43_validator_is_valid():
@@ -241,14 +287,71 @@ def test_aster_is_valid_for():
     assert validator.is_valid_for('ASTGTM2_N11E134_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N11E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
     assert validator.is_valid_for('ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
-    assert validator.is_valid_for('/some/path/ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
+    assert validator.is_valid_for('/some/path/ASTGTM2_N12E133_dem.tif', polygon, datetime(1000, 1, 1),
+                                  datetime(1000, 1, 3))
     assert not validator.is_valid_for('ASTGTM2_N13E133_dem.tif', polygon, datetime(1000, 1, 1), datetime(1000, 1, 3))
+
+
+def test_variable_validator_name():
+    validator = VariableValidator('cvgfs')
+
+    assert 'cvgfs' == validator.name()
+
+
+def test_variable_validator_is_valid():
+    validator = VariableValidator('cvgfs')
+
+    assert validator.is_valid('something/something/cvgfs_A2017111.tif')
+    assert validator.is_valid('cvgfs_A2017111.tif')
+    assert not validator.is_valid('something/something/cvfgfs_A2017111.tif')
+    assert not validator.is_valid('something/something/cvgfs_A2017111.jpg')
+    assert not validator.is_valid('something/something/cvgfs_A2017400.tif')
+    assert validator.is_valid('something/cvgfs_20171010.tif')
+    assert validator.is_valid('something/cvgfs_20171010_20171011.tif')
+
+
+def test_variable_validator_get_relative_path():
+    validator = VariableValidator('cvgfs')
+
+    assert '' == validator.get_relative_path('something/something/cvgfs_A2017111.tif')
+
+
+def test_variable_validator_get_file_pattern():
+    validator = VariableValidator('cvgfs')
+
+    assert 'cvgfs_(A)?20[0-9][0-9]([0-3][0-9][0-9]|[0-1][0-9][0-1][0-9]|[0-1][0-9][0-1][0-9]_' \
+           '20[0-9][0-9][0-1][0-9][0-1][0-9]).tif' == validator.get_file_pattern()
+
+
+def test_variable_validator_is_valid_for():
+    validator = VariableValidator('cvgfs')
+
+    polygon = loads('POLYGON((134.20 12.09, 133.91 12.09, 133.91 11.94, 134.2 11.94, 134.20 12.09))')
+
+    assert validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 20), datetime(2017, 4, 22))
+    assert not validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 22), datetime(2017, 4, 23))
+    assert not validator.is_valid_for('st/cvgfs_A2017111.tif', polygon, datetime(2017, 4, 19), datetime(2017, 4, 20))
+    assert validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 10), datetime(2017, 10, 12))
+    assert not validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 12), datetime(2017, 10, 13))
+    assert not validator.is_valid_for('st/cvgfs_20171011.tif', polygon, datetime(2017, 10, 9), datetime(2017, 10, 10))
+
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 10), datetime(2017, 10, 13))
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 10), datetime(2017, 10, 11))
+    assert validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                  polygon, datetime(2017, 10, 12), datetime(2017, 10, 14))
+
+    assert not validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                      polygon, datetime(2017, 10, 9), datetime(2017, 10, 10))
+    assert not validator.is_valid_for('st/cvgfs_20171011_20171012.tif',
+                                      polygon, datetime(2017, 10, 13), datetime(2017, 10, 14))
 
 
 def test_get_valid_types():
     valid_types = get_valid_types()
 
-    assert 10 == len(valid_types)
+    assert 10 <= len(valid_types)
     assert 'AWS_S2_L1C' in valid_types
     assert 'AWS_S2_L2' in valid_types
     assert 'MCD43A1.006' in valid_types

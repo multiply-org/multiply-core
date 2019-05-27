@@ -122,7 +122,9 @@ def get_time_from_string(time_string: str, adjust_to_last_day: bool = False) -> 
     """
     if time_string == '':
         return None
-    format_to_timedelta = [("%Y-%m-%dT%H:%M:%S", timedelta(), False),
+    format_to_timedelta = [("%Y%m%dT%H%M%S", timedelta(), False),
+                           ("%Y-%m-%dT%H:%M:%SZ", timedelta(), False),
+                           ("%Y-%m-%dT%H:%M:%S", timedelta(), False),
                            ("%Y-%m-%d %H:%M:%S", timedelta(), False),
                            ("%Y-%m-%d", timedelta(hours=24, seconds=-1), False),
                            ("%Y-%m", timedelta(), True),
@@ -296,10 +298,13 @@ def block_diag(matrices, format: str=None, dtype: type=None) -> scipy.sparse.coo
         else:
             mats_[ia] = coo_matrix(a)
 
-    if any(mat.shape != mats_[-1].shape for mat in mats_) or (any(issparse(mat) for mat in mats_)):
-        data = []
-        col = []
-        row = []
+    data = []
+    col = []
+    row = []
+
+    if num_matrices == 0:
+        total_shape = (0, 0)
+    elif any(mat.shape != mats_[-1].shape for mat in mats_) or (any(issparse(mat) for mat in mats_)):
         origin = np.array([0, 0], dtype=np.int)
         for mat in mats_:
             if issparse(mat):

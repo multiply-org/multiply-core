@@ -9,14 +9,16 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from multiply_core.util import FileRef
+from multiply_core.variables import get_registered_variables
 from typing import Optional
+from datetime import datetime
 import xml.etree.ElementTree as eT
 
 
 class FileRefCreator(metaclass=ABCMeta):
 
-    @classmethod
-    def name(cls) -> str:
+    @abstractmethod
+    def name(self) -> str:
         """The name of the data type supported by this creator."""
 
     @abstractmethod
@@ -26,8 +28,7 @@ class FileRefCreator(metaclass=ABCMeta):
 
 class AWSS2L2FileRefCreator(FileRefCreator):
 
-    @classmethod
-    def name(cls) -> str:
+    def name(self) -> str:
         return 'AWS_S2_L2'
 
     def create_file_ref(self, path: str) -> FileRef:
@@ -49,11 +50,30 @@ class AWSS2L2FileRefCreator(FileRefCreator):
                 return time
 
 
+class VariableFileRefCreator(FileRefCreator):
+
+    def __init__(self, variable_name: str):
+        self._name = variable_name
+
+    def name(self) -> str:
+        return self._name
+
+    def create_file_ref(self, path: str) -> FileRef:
+        end_of_path = path.split('/')[-1]
+        date_part = end_of_path.split('_')[-1].split('.tif')[0]
+        time = datetime.strptime(date_part, "A%Y%j")
+        time = datetime.strftime(time, '%Y-%m-%d')
+        return FileRef(path, time, time, 'image/tiff')
+
+
 class FileRefCreation(object):
 
     def __init__(self):
         self.FILE_REF_CREATORS = []
         self.add_file_ref_creator(AWSS2L2FileRefCreator())
+        variables = get_registered_variables()
+        for variable in variables:
+            self.add_file_ref_creator(VariableFileRefCreator(variable.short_name))
 
     def add_file_ref_creator(self, file_ref_creator: FileRefCreator):
         self.FILE_REF_CREATORS.append(file_ref_creator)
