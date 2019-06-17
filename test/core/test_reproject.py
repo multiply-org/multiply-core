@@ -1,3 +1,5 @@
+from shapely.wkt import loads
+
 import gdal
 import osr
 import multiply_core.util.reproject as reproject
@@ -17,9 +19,11 @@ def test_reproject_to_wgs84():
     roi = 'POLYGON((685700. 6462200., 685700. 6470700., 697660. 6470700., 697660. 6462200., 685700. 6462200.))'
     roi_grid = 'EPSG:3301'
     transformed_roi = reproject.reproject_to_wgs84(roi, roi_grid)
-    assert transformed_roi == 'POLYGON ((27.1647563115467534 58.2611263320005577, ' \
-                              '27.1716005869326196 58.3373581174386473, 27.3755330955532621 58.3321196269764286, ' \
-                              '27.3682501734918766 58.2558991181697223, 27.1647563115467534 58.2611263320005577))'
+    transformed_roi = loads(transformed_roi)
+    expected_roi = loads('POLYGON ((27.1647563115467534 58.2611263320005577, 27.1716005869326196 58.3373581174386473, '
+                         '27.3755330955532621 58.3321196269764286, 27.3682501734918766 58.2558991181697223, '
+                         '27.1647563115467534 58.2611263320005577))')
+    assert transformed_roi.almost_equals(expected_roi)
 
 
 def test_transform_coordinates_0():
