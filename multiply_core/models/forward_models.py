@@ -6,7 +6,6 @@ import logging
 import os
 import pkg_resources
 
-
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 ALL_FORWARD_MODELS = []
@@ -91,6 +90,21 @@ def _get_multiply_home_dir() -> str:
     return multiply_home_dir
 
 
+def register_forward_model(forward_model_file: str):
+    forward_models_registry_file = _get_default_forward_models_file()
+    _register_forward_model(forward_model_file, forward_models_registry_file)
+
+
+def _register_forward_model(forward_model_file: str, forward_models_registry_file: str):
+    _read_forward_model(forward_model_file)  # to validate
+    if os.path.exists(forward_models_registry_file):
+        mode = "a"
+    else:
+        mode = "w"
+    with(open(forward_models_registry_file, mode)) as registry_file:
+        registry_file.write(forward_model_file + '\n')
+
+
 def get_forward_models() -> List[ForwardModel]:
     forward_models_file = _get_default_forward_models_file()
     return _get_forward_models(forward_models_file)
@@ -101,6 +115,7 @@ def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
     with(open(forward_models_file, 'r')) as file:
         file_paths = file.readlines()
         for file_path in file_paths:
+            file_path = file_path.rstrip()
             if not os.path.exists(file_path):
                 logging.warning(f'Could not find forward model file {file_path}')
                 continue
