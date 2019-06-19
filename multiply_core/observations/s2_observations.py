@@ -74,7 +74,7 @@ def _get_uncertainty(rho_surface: np.array, mask: np.array) -> sp.lil_matrix:
 
 
 def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: float, vaa: float):
-    emulator_files = glob.glob(os.path.join(emulator_folder, "*.pkl"))
+    emulator_files = glob.glob(os.path.join(emulator_folder, "*_[0-9]*_[0-9]*_[0-9]*.pkl"))
     if len(emulator_files) == 0:
         return None
     emulator_files.sort()
