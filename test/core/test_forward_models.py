@@ -1,7 +1,5 @@
 from multiply_core.models.forward_models import _read_forward_model
 
-import pytest
-
 PATH_TO_TEST_FORWARD_MODEL_FILE = './test/test_data/metadata.json'
 
 
