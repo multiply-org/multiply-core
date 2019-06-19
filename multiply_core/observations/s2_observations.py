@@ -67,8 +67,8 @@ def extract_tile_id(filename: str) -> str:
 def _get_uncertainty(rho_surface: np.array, mask: np.array) -> sp.lil_matrix:
     r_mat = rho_surface * 0.05
     r_mat[np.logical_not(mask)] = 0.
-    N = mask.ravel().shape[0]
-    r_mat_sp = sp.lil_matrix((N, N))
+    n = mask.ravel().shape[0]
+    r_mat_sp = sp.lil_matrix((n, n))
     r_mat_sp.setdiag(1. / (r_mat.ravel()) ** 2)
     return r_mat_sp.tocsr()
 
