@@ -10,7 +10,7 @@ import pkg_resources
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 ALL_FORWARD_MODELS = []
-FORWARD_MODELS_FILE_NAME = 'forward_models.yml'
+FORWARD_MODELS_FILE_NAME = 'forward_models.txt'
 MULTIPLY_DIR_NAME = '.multiply'
 
 
@@ -93,6 +93,10 @@ def _get_multiply_home_dir() -> str:
 
 def get_forward_models() -> List[ForwardModel]:
     forward_models_file = _get_default_forward_models_file()
+    return _get_forward_models(forward_models_file)
+
+
+def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
     forward_models = []
     with(open(forward_models_file, 'r')) as file:
         file_paths = file.readlines()
