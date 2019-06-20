@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 import json
 import logging
@@ -14,17 +14,26 @@ MULTIPLY_DIR_NAME = '.multiply'
 
 class ForwardModel(object):
 
-    def __init__(self, model_as_dict: dict, model_dir: str):
+    def __init__(self, model_dir: str, id: str, name: str, description: str, input_type: str, variables: List[str],
+                 model_authors: List[str], model_url: str, input_bands: List[str], input_band_indices: List[int]):
         self._model_dir = model_dir
-        self._short_name = model_as_dict['id']
-        self._name = model_as_dict['name']
-        self._description = model_as_dict['description']
-        self._authors = model_as_dict['model_authors']
-        self._url = model_as_dict['model_url']
-        self._input_type = model_as_dict['input_type']
-        self._input_bands = model_as_dict['input_bands']
-        self._input_band_indices = model_as_dict['input_band_indices']
-        self._variables = model_as_dict['variables']
+        self._short_name = id
+        self._name = name
+        self._description = description
+        self._input_type = input_type
+        self._variables = variables
+        self._authors = []
+        if model_authors is not None:
+            self._authors = model_authors
+        self._url = ''
+        if model_url is not None:
+            self._url = model_url
+        self._input_bands = []
+        if input_bands is not None:
+            self._input_bands = input_bands
+        self._input_band_indices = []
+        if input_band_indices is not None:
+            self._input_band_indices = input_band_indices
 
     def __repr__(self):
         return 'Forward Model:\n' \
@@ -76,6 +85,11 @@ class ForwardModel(object):
     @property
     def variables(self) -> List[str]:
         return self._variables
+
+    def as_dict(self) -> Dict:
+        return {'id': self.id, 'name': self.name, 'description': self.description, 'model_authors': self.authors,
+                'model_url': self.url, 'input_type': self.input_type, 'input_bands': self.input_bands,
+                'input_band_indices': self.input_band_indices, 'variables': self.input_band_indices}
 
     # noinspection PyUnresolvedReferences
     def equals(self, other: object) -> bool:
@@ -140,6 +154,21 @@ def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
 
 def _read_forward_model(model_file: str) -> ForwardModel:
     with(open(model_file, 'r')) as file:
-        forward_model = json.load(file)
         forward_model_path = os.path.abspath(os.path.join(model_file, os.pardir)).replace('\\', '/')
-        return ForwardModel(forward_model, forward_model_path)
+        model = json.load(file)
+        model_authors = None
+        if 'model_authors' in model:
+            model_authors = model['model_authors']
+        model_url = None
+        if 'model_url' in model:
+            model_url = model['model_url']
+        input_bands = None
+        if 'input_bands' in model:
+            input_bands = model['input_bands']
+        input_band_indices = None
+        if 'input_band_indices' in model:
+            input_band_indices = model['input_band_indices']
+        return ForwardModel(model_dir=forward_model_path, id=model['id'], name=model['name'],
+                            description=model["description"], input_type=model['input_type'],
+                            variables=model['variables'], model_authors=model_authors, model_url=model_url,
+                            input_bands=input_bands, input_band_indices=input_band_indices)
