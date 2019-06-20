@@ -1,10 +1,9 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import json
 import logging
 import os
-import pkg_resources
 
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
@@ -15,13 +14,16 @@ MULTIPLY_DIR_NAME = '.multiply'
 
 class ForwardModel(object):
 
-    def __init__(self, model_as_dict: dict):
+    def __init__(self, model_as_dict: dict, model_dir: str):
+        self._model_dir = model_dir
         self._short_name = model_as_dict['id']
         self._name = model_as_dict['name']
         self._description = model_as_dict['description']
         self._authors = model_as_dict['model_authors']
         self._url = model_as_dict['model_url']
         self._input_type = model_as_dict['input_type']
+        self._input_bands = model_as_dict['input_bands']
+        self._input_band_indices = model_as_dict['input_band_indices']
         self._variables = model_as_dict['variables']
 
     def __repr__(self):
@@ -34,6 +36,10 @@ class ForwardModel(object):
                '  Input Type: {}, \n' \
                '  Variables: {}\n'.format(self.id, self.name, self.description, self.authors, self.url,
                                           self.input_type, self.variables)
+
+    @property
+    def model_dir(self) -> str:
+        return self._model_dir
 
     @property
     def id(self) -> str:
@@ -60,6 +66,14 @@ class ForwardModel(object):
         return self._input_type
 
     @property
+    def input_bands(self) -> List[str]:
+        return self._input_bands
+
+    @property
+    def input_band_indices(self) -> List[int]:
+        return self._input_band_indices
+
+    @property
     def variables(self) -> List[str]:
         return self._variables
 
@@ -71,7 +85,8 @@ class ForwardModel(object):
         :return:
         """
         return type(other) == ForwardModel and self.id == other.id and self.name == other.display_name \
-               and self.description == other.description and self.input_type == other.input_type
+               and self.description == other.description and self.input_type == other.input_type \
+               and self.input_bands == other.input_bands and self.input_band_indices == other.input_band_indices
 
 
 def _get_default_forward_models_file() -> str:
@@ -126,4 +141,5 @@ def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
 def _read_forward_model(model_file: str) -> ForwardModel:
     with(open(model_file, 'r')) as file:
         forward_model = json.load(file)
-        return ForwardModel(forward_model)
+        forward_model_path = os.path.abspath(os.path.join(model_file, os.pardir)).replace('\\', '/')
+        return ForwardModel(forward_model, forward_model_path)
