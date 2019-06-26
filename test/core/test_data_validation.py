@@ -51,7 +51,10 @@ def test_s2_is_valid():
 
 def test_s2_get_relative_path():
     validator = S2L1CValidator()
-    assert '' == validator.get_relative_path(VALID_S2_PATH)
+    assert 'S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE' \
+           == validator.get_relative_path(VALID_S2_PATH)
+    assert 'S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300' \
+           == validator.get_relative_path(ANOTHER_VALID_S2_PATH)
 
 def test_s2_get_file_pattern():
     validator = S2L1CValidator()

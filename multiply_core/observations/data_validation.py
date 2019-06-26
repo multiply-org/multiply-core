@@ -6,9 +6,7 @@ This module contains MULTIPLY Data Checkers and default implementations. The pur
 a file is of a given type or not.
 """
 
-
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
-
 
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
@@ -30,12 +28,12 @@ class DataTypeConstants(object):
     CAMS_TIFF = 'CAMS_TIFF'
     MODIS_MCD_43 = 'MCD43A1.006'
     MODIS_MCD_15_A2 = 'MCD15A2H.006'
-    S1_SLC = 'S1_SLC'  #todo add data validator and metadata extractor
+    S1_SLC = 'S1_SLC'  # todo add data validator and metadata extractor
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     S2_L1C = 'S2_L1C'
-    S3_L1_OLCI_RR = 'S3_L1_OLCI_RR' #todo add data validator and metadata extractor
-    S3_L1_OLCI_FR = 'S3_L1_OLCI_FR' #todo add data validator and metadata extractor
+    S3_L1_OLCI_RR = 'S3_L1_OLCI_RR'  # todo add data validator and metadata extractor
+    S3_L1_OLCI_FR = 'S3_L1_OLCI_FR'  # todo add data validator and metadata extractor
     WV_EMULATOR = 'WV_EMU'
 
 
@@ -50,7 +48,7 @@ class DataValidator(metaclass=ABCMeta):
         """Whether the data at the given path is a valid data product for the type."""
 
     @abstractmethod
-    def get_relative_path(self, path:str) -> str:
+    def get_relative_path(self, path: str) -> str:
         """
         :param path: Path to a file.
         :return: The part of the path which is relevant for a product to be identified as product of this type.
@@ -90,11 +88,12 @@ class S2L1CValidator(DataValidator):
 
     def is_valid(self, path: str) -> bool:
         end_of_path = path.split('/')[-1]
-        return self.S2_MATCHER.match(end_of_path) is not None and\
+        return self.S2_MATCHER.match(end_of_path) is not None and \
                os.path.exists('{}/{}'.format(path, self._manifest_file_name))
 
     def get_relative_path(self, path: str) -> str:
-        return ''
+        startPos, endPos = self.S2_MATCHER.search(path).regs[0]
+        return path[startPos:endPos]
 
     def get_file_pattern(self) -> str:
         return self.S2_PATTERN
@@ -144,7 +143,7 @@ class AWSS2L1Validator(DataValidator):
     def _matches_pattern(self, path: str) -> bool:
         return self.AWS_S2_MATCHER.match(path) is not None
 
-    def get_relative_path(self, path:str) -> str:
+    def get_relative_path(self, path: str) -> str:
         start_pos, end_pos = self.BASIC_AWS_S2_MATCHER.search(path).regs[0]
         return path[start_pos + 1:end_pos]
 
@@ -181,14 +180,14 @@ class AWSS2L2Validator(DataValidator):
                 return False
         return True
 
-    def get_relative_path(self, path:str) -> str:
+    def get_relative_path(self, path: str) -> str:
         return ''
 
     def get_file_pattern(self) -> str:
         return ''
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
-        return True # we are not checking paths here
+        return True  # we are not checking paths here
 
 
 class ModisMCD43Validator(DataValidator):
