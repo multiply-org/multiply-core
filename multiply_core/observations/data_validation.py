@@ -92,7 +92,10 @@ class S2L1CValidator(DataValidator):
                os.path.exists('{}/{}'.format(path, self._manifest_file_name))
 
     def get_relative_path(self, path: str) -> str:
-        startPos, endPos = self.S2_MATCHER.search(path).regs[0]
+        dir_name = self.S2_MATCHER.search(path)
+        if dir_name is None:
+            return ''
+        startPos, endPos = dir_name.regs[0]
         return path[startPos:endPos]
 
     def get_file_pattern(self) -> str:
@@ -144,7 +147,10 @@ class AWSS2L1Validator(DataValidator):
         return self.AWS_S2_MATCHER.match(path) is not None
 
     def get_relative_path(self, path: str) -> str:
-        start_pos, end_pos = self.BASIC_AWS_S2_MATCHER.search(path).regs[0]
+        dirs_names = self.BASIC_AWS_S2_MATCHER.search(path)
+        if dirs_names is None:
+            return ''
+        start_pos, end_pos = dirs_names.regs[0]
         return path[start_pos + 1:end_pos]
 
     def get_file_pattern(self) -> str:
