@@ -10,7 +10,6 @@ else:
     requirements = [
         'gdal',
         'numpy',
-        'osr',
         'pytest',
         'shapely',
         'scipy',
