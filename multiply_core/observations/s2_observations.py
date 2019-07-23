@@ -119,12 +119,14 @@ class S2Observations(ProductObservations):
         raise ValueError(f'No valid metadata file found at {url}')
 
     def _get_data_set_url(self, band_index: int) -> str:
+        if band_index > len(BAND_NAMES):
+            raise ValueError(f'Invalid band index: {band_index} > {len(BAND_NAMES)}')
         band_name = BAND_NAMES[band_index]
         data_set_base_url = self._file_ref.url
-        data_set_url = '{}/{}'.format(data_set_base_url, band_name)
-        if not os.path.exists(data_set_url):
-            data_set_url = '{}/{}f'.format(data_set_base_url, band_name)
-        return data_set_url
+        data_set_urls = glob.glob('{}/*{}*'.format(data_set_base_url, band_name))
+        if len(data_set_urls) > 0:
+            return data_set_urls[0]
+        raise ValueError(f'Could not find band {band_name}')
 
     def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         if band_name in BAND_NAMES:

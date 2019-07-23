@@ -74,6 +74,32 @@ def test_aws_s2_get_band_data():
     assert (434256, 434256) == s2_observation_data.uncertainty.shape
 
 
+def test_s2_get_band_data():
+    destination_srs = osr.SpatialReference()
+    destination_srs.ImportFromWkt(EPSG_32232_WKT)
+    bounds_srs = osr.SpatialReference()
+    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
+    bounds = [7.8, 53.5, 8.8, 53.8]
+    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
+                                bounds_srs=bounds_srs, resampling_mode=None)
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observation_data = s2_observations.get_band_data(3)
+    assert (327, 1328) == s2_observation_data.observations.shape
+    assert 4, len(s2_observation_data.metadata.keys())
+    assert 'sza' in s2_observation_data.metadata.keys()
+    assert 22.010357062494, s2_observation_data.metadata['sza']
+    assert 'saa' in s2_observation_data.metadata.keys()
+    assert 134.259951372444, s2_observation_data.metadata['saa']
+    assert 'vza' in s2_observation_data.metadata.keys()
+    assert 9.962752734083384, s2_observation_data.metadata['vza']
+    assert 'vaa' in s2_observation_data.metadata.keys()
+    assert 103.25709630521224, s2_observation_data.metadata['vaa']
+    assert (327, 1328) == s2_observation_data.mask.shape
+    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+
+
 def test_extract_angles_from_metadata_file():
     angles = extract_angles_from_metadata_file(S2_AWS_METADATA_FILE)
     assert 61.3750584241536 == angles[0]
