@@ -32,6 +32,7 @@ class DataTypeConstants(object):
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     S2_L1C = 'S2_L1C'
+    S2_L2 = 'S2_L2'
     S3_L1_OLCI_RR = 'S3_L1_OLCI_RR'  # todo add data validator and metadata extractor
     S3_L1_OLCI_FR = 'S3_L1_OLCI_FR'  # todo add data validator and metadata extractor
     WV_EMULATOR = 'WV_EMU'
@@ -85,6 +86,54 @@ class S2L1CValidator(DataValidator):
 
     def name(self) -> str:
         return DataTypeConstants.S2_L1C
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = path.split('/')[-1]
+        return self.S2_MATCHER.match(end_of_path) is not None and \
+               os.path.exists('{}/{}'.format(path, self._manifest_file_name))
+
+    def get_relative_path(self, path: str) -> str:
+        dir_name = self.S2_MATCHER.search(path)
+        if dir_name is None:
+            return ''
+        startPos, endPos = dir_name.regs[0]
+        return path[startPos:endPos]
+
+    def get_file_pattern(self) -> str:
+        return self.S2_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime],
+                     end_time: Optional[datetime]) -> bool:
+        if not self.is_valid(path):
+            return False
+        end_of_path = path.split('/')[-1]
+        date_part = ''
+        for path_part in end_of_path.split('_'):
+            if self.TIME_MATCHER.match(path_part) is not None:
+                date_part = path_part
+                break
+        if date_part == '':
+            return False
+        try:
+            time = get_time_from_string(date_part)
+        except ValueError:
+            return False
+        if time is None:
+            return False
+        return start_time <= time <= end_time
+
+
+class S2L2Validator(DataValidator):
+
+    def __init__(self):
+        self.S2_PATTERN = '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?-ac'
+        self.S2_MATCHER = re.compile(self.S2_PATTERN)
+        self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
+        self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
+        self._manifest_file_name = 'MTD_TL.xml'
+
+    def name(self) -> str:
+        return DataTypeConstants.S2_L2
 
     def is_valid(self, path: str) -> bool:
         end_of_path = path.split('/')[-1]
@@ -486,6 +535,7 @@ def _set_up_validators():
     add_validator(WVEmulatorValidator())
     add_validator(AsterValidator())
     add_validator(S2L1CValidator())
+    add_validator(S2L2Validator())
     variables = get_registered_variables()
     for variable in variables:
         add_validator(VariableValidator(variable.short_name))

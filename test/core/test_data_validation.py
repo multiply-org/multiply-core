@@ -1,7 +1,7 @@
 from datetime import datetime
 from multiply_core.observations.data_validation import S2L1CValidator, AWSS2L1Validator, ModisMCD43Validator, \
     ModisMCD15A2HValidator, CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, \
-    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator
+    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator, S2L2Validator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -11,6 +11,7 @@ VALID_AWS_S2_DATA = './test/test_data/s2_aws/15/F/ZX/2016/12/31/1'
 VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
 VALID_S2_PATH = './test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
 ANOTHER_VALID_S2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300'
+VALID_S2L2_PATH = './test/test_data/S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac'
 
 
 def test_aws_s2_validator_matches_pattern():
@@ -56,6 +57,7 @@ def test_s2_get_relative_path():
     assert 'S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300' \
            == validator.get_relative_path(ANOTHER_VALID_S2_PATH)
 
+
 def test_s2_get_file_pattern():
     validator = S2L1CValidator()
     assert '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?' \
@@ -72,12 +74,37 @@ def test_s2_is_valid_for():
     assert not validator.is_valid_for(ANOTHER_VALID_S2_PATH, Polygon(), datetime(2018, 8, 20), datetime(2018, 8, 21))
 
 
-def test_s2_validator_matches_pattern():
-    validator = AWSS2L1Validator()
+def test_s2l2_validator_name():
+    validator = S2L2Validator()
+    assert 'S2_L2' == validator.name()
 
-    assert validator._matches_pattern('/29/S/QB/2017/9/4/0')
-    assert validator._matches_pattern(VALID_AWS_S2_DATA)
-    assert not validator._matches_pattern('fcsfzvdbt/chvs/201')
+
+def test_s2l2_is_valid():
+    validator = S2L2Validator()
+    assert validator.is_valid(VALID_S2L2_PATH)
+    assert not validator.is_valid('S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac')
+    assert not validator.is_valid(
+        './test/test_data/S2B_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac')
+    assert not validator.is_valid(VALID_S2_PATH)
+    assert not validator.is_valid(ANOTHER_VALID_S2_PATH)
+
+
+def test_s2l2_get_relative_path():
+    validator = S2L2Validator()
+    assert 'S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac' \
+           == validator.get_relative_path(VALID_S2L2_PATH)
+
+def test_s2l2_get_file_pattern():
+    validator = S2L2Validator()
+    assert '(S2A|S2B|S2_)_(([A-Z|0-9]{4})_[A-Z|0-9|_]{4})?([A-Z|0-9|_]{6})_(([A-Z|0-9|_]{4})_)?([0-9]{8}T[0-9]{6})_.*.(SAFE)?-ac' \
+           == validator.get_file_pattern()
+
+
+def test_s2l2_is_valid_for():
+    validator = S2L2Validator()
+    assert validator.is_valid_for(VALID_S2L2_PATH, Polygon(), datetime(2017, 6, 4), datetime(2017, 6, 6))
+    assert not validator.is_valid_for(VALID_S2L2_PATH, Polygon(), datetime(2017, 6, 3), datetime(2017, 6, 4))
+    assert not validator.is_valid_for(VALID_S2L2_PATH, Polygon(), datetime(2017, 6, 6), datetime(2017, 6, 7))
 
 
 def test_modis_mcd_43_validator_is_valid():
@@ -354,7 +381,7 @@ def test_variable_validator_is_valid_for():
 def test_get_valid_types():
     valid_types = get_valid_types()
 
-    assert 10 <= len(valid_types)
+    assert 12 <= len(valid_types)
     assert 'AWS_S2_L1C' in valid_types
     assert 'AWS_S2_L2' in valid_types
     assert 'MCD43A1.006' in valid_types
@@ -365,3 +392,5 @@ def test_get_valid_types():
     assert 'ISO_MSI_B_EMU' in valid_types
     assert 'WV_EMU' in valid_types
     assert 'ASTER' in valid_types
+    assert 'S2_L1C' in valid_types
+    assert 'S2_L2' in valid_types
