@@ -98,7 +98,8 @@ class S2Observations(ProductObservations):
     def __init__(self, file_ref: FileRef, reprojection: Optional[Reprojection], emulator_folder: Optional[str]):
         self._file_ref = file_ref
         self._reprojection = reprojection
-        meta_data_file = os.path.join(file_ref.url, "metadata.xml")
+        # meta_data_file = os.path.join(file_ref.url, "metadata.xml")
+        meta_data_file = self._get_metadata_file(file_ref.url)
         sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
         self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
         self._band_emulators = None
@@ -108,6 +109,14 @@ class S2Observations(ProductObservations):
         # emulators are available! revise this by setting up an emulator description
         self._bands_per_observation = len(EMULATOR_BAND_MAP)
         self._no_data_values = NO_DATA_VALUES
+
+    def _get_metadata_file(self, url: str):
+        metadata_file_names = ["metadata.xml", "MTD_TL.xml"]
+        for metadata_file_name in metadata_file_names:
+            candidate_file = os.path.join(url, metadata_file_name)
+            if os.path.exists(candidate_file):
+                return candidate_file
+        raise ValueError(f'No valid metadata file found at {url}')
 
     def _get_data_set_url(self, band_index: int) -> str:
         band_name = BAND_NAMES[band_index]
@@ -164,7 +173,8 @@ class S2ObservationsCreator(ProductObservationsCreator):
 
     @classmethod
     def can_read(cls, file_ref: FileRef) -> bool:
-        return data_validation.AWSS2L2Validator().is_valid(file_ref.url)
+        return data_validation.AWSS2L2Validator().is_valid(file_ref.url) or \
+               data_validation.S2L2Validator().is_valid(file_ref.url)
 
     @classmethod
     def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],

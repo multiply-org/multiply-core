@@ -4,9 +4,10 @@ from multiply_core.util import Reprojection, FileRef
 from multiply_core.observations import S2Observations, S2ObservationsCreator, extract_angles_from_metadata_file, \
     extract_tile_id
 
-S2_FILE = './test/test_data/T32UME_20170910T104021_B10.jp2'
+S2_BASE_FILE = './test/test_data/S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac'
 S2_AWS_BASE_FILE = './test/test_data/product_in_aws_format/'
-S2_METADATA_FILE = './test/test_data/product_in_aws_format/metadata.xml'
+S2_METADATA_FILE = './test/test_data/S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac/MTD_TL.xml'
+S2_AWS_METADATA_FILE = './test/test_data/product_in_aws_format/metadata.xml'
 FAULTY_BASE_FILE = './test/test_data/faulty_product/'
 METADATA_FILE_WITH_FAULTY_TILE_ID = './test/test_data/faulty_product/metadata.xml'
 MISSING_TILE_ID_BASE_FILE = './test/test_data/product_without_tile_id/'
@@ -33,14 +34,21 @@ def test_bands_per_observation():
     bounds = [7.8, 53.5, 8.8, 53.8]
     reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
                                 bounds_srs=bounds_srs, resampling_mode=None)
+
     file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
     s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
     assert s2_observations.bands_per_observation == 10
 
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-06-05', end_time='2017-06-05',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
-def test_get_band_data():
+    assert s2_observations.bands_per_observation == 10
+
+
+def test_aws_s2_get_band_data():
     destination_srs = osr.SpatialReference()
     destination_srs.ImportFromWkt(EPSG_32232_WKT)
     bounds_srs = osr.SpatialReference()
@@ -67,14 +75,21 @@ def test_get_band_data():
 
 
 def test_extract_angles_from_metadata_file():
-    angles = extract_angles_from_metadata_file(S2_METADATA_FILE)
+    angles = extract_angles_from_metadata_file(S2_AWS_METADATA_FILE)
     assert 61.3750584241536 == angles[0]
     assert 160.875894634785 == angles[1]
 
+    angles = extract_angles_from_metadata_file(S2_METADATA_FILE)
+    assert 22.010357062494 == angles[0]
+    assert 134.259951372444 == angles[1]
+
 
 def test_extract_tile_id_from_metadata_file():
-    tile_id = extract_tile_id(S2_METADATA_FILE)
+    tile_id = extract_tile_id(S2_AWS_METADATA_FILE)
     assert 'S2A_OPER_MSI_L1C_TL_SGS__20170112T163115_A008142_T29SQB_N02.04' == tile_id
+
+    tile_id = extract_tile_id(S2_METADATA_FILE)
+    assert 'S2A_OPER_MSI_L1C_TL_SGS__20170605T143900_A010201_T30SWJ_N02.05' == tile_id
 
 
 def test_extract_tile_id_from_metadata_file_when_id_is_missing():
@@ -90,5 +105,8 @@ def test_can_read():
                        mime_type='unknown mime type')
     assert not S2ObservationsCreator.can_read(file_ref)
     file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    assert S2ObservationsCreator.can_read(file_ref)
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-06-05', end_time='2017-06-05',
                        mime_type='unknown mime type')
     assert S2ObservationsCreator.can_read(file_ref)
