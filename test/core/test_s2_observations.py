@@ -187,3 +187,81 @@ def test_s2_bands_per_observation():
     s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
     assert 10 == s2_observations.bands_per_observation
+
+
+def test_aws_s2_get_band_data_by_name():
+    destination_srs = osr.SpatialReference()
+    destination_srs.ImportFromWkt(EPSG_32232_WKT)
+    bounds_srs = osr.SpatialReference()
+    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
+    bounds = [7.8, 53.5, 8.8, 53.8]
+    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
+                                bounds_srs=bounds_srs, resampling_mode=None)
+    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observation_data = s2_observations.get_band_data_by_name('B05_sur.tif')
+    assert (327, 1328) == s2_observation_data.observations.shape
+    assert 4, len(s2_observation_data.metadata.keys())
+    assert 'sza' in s2_observation_data.metadata.keys()
+    assert 61.3750584241536, s2_observation_data.metadata['sza']
+    assert 'saa' in s2_observation_data.metadata.keys()
+    assert 160.875894634785, s2_observation_data.metadata['saa']
+    assert 'vza' in s2_observation_data.metadata.keys()
+    assert 2.776727292381147, s2_observation_data.metadata['vza']
+    assert 'vaa' in s2_observation_data.metadata.keys()
+    assert 177.40153095962427, s2_observation_data.metadata['vaa']
+    assert (327, 1328) == s2_observation_data.mask.shape
+    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+
+
+def test_s2_get_band_data_by_name():
+    destination_srs = osr.SpatialReference()
+    destination_srs.ImportFromWkt(EPSG_32232_WKT)
+    bounds_srs = osr.SpatialReference()
+    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
+    bounds = [7.8, 53.5, 8.8, 53.8]
+    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
+                                bounds_srs=bounds_srs, resampling_mode=None)
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observation_data = s2_observations.get_band_data_by_name('B05_sur.tif')
+    assert (327, 1328) == s2_observation_data.observations.shape
+    assert 4, len(s2_observation_data.metadata.keys())
+    assert 'sza' in s2_observation_data.metadata.keys()
+    assert 61.3750584241536, s2_observation_data.metadata['sza']
+    assert 'saa' in s2_observation_data.metadata.keys()
+    assert 160.875894634785, s2_observation_data.metadata['saa']
+    assert 'vza' in s2_observation_data.metadata.keys()
+    assert 2.776727292381147, s2_observation_data.metadata['vza']
+    assert 'vaa' in s2_observation_data.metadata.keys()
+    assert 177.40153095962427, s2_observation_data.metadata['vaa']
+    assert (327, 1328) == s2_observation_data.mask.shape
+    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+
+
+def test_s2_get_band_data_by_name_full():
+    destination_srs = osr.SpatialReference()
+    destination_srs.ImportFromWkt(EPSG_32232_WKT)
+    bounds_srs = osr.SpatialReference()
+    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
+    bounds = [7.8, 53.5, 8.8, 53.8]
+    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
+                                bounds_srs=bounds_srs, resampling_mode=None)
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observation_data = s2_observations.get_band_data_by_name('T30SWJ_20170605T105031_B05_sur.tif')
+    assert (327, 1328) == s2_observation_data.observations.shape
+    assert 4, len(s2_observation_data.metadata.keys())
+    assert 'sza' in s2_observation_data.metadata.keys()
+    assert 61.3750584241536, s2_observation_data.metadata['sza']
+    assert 'saa' in s2_observation_data.metadata.keys()
+    assert 160.875894634785, s2_observation_data.metadata['saa']
+    assert 'vza' in s2_observation_data.metadata.keys()
+    assert 2.776727292381147, s2_observation_data.metadata['vza']
+    assert 'vaa' in s2_observation_data.metadata.keys()
+    assert 177.40153095962427, s2_observation_data.metadata['vaa']
+    assert (327, 1328) == s2_observation_data.mask.shape
+    assert (434256, 434256) == s2_observation_data.uncertainty.shape

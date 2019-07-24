@@ -129,8 +129,9 @@ class S2Observations(ProductObservations):
         raise ValueError(f'Could not find band {band_name}')
 
     def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
-        if band_name in BAND_NAMES:
-            return self.get_band_data(BAND_NAMES.index(band_name), retrieve_uncertainty)
+        for i, base_band_name in enumerate(BAND_NAMES):
+            if base_band_name in band_name:
+                return self.get_band_data(i, retrieve_uncertainty)
 
     def get_band_data(self, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
         data_set_url = self._get_data_set_url(band_index)
