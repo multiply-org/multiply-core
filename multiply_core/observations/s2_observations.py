@@ -98,7 +98,7 @@ class S2Observations(ProductObservations):
     def __init__(self, file_ref: FileRef, reprojection: Optional[Reprojection], emulator_folder: Optional[str]):
         self._file_ref = file_ref
         self._reprojection = reprojection
-        # meta_data_file = os.path.join(file_ref.url, "metadata.xml")
+        self._data_type = data_validation.get_valid_type(file_ref.url)
         meta_data_file = self._get_metadata_file(file_ref.url)
         sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
         self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
@@ -163,7 +163,7 @@ class S2Observations(ProductObservations):
 
     @property
     def data_type(self) -> str:
-        return data_validation.DataTypeConstants.AWS_S2_L2
+        return self._data_type
 
     def set_no_data_value(self, band: Union[str, int], no_data_value: float):
         if type(band) is str:
