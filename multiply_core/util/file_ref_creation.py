@@ -50,6 +50,30 @@ class AWSS2L2FileRefCreator(FileRefCreator):
                 return time
 
 
+class S2L2FileRefCreator(FileRefCreator):
+
+    def name(self) -> str:
+        return 'S2_L2'
+
+    def create_file_ref(self, path: str) -> FileRef:
+        time = self._extract_time_from_metadata_file(path)
+        return FileRef(path, time, time, 'application/x-directory')
+
+    @staticmethod
+    def _get_xml_root(xml_file_name: str):
+        tree = eT.parse(xml_file_name)
+        return tree.getroot()
+
+    def _extract_time_from_metadata_file(self, filename: str) -> str:
+        """Parses the XML metadata file to extract the sensing time."""
+        root = self._get_xml_root(filename + '/MTD_TL.xml')
+        for child in root:
+            for x in child.findall("SENSING_TIME"):
+                time = x.text.replace('T', ' ').replace('Z', '')
+                time = time[:time.rfind('.')]
+                return time
+
+
 class VariableFileRefCreator(FileRefCreator):
 
     def __init__(self, variable_name: str):
@@ -71,6 +95,7 @@ class FileRefCreation(object):
     def __init__(self):
         self.FILE_REF_CREATORS = []
         self.add_file_ref_creator(AWSS2L2FileRefCreator())
+        self.add_file_ref_creator(S2L2FileRefCreator())
         variables = get_registered_variables()
         for variable in variables:
             self.add_file_ref_creator(VariableFileRefCreator(variable.short_name))
