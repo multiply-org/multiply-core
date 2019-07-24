@@ -38,6 +38,14 @@ class DataTypeConstants(object):
     WV_EMULATOR = 'WV_EMU'
 
 
+def _get_end_of_path(path: str):
+    path = path.replace('\\', '/')
+    if path.endswith('/'):
+        return path.split('/')[-2]
+    return path.split('/')[-1]
+
+
+
 class DataValidator(metaclass=ABCMeta):
 
     @abstractmethod
@@ -88,7 +96,7 @@ class S2L1CValidator(DataValidator):
         return DataTypeConstants.S2_L1C
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.S2_MATCHER.match(end_of_path) is not None and \
                os.path.exists('{}/{}'.format(path, self._manifest_file_name))
 
@@ -106,7 +114,7 @@ class S2L1CValidator(DataValidator):
                      end_time: Optional[datetime]) -> bool:
         if not self.is_valid(path):
             return False
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         date_part = ''
         for path_part in end_of_path.split('_'):
             if self.TIME_MATCHER.match(path_part) is not None:
@@ -136,7 +144,7 @@ class S2L2Validator(DataValidator):
         return DataTypeConstants.S2_L2
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.S2_MATCHER.match(end_of_path) is not None and \
                os.path.exists('{}/{}'.format(path, self._manifest_file_name))
 
@@ -154,7 +162,7 @@ class S2L2Validator(DataValidator):
                      end_time: Optional[datetime]) -> bool:
         if not self.is_valid(path):
             return False
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         date_part = ''
         for path_part in end_of_path.split('_'):
             if self.TIME_MATCHER.match(path_part) is not None:
@@ -255,7 +263,7 @@ class ModisMCD43Validator(DataValidator):
         return DataTypeConstants.MODIS_MCD_43
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.MCD_43_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -279,7 +287,7 @@ class ModisMCD15A2HValidator(DataValidator):
         return DataTypeConstants.MODIS_MCD_15_A2
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.MCD_15_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -338,10 +346,11 @@ class CamsTiffValidator(DataValidator):
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if self.CAMS_NAME_MATCHER.search(path) is not None:
-            if path.endswith('/'):
-                end_of_path = path.split('/')[-2]
-            else:
-                end_of_path = path.split('/')[-1]
+            end_of_path = _get_end_of_path(path)
+            # if path.endswith('/'):
+            #     end_of_path = path.split('/')[-2]
+            # else:
+            #     end_of_path = path.split('/')[-1]
             cams_time = datetime.strptime(end_of_path, '%Y_%m_%d')
             return start_time <= cams_time <= end_time
         return False
@@ -357,7 +366,7 @@ class CamsValidator(DataValidator):
         return DataTypeConstants.CAMS
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.CAMS_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -368,7 +377,7 @@ class CamsValidator(DataValidator):
 
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if self.is_valid(path):
-            end_of_path = path.split('/')[-1]
+            end_of_path = _get_end_of_path(path)
             cams_time = datetime.strptime(end_of_path[:-3], '%Y-%m-%d')
             return start_time <= cams_time <= end_time
         return False
@@ -384,7 +393,7 @@ class S2AEmulatorValidator(DataValidator):
         return DataTypeConstants.S2A_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.EMULATOR_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -407,7 +416,7 @@ class S2BEmulatorValidator(DataValidator):
         return DataTypeConstants.S2B_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.EMULATOR_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -430,7 +439,7 @@ class WVEmulatorValidator(DataValidator):
         return DataTypeConstants.WV_EMULATOR
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.WV_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -453,7 +462,7 @@ class AsterValidator(DataValidator):
         return DataTypeConstants.ASTER
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.ASTER_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -466,7 +475,7 @@ class AsterValidator(DataValidator):
         if not self.is_valid(path):
             return False
         min_lon, min_lat, max_lon, max_lat = roi.bounds
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         path_lat_id = end_of_path[8:9]
         path_lat = float(end_of_path[9:11])
         if path_lat_id == 'S':
@@ -492,7 +501,7 @@ class VariableValidator(DataValidator):
         return self.variable_name
 
     def is_valid(self, path: str) -> bool:
-        end_of_path = path.split('/')[-1]
+        end_of_path = _get_end_of_path(path)
         return self.VARIABLE_NAME_MATCHER.match(end_of_path) is not None
 
     def get_relative_path(self, path: str) -> str:
@@ -504,7 +513,7 @@ class VariableValidator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         if not self.is_valid(path):
             return False
-        end_of_path = path.split('/')[-1].replace('.tif', '')
+        end_of_path = _get_end_of_path(path).replace('.tif', '')
         date_part_1 = end_of_path.split('_')[-2]
         date_part_2 = end_of_path.split('_')[-1]
         try:
