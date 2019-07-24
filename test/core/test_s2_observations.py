@@ -166,3 +166,24 @@ def test_aws_s2_data_type():
     s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
 
     assert 'AWS_S2_L2' == s2_observations.data_type
+
+
+def test_s2_bands_per_observation():
+    destination_srs = osr.SpatialReference()
+    destination_srs.ImportFromWkt(EPSG_32232_WKT)
+    bounds_srs = osr.SpatialReference()
+    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
+    bounds = [7.8, 53.5, 8.8, 53.8]
+    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
+                                bounds_srs=bounds_srs, resampling_mode=None)
+    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+
+    assert 10 == s2_observations.bands_per_observation
+
+    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+                       mime_type='unknown mime type')
+    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+
+    assert 10 == s2_observations.bands_per_observation
