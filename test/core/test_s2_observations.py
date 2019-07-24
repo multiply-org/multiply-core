@@ -27,77 +27,23 @@ __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 
 def test_bands_per_observation():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-
-    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
     assert s2_observations.bands_per_observation == 10
 
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-06-05', end_time='2017-06-05',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_BASE_FILE)
     assert s2_observations.bands_per_observation == 10
 
 
 def test_aws_s2_get_band_data():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
     s2_observation_data = s2_observations.get_band_data(3)
-    assert (327, 1328) == s2_observation_data.observations.shape
-    assert 4, len(s2_observation_data.metadata.keys())
-    assert 'sza' in s2_observation_data.metadata.keys()
-    assert 61.3750584241536, s2_observation_data.metadata['sza']
-    assert 'saa' in s2_observation_data.metadata.keys()
-    assert 160.875894634785, s2_observation_data.metadata['saa']
-    assert 'vza' in s2_observation_data.metadata.keys()
-    assert 2.776727292381147, s2_observation_data.metadata['vza']
-    assert 'vaa' in s2_observation_data.metadata.keys()
-    assert 177.40153095962427, s2_observation_data.metadata['vaa']
-    assert (327, 1328) == s2_observation_data.mask.shape
-    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+    _assert_aws_s2_observation_data(s2_observation_data)
 
 
 def test_s2_get_band_data():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observations = _get_observations(S2_BASE_FILE)
     s2_observation_data = s2_observations.get_band_data(3)
-    assert (327, 1328) == s2_observation_data.observations.shape
-    assert 4, len(s2_observation_data.metadata.keys())
-    assert 'sza' in s2_observation_data.metadata.keys()
-    assert 22.010357062494, s2_observation_data.metadata['sza']
-    assert 'saa' in s2_observation_data.metadata.keys()
-    assert 134.259951372444, s2_observation_data.metadata['saa']
-    assert 'vza' in s2_observation_data.metadata.keys()
-    assert 9.962752734083384, s2_observation_data.metadata['vza']
-    assert 'vaa' in s2_observation_data.metadata.keys()
-    assert 103.25709630521224, s2_observation_data.metadata['vaa']
-    assert (327, 1328) == s2_observation_data.mask.shape
-    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+    _assert_s2_observation_data(s2_observation_data)
 
 
 def test_extract_angles_from_metadata_file():
@@ -139,83 +85,42 @@ def test_can_read():
 
 
 def test_s2_data_type():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_BASE_FILE)
     assert 'S2_L2' == s2_observations.data_type
 
 
 def test_aws_s2_data_type():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
     assert 'AWS_S2_L2' == s2_observations.data_type
 
 
 def test_s2_bands_per_observation():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
     assert 10 == s2_observations.bands_per_observation
 
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-
+    s2_observations = _get_observations(S2_BASE_FILE)
     assert 10 == s2_observations.bands_per_observation
 
 
 def test_aws_s2_get_band_data_by_name():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
     s2_observation_data = s2_observations.get_band_data_by_name('B05_sur.tif')
-    assert (327, 1328) == s2_observation_data.observations.shape
-    assert 4, len(s2_observation_data.metadata.keys())
-    assert 'sza' in s2_observation_data.metadata.keys()
-    assert 61.3750584241536, s2_observation_data.metadata['sza']
-    assert 'saa' in s2_observation_data.metadata.keys()
-    assert 160.875894634785, s2_observation_data.metadata['saa']
-    assert 'vza' in s2_observation_data.metadata.keys()
-    assert 2.776727292381147, s2_observation_data.metadata['vza']
-    assert 'vaa' in s2_observation_data.metadata.keys()
-    assert 177.40153095962427, s2_observation_data.metadata['vaa']
-    assert (327, 1328) == s2_observation_data.mask.shape
-    assert (434256, 434256) == s2_observation_data.uncertainty.shape
+    _assert_aws_s2_observation_data(s2_observation_data)
 
 
 def test_s2_get_band_data_by_name():
+    s2_observations = _get_observations(S2_AWS_BASE_FILE)
+    s2_observation_data = s2_observations.get_band_data_by_name('B05_sur.tif')
+    _assert_s2_observation_data(s2_observation_data)
+
+
+def test_s2_get_band_data_by_name_full():
+    s2_observations = _get_observations(S2_BASE_FILE)
+    s2_observation_data = s2_observations.get_band_data_by_name('T30SWJ_20170605T105031_B05_sur.tif')
+    _assert_s2_observation_data(s2_observation_data)
+
+
+def _get_observations(url: str):
     destination_srs = osr.SpatialReference()
     destination_srs.ImportFromWkt(EPSG_32232_WKT)
     bounds_srs = osr.SpatialReference()
@@ -223,10 +128,12 @@ def test_s2_get_band_data_by_name():
     bounds = [7.8, 53.5, 8.8, 53.8]
     reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
                                 bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
+    file_ref = FileRef(url=url, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-    s2_observation_data = s2_observations.get_band_data_by_name('B05_sur.tif')
+    return S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+
+
+def _assert_aws_s2_observation_data(s2_observation_data):
     assert (327, 1328) == s2_observation_data.observations.shape
     assert 4, len(s2_observation_data.metadata.keys())
     assert 'sza' in s2_observation_data.metadata.keys()
@@ -241,18 +148,7 @@ def test_s2_get_band_data_by_name():
     assert (434256, 434256) == s2_observation_data.uncertainty.shape
 
 
-def test_s2_get_band_data_by_name_full():
-    destination_srs = osr.SpatialReference()
-    destination_srs.ImportFromWkt(EPSG_32232_WKT)
-    bounds_srs = osr.SpatialReference()
-    bounds_srs.SetWellKnownGeogCS('EPSG:4326')
-    bounds = [7.8, 53.5, 8.8, 53.8]
-    reprojection = Reprojection(bounds=bounds, x_res=50, y_res=100, destination_srs=destination_srs,
-                                bounds_srs=bounds_srs, resampling_mode=None)
-    file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
-                       mime_type='unknown mime type')
-    s2_observations = S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
-    s2_observation_data = s2_observations.get_band_data_by_name('T30SWJ_20170605T105031_B05_sur.tif')
+def _assert_s2_observation_data(s2_observation_data):
     assert (327, 1328) == s2_observation_data.observations.shape
     assert 4, len(s2_observation_data.metadata.keys())
     assert 'sza' in s2_observation_data.metadata.keys()
