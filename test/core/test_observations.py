@@ -75,7 +75,7 @@ def test_create_observations():
     start_time = '2017-06-04'
     file_refs = [FileRef(url=DUMMY_FILE, start_time=start_time, end_time='2017-06-07', mime_type='unknown mime type'),
                  FileRef(url='tzzg', start_time='2017-06-07', end_time='2017-06-10', mime_type='unknown mime type')]
-    observations_wrapper = observations_factory.create_observations(file_refs, None, '')
+    observations_wrapper = observations_factory.create_observations(file_refs, None, None)
 
     assert 1, observations_wrapper.get_num_observations()
     assert 15, observations_wrapper.bands_per_observation(0)

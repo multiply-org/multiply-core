@@ -13,6 +13,8 @@ import scipy.sparse as sp
 from typing import List, Optional, Union
 
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
+from .data_validation import get_valid_type
+from ..models.forward_models import get_forward_models
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -179,12 +181,23 @@ class ObservationsFactory(object):
                 return observations
 
     def create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection] = None,
-                            emulator_folder: Optional[str] = None) -> \
+                            forward_model_names: Optional[List[str]] = None) -> \
             ObservationsWrapper:
         observations_wrapper = ObservationsWrapper()
         self.sort_file_ref_list(file_refs)
         for file_ref in file_refs:
-            observations = self._create_observations(file_ref, reprojection, emulator_folder)
+            emulators_dir = None
+            if forward_model_names is not None:
+                forward_models = get_forward_models()
+                data_type = get_valid_type(file_ref.url)
+                for forward_model_name in forward_model_names:
+                    for forward_model in forward_models:
+                        if forward_model.name == forward_model_name and forward_model.input_type == data_type:
+                            emulators_dir = forward_model.model_dir
+                            break
+                if emulators_dir is not None:
+                    break
+            observations = self._create_observations(file_ref, reprojection, emulators_dir)
             if observations is not None:
                 observations_wrapper.add_observations(observations, file_ref.start_time)
         return observations_wrapper
