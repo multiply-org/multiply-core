@@ -33,7 +33,7 @@ def test_geotiff_writer_create():
 
 
 def test_geotiff_writer_create_invalid_num_bands():
-    with raises(ValueError, message = 'List with number of bands must be of same size as list of file names'):
+    with raises(ValueError, message='List with number of bands must be of same size as list of file names'):
         file_names = [os.path.abspath('{}/name21.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name22.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name23.tif'.format(GEOTIFF_WRITE_FOLDER)),
@@ -52,7 +52,7 @@ def test_geotiff_writer_create_invalid_num_bands():
 
 
 def test_geotiff_writer_create_invalid_data_types():
-    with raises(ValueError, message = 'Data Type dgfvbgf not supported.'):
+    with raises(ValueError, message='Data Type dgfvbgf not supported.'):
         file_names = [os.path.abspath('{}/name31.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name32.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name33.tif'.format(GEOTIFF_WRITE_FOLDER)),
@@ -70,7 +70,7 @@ def test_geotiff_writer_create_invalid_data_types():
 
 
 def test_geotiff_writer_create_invalid_number_of_data_types():
-    with raises(ValueError, message = 'List with data types must be of same size as list of file names'):
+    with raises(ValueError, message='List with data types must be of same size as list of file names'):
         file_names = [os.path.abspath('{}/name41.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name42.tif'.format(GEOTIFF_WRITE_FOLDER)),
                       os.path.abspath('{}/name43.tif'.format(GEOTIFF_WRITE_FOLDER)),
@@ -124,18 +124,26 @@ def test_geotiff_writer_write():
                                 [0.3670538, 0.37250119, 0.55795222],
                                 [0.01902248, 0.72941351, 0.57023361]]]),
                      np.array([[7, 3, 2, 5, 2, 14, 34, 1, 10, 2, 15, 5]]),
-                     np.array([0.03280384, 0.94485231, 0.43253641, 0.29359502, 0.84187526, 0.50992254,
-                      0.29902775, 0.48802801, 0.19521612, 0.16601624, 0.95941332, 0.90352063])]
+                     np.array([0.03280384, 0.94485231, 0.43253641, 0.29359502, 0.84187526, 0.50992254, 0.29902775,
+                               0.48802801, 0.19521612, 0.16601624, 0.95941332, 0.90352063])]
+        expected_data_list = data_list.copy()
+        expected_data_list[3] = np.array([[7, 3, 2], [5, 2, 14], [34, 1, 10], [2, 15, 5]])
+        expected_data_list[4] = np.array([[0.03280384, 0.94485231, 0.43253641], [0.29359502, 0.84187526, 0.50992254],
+                                          [0.29902775, 0.48802801, 0.19521612], [0.16601624, 0.95941332, 0.90352063]])
         writer.write(data_list)
         writer.close()
-        for file_name in file_names:
+        for i, file_name in enumerate(file_names):
             assert os.path.exists(file_name)
-
-            #todo assert data is read correctly
-            # read_data = gdal.Open(file_name)
-            # for i, data in enumerate(data_list):
-            #     data = read_data.GetRasterBand(i + 1).ReadArray()
-
+            read_data = gdal.Open(file_name)
+            if len(expected_data_list[i].shape) == 2:
+                data = read_data.GetRasterBand(1).ReadAsArray()
+                np.testing.assert_array_almost_equal(expected_data_list[i], data)
+            else:
+                for j, data_part in enumerate(expected_data_list[i]):
+                    data = read_data.GetRasterBand(j + 1).ReadAsArray()
+                    np.testing.assert_array_almost_equal(data_part, data)
+        # noinspection PyUnusedLocal
+        read_data = None
     finally:
         for file_name in file_names:
             if os.path.exists(file_name):
