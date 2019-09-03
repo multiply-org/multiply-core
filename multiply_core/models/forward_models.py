@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import json
 import logging
@@ -137,6 +137,13 @@ def _register_forward_model(forward_model_file: str, forward_models_registry_fil
 def get_forward_models() -> List[ForwardModel]:
     forward_models_file = _get_default_forward_models_file()
     return _get_forward_models(forward_models_file)
+
+
+def get_forward_model(model_name: str) -> Optional[ForwardModel]:
+    models = get_forward_models()
+    for model in models:
+        if model.id == model_name:
+            return model
 
 
 def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
