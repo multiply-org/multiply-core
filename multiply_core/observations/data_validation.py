@@ -38,12 +38,14 @@ class DataTypeConstants(object):
     WV_EMULATOR = 'WV_EMU'
 
 
+INPUT_TYPES = {DataTypeConstants.S2_L1C: {'name': "Sentinel-2 MSI L1C", "timeRange": ["06-23-2015", '']}}
+
+
 def _get_end_of_path(path: str):
     path = path.replace('\\', '/')
     if path.endswith('/'):
         return path.split('/')[-2]
     return path.split('/')[-1]
-
 
 
 class DataValidator(metaclass=ABCMeta):
