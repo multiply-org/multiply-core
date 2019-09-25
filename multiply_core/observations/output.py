@@ -54,10 +54,13 @@ class GeoTiffWriter(Writer):
                 os.makedirs(parent_dir)
             if not file_name.endswith('.tif') and not file_name.endswith('tiff'):
                 file_name = file_name + '.tif'
-            data_set = drv.Create(file_name, width, height, num_bands[i], gdal_data_types[i],
+            if os.path.exists(file_name):
+                data_set = gdal.OpenShared(file_name, gdal.GA_Update)
+            else:
+                data_set = drv.Create(file_name, width, height, num_bands[i], gdal_data_types[i],
                                   ['COMPRESS=DEFLATE', 'BIGTIFF=YES', 'PREDICTOR=1', 'TILED=YES'])
-            data_set.SetProjection(projection)
-            data_set.SetGeoTransform(geo_transform)
+                data_set.SetProjection(projection)
+                data_set.SetGeoTransform(geo_transform)
             self._destination_data_sets.append(data_set)
 
     @staticmethod
@@ -78,7 +81,7 @@ class GeoTiffWriter(Writer):
         if height is None:
             height = self._height
         for i, d in enumerate(data):
-            if d.shape == (width * height, ):
+            if d.shape == (width * height,):
                 d = d.reshape(height, width)
             elif d.shape == (self.num_bands[i], width * height):
                 d = d.reshape(self.num_bands[i], height, width)
@@ -87,9 +90,11 @@ class GeoTiffWriter(Writer):
             assert d.shape == (height, width) or d.shape == (self.num_bands[i], height, width)
             if self.num_bands[i] > 1:
                 for band in range(self.num_bands[i]):
-                    self._destination_data_sets[i].GetRasterBand(band + 1).WriteArray(d[band])
+                    self._destination_data_sets[i].GetRasterBand(band + 1).WriteArray(d[band],
+                                                                                      xoff=offset_x, yoff=offset_y)
             else:
-                self._destination_data_sets[i].GetRasterBand(1).WriteArray(d)
+                self._destination_data_sets[i].GetRasterBand(1).WriteArray(d, xoff=offset_x, yoff=offset_y)
+            self._destination_data_sets[i].FlushCache()
 
     def close(self):
         for dataset in self._destination_data_sets:
