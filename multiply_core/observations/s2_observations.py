@@ -1,6 +1,7 @@
 from gdal import Open
 import _pickle as cPickle
 import glob
+import logging
 import os
 import numpy as np
 import scipy.sparse as sp
@@ -9,7 +10,7 @@ import xml.etree.ElementTree as eT
 from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, \
     data_validation
 from multiply_core.util import FileRef, Reprojection
-from typing import Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
@@ -18,6 +19,22 @@ EMULATOR_BAND_MAP = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
 BAND_NAMES = ['B02_sur.tif', 'B03_sur.tif', 'B04_sur.tif', 'B05_sur.tif', 'B06_sur.tif', 'B07_sur.tif',
               'B08_sur.tif', 'B8A_sur.tif', 'B09_sur.tif', 'B12_sur.tif', 'B01_sur.tif', 'B10_sur.tif', 'B11_sur.tif']
 NO_DATA_VALUES = [0.0] * len(BAND_NAMES)
+BAND_PROB_THRESHOLD = 20
+CLOUD_MASK_NAME = 'cloud.tif'
+SUN_ANGLES_NAME = 'SAA_SZA.tif'
+VIEW_ANGLES_NAME = 'VAA_VZA_B05.tif'
+
+
+LOG = logging.getLogger(__name__ + ".Sentinel2_Observations")
+LOG.setLevel(logging.INFO)
+if not LOG.handlers:
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - ' +
+                                  '%(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    LOG.addHandler(ch)
+LOG.propagate = False
 
 
 def _get_xml_root(xml_file_name: str):
@@ -118,15 +135,20 @@ class S2Observations(ProductObservations):
                 return candidate_file
         raise ValueError(f'No valid metadata file found at {url}')
 
-    def _get_data_set_url(self, band_index: int) -> str:
+    def _get_raw_band_data(self, band_index: int) -> np.array:
         if band_index > len(BAND_NAMES):
             raise ValueError(f'Invalid band index: {band_index} > {len(BAND_NAMES)}')
-        band_name = BAND_NAMES[band_index]
+        return self._get_raw_band_data_from_name(BAND_NAMES[band_index])
+
+    def _get_raw_band_data_from_name(self, band_name: str) -> np.array:
         data_set_base_url = self._file_ref.url
         data_set_urls = glob.glob('{}/*{}*'.format(data_set_base_url, band_name))
-        if len(data_set_urls) > 0:
-            return data_set_urls[0]
-        raise ValueError(f'Could not find band {band_name}')
+        if len(data_set_urls) == 0:
+            raise ValueError(f'Could not find band {band_name}')
+        data_set = Open(data_set_urls[0])
+        if self._reprojection is not None:
+              data_set = self._reprojection.reproject(data_set)
+        return data_set.ReadAsArray()
 
     def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         for i, base_band_name in enumerate(BAND_NAMES):
@@ -134,11 +156,7 @@ class S2Observations(ProductObservations):
                 return self.get_band_data(i, retrieve_uncertainty)
 
     def get_band_data(self, band_index: int, retrieve_uncertainty: bool = True) -> ObservationData:
-        data_set_url = self._get_data_set_url(band_index)
-        data_set = Open(data_set_url)
-        if self._reprojection is not None:
-            data_set = self._reprojection.reproject(data_set)
-        data = data_set.ReadAsArray()
+        data = self._get_raw_band_data(band_index)
         mask = data > 0
         data = np.where(mask, data / 10000., self._no_data_values[band_index])
 
@@ -170,6 +188,37 @@ class S2Observations(ProductObservations):
         if type(band) is str:
             band = BAND_NAMES.index(band)
         self._no_data_values[band] = no_data_value
+
+    def read_granule(self) -> (List[np.array], np.array, np.float, np.float, np.float, List[np.array]):
+        band_map = ['B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B10', 'B11', 'B12']
+        cloud_mask = self._get_raw_band_data_from_name(CLOUD_MASK_NAME)
+        mask = cloud_mask <= BAND_PROB_THRESHOLD
+        if mask.sum() == 0:
+            return None, None, None, None, None, None
+        rho_surface = []
+        rho_unc = []
+        for band in band_map:
+            rho_surface.append(self._get_raw_band_data_from_name(f'{band}_sur.tif'))
+            rho_unc.append(self._get_raw_band_data_from_name(f'{band}_sur_unc.tif'))
+
+        rho_surface = np.array(rho_surface) / 10000.0
+        rho_unc = np.array(rho_unc) / 10000.0
+
+        inverse_mask = np.all(rho_surface[[1, 2, 3, 4, 5, 6, 7, 8, ]] > 0, axis=0) & (~mask)
+        mask = ~inverse_mask
+        rho_unc[:, inverse_mask] = np.nan
+        rho_unc = np.nanmean(rho_unc, axis=(1, 2))
+        rho_surface[:, inverse_mask] = np.nan
+        if mask.sum() == 0:
+            return None, None, None, None, None, None
+        sun_angles = self._get_raw_band_data_from_name(SUN_ANGLES_NAME)
+        view_angles = self._get_raw_band_data_from_name(VIEW_ANGLES_NAME)
+        sza = np.cos(np.deg2rad(sun_angles[1].mean() / 100.0))
+        vza = np.cos(np.deg2rad(view_angles[1].mean() / 100.0))
+        saa = sun_angles[0].mean() / 100.0
+        vaa = view_angles[0].mean() / 100.0
+        raa = np.cos(np.deg2rad(vaa - saa))
+        return rho_surface, mask, sza, vza, raa, rho_unc
 
 
 class S2ObservationsCreator(ProductObservationsCreator):

@@ -7,6 +7,7 @@ This module defines the interface to MULTIPLY observations.
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
+import logging
 import numpy as np
 import pkg_resources
 import scipy.sparse as sp
@@ -17,6 +18,17 @@ from .data_validation import get_valid_type
 from ..models.forward_models import get_forward_models
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
+
+LOG = logging.getLogger(__name__ + ".Sentinel2_Observations")
+LOG.setLevel(logging.INFO)
+if not LOG.handlers:
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - ' +
+                                  '%(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    LOG.addHandler(ch)
+LOG.propagate = False
 
 
 class ObservationData(object):
@@ -83,6 +95,10 @@ class ProductObservations(metaclass=ABCMeta):
     @abstractmethod
     def set_no_data_value(self, band: Union[str, int], no_data_value: float):
         """Sets a new no data value to a band."""
+
+    @abstractmethod
+    def read_granule(self) -> (List[np.array], np.array, np.float, np.float, np.float, List[np.array]):
+        """Reads """
 
 
 class ProductObservationsCreator(metaclass=ABCMeta):
@@ -160,6 +176,12 @@ class ObservationsWrapper(object):
         :return: The data type of the observations on the given date
         """
         return self._observations[date].data_type
+
+    def read_granule(self, date: datetime) -> (List[np.array], np.array, np.float, np.float, np.float, List[np.array]):
+        granule = self._observations[date].read_granule()
+        if granule[0] is None:
+            LOG.info(f"{str(date):s} -> No clear observations")
+        return granule
 
 
 class ObservationsFactory(object):
