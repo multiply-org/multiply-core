@@ -28,7 +28,7 @@ class DataTypeConstants(object):
     CAMS_TIFF = 'CAMS_TIFF'
     MODIS_MCD_43 = 'MCD43A1.006'
     MODIS_MCD_15_A2 = 'MCD15A2H.006'
-    S1_SLC = 'S1_SLC'  # todo add data validator and metadata extractor
+    S1_SLC = 'S1_SLC'
     S2A_EMULATOR = 'ISO_MSI_A_EMU'
     S2B_EMULATOR = 'ISO_MSI_B_EMU'
     S2_L1C = 'S2_L1C'
