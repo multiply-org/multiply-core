@@ -214,7 +214,7 @@ class ObservationsFactory(object):
                 data_type = get_valid_type(file_ref.url)
                 for forward_model_name in forward_model_names:
                     for forward_model in forward_models:
-                        if forward_model.name == forward_model_name and forward_model.input_type == data_type:
+                        if forward_model.id == forward_model_name and forward_model.input_type == data_type:
                             emulators_dir = forward_model.model_dir
                             break
                 if emulators_dir is not None:
