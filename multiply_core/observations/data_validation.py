@@ -85,6 +85,49 @@ class DataValidator(metaclass=ABCMeta):
         """
 
 
+class S1SlcValidator(DataValidator):
+
+    def __init__(self):
+        self._S1_PATTERN = \
+            '(S1A|S1B)_(IW|EW|WV|(S[1-9]{1}))_SLC__1([A-Z]{3})_([0-9]{8}T[0-9]{6})_([0-9]{8}T[0-9]{6})_.*.(SAFE)?'
+        self._S1_MATCHER = re.compile(self._S1_PATTERN)
+        self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
+        self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
+
+    def name(self) -> str:
+        return DataTypeConstants.S1_SLC
+
+    def is_valid(self, path: str) -> bool:
+        end_of_path = _get_end_of_path(path)
+        return self._S1_MATCHER.match(end_of_path) is not None
+
+    def get_relative_path(self, path: str) -> str:
+        return ''
+
+    def get_file_pattern(self) -> str:
+        return self._S1_PATTERN
+
+    def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime],
+                     end_time: Optional[datetime]) -> bool:
+        if not self.is_valid(path):
+            return False
+        end_of_path = _get_end_of_path(path)
+        date_part = ''
+        for path_part in end_of_path.split('_'):
+            if self.TIME_MATCHER.match(path_part) is not None:
+                date_part = path_part
+                break
+        if date_part == '':
+            return False
+        try:
+            time = get_time_from_string(date_part)
+        except ValueError:
+            return False
+        if time is None:
+            return False
+        return start_time <= time <= end_time
+
+
 class S2L1CValidator(DataValidator):
 
     def __init__(self):
@@ -547,6 +590,7 @@ def _set_up_validators():
     add_validator(AsterValidator())
     add_validator(S2L1CValidator())
     add_validator(S2L2Validator())
+    add_validator(S1SlcValidator())
     variables = get_registered_variables()
     for variable in variables:
         add_validator(VariableValidator(variable.short_name))

@@ -1,7 +1,7 @@
 from datetime import datetime
 from multiply_core.observations.data_validation import S2L1CValidator, AWSS2L1Validator, ModisMCD43Validator, \
     ModisMCD15A2HValidator, CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, \
-    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator, S2L2Validator
+    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator, S2L2Validator, S1SlcValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -12,6 +12,50 @@ VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
 VALID_S2_PATH = './test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
 ANOTHER_VALID_S2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300'
 VALID_S2L2_PATH = './test/test_data/S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac'
+
+
+def test_s1_slc_validator_get_relative_path():
+    validator = S1SlcValidator()
+
+    assert '' == validator.get_relative_path(
+        '/some/path/S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
+
+
+def test_s1_slc_validator_name():
+    validator = S1SlcValidator()
+    assert 'S1_SLC' == validator.name()
+
+
+def test_s1_slc_is_valid():
+    validator = S1SlcValidator()
+    # assert validator.is_valid(VALID_S2_PATH)
+    assert validator.is_valid('S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
+    assert validator.is_valid('S1A_EW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90.SAFE')
+    assert validator.is_valid('S1B_WV_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90.SAFE')
+    assert validator.is_valid('S1A_S9_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
+
+    assert not validator.is_valid('S2A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
+    assert not validator.is_valid('S1A_IW_GRD__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90.SAFE')
+    assert not validator.is_valid('S1A_S10_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
+    assert not validator.is_valid('dtsfrghgj')
+
+
+def test_s1_slc_get_file_pattern():
+    validator = S1SlcValidator()
+    assert '(S1A|S1B)_(IW|EW|WV|(S[1-9]{1}))_SLC__1([A-Z]{3})_([0-9]{8}T[0-9]{6})_([0-9]{8}T[0-9]{6})_.*.(SAFE)?' \
+           == validator.get_file_pattern()
+
+
+def test_s1_slc_is_valid_for():
+    validator = S1SlcValidator()
+    s1_path = 'S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90'
+    other_s1_path = 'S1A_IW_SLC__1SDH_20160607T170314_20160607T170344_000421_0004CC_1A90'
+    assert validator.is_valid_for(s1_path, Polygon(), datetime(2014, 5, 1), datetime(2014, 5, 3))
+    assert not validator.is_valid_for(s1_path, Polygon(), datetime(2014, 4, 30), datetime(2014, 5, 1))
+    assert not validator.is_valid_for(s1_path, Polygon(), datetime(2014, 5, 3), datetime(2014, 5, 4))
+    assert validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 6), datetime(2016, 6, 8))
+    assert not validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 5), datetime(2016, 6, 6))
+    assert not validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 8), datetime(2018, 6, 9))
 
 
 def test_aws_s2_validator_matches_pattern():
