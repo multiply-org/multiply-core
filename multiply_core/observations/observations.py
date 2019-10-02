@@ -217,8 +217,8 @@ class ObservationsFactory(object):
                         if forward_model.id == forward_model_name and forward_model.input_type == data_type:
                             emulators_dir = forward_model.model_dir
                             break
-                if emulators_dir is not None:
-                    break
+                    if emulators_dir is not None:
+                        break
             observations = self._create_observations(file_ref, reprojection, emulators_dir)
             if observations is not None:
                 observations_wrapper.add_observations(observations, file_ref.start_time)
