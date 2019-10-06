@@ -14,6 +14,7 @@ from multiply_core.util import get_time_from_string
 from multiply_core.variables import get_registered_variables
 from shapely.geometry import Polygon
 from typing import List, Optional
+import glob
 import re
 import os
 
@@ -136,14 +137,27 @@ class S2L1CValidator(DataValidator):
         self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
         self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
         self._manifest_file_name = 'MTD_MSIL1C.xml'
+        self._expected_files = [['B01_sur.tif', 'B01_sur.tiff'], ['B02_sur.tif', 'B02_sur.tiff'],
+                                ['B03_sur.tif', 'B03_sur.tiff'], ['B04_sur.tif', 'B04_sur.tiff'],
+                                ['B05_sur.tif', 'B05_sur.tiff'], ['B06_sur.tif', 'B06_sur.tiff'],
+                                ['B07_sur.tif', 'B07_sur.tiff'], ['B08_sur.tif', 'B08_sur.tiff'],
+                                ['B8A_sur.tif', 'B8A_sur.tiff'], ['B09_sur.tif', 'B09_sur.tiff'],
+                                ['B10_sur.tif', 'B10_sur.tiff'], ['B11_sur.tif', 'B11_sur.tiff'],
+                                ['B12_sur.tif', 'B12_sur.tiff'], ['metadata.xml']]
 
     def name(self) -> str:
         return DataTypeConstants.S2_L1C
 
     def is_valid(self, path: str) -> bool:
         end_of_path = _get_end_of_path(path)
-        return self.S2_MATCHER.match(end_of_path) is not None and \
-               os.path.exists('{}/{}'.format(path, self._manifest_file_name))
+        if not (self.S2_MATCHER.match(end_of_path) is not None and
+                os.path.exists('{}/{}'.format(path, self._manifest_file_name))):
+            return False
+        for files in self._expected_files:
+            for file in files:
+                if len(glob.glob(f'{path}/*{file}')) > 0:
+                    return False
+        return True
 
     def get_relative_path(self, path: str) -> str:
         dir_name = self.S2_MATCHER.search(path)
