@@ -178,6 +178,9 @@ class ObservationsWrapper(object):
         return self._observations[date].data_type
 
     def read_granule(self, date: datetime) -> (List[np.array], np.array, np.float, np.float, np.float, List[np.array]):
+        if date not in self.dates:
+            LOG.info(f"{str(date):s} not available!")
+            return None, None, None, None, None, None
         granule = self._observations[date].read_granule()
         if granule[0] is None:
             LOG.info(f"{str(date):s} -> No clear observations")
