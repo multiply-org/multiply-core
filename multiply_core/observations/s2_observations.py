@@ -19,7 +19,7 @@ EMULATOR_BAND_MAP = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
 BAND_NAMES = ['B02_sur.tif', 'B03_sur.tif', 'B04_sur.tif', 'B05_sur.tif', 'B06_sur.tif', 'B07_sur.tif',
               'B08_sur.tif', 'B8A_sur.tif', 'B09_sur.tif', 'B12_sur.tif', 'B01_sur.tif', 'B10_sur.tif', 'B11_sur.tif']
 NO_DATA_VALUES = [0.0] * len(BAND_NAMES)
-BAND_PROB_THRESHOLD = 20
+BAND_PROB_THRESHOLD = 5
 CLOUD_MASK_NAME = 'cloud.tif'
 SUN_ANGLES_NAME = 'SAA_SZA.tif'
 VIEW_ANGLES_NAME = 'VAA_VZA_B05.tif'
@@ -198,19 +198,25 @@ class S2Observations(ProductObservations):
         rho_surface = []
         rho_unc = []
         for band in band_map:
-            rho_surface.append(self._get_raw_band_data_from_name(f'{band}_sur.tif'))
-            rho_unc.append(self._get_raw_band_data_from_name(f'{band}_sur_unc.tif'))
+            rho = self._get_raw_band_data_from_name(f'{band}_sur.tif')
+            rho_surface.append(rho)
+            # rho_unc.append(self._get_raw_band_data_from_name(f'{band}_sur_unc.tif'))
+            rho_unc.append(np.ones_like(rho) * 0.005)
 
         rho_surface = np.array(rho_surface) / 10000.0
         rho_unc = np.array(rho_unc) / 10000.0
 
-        inverse_mask = np.all(rho_surface[[1, 2, 3, 4, 5, 6, 7, 8, ]] > 0, axis=0) & (~mask)
-        mask = ~inverse_mask
-        rho_unc[:, inverse_mask] = np.nan
-        rho_unc = np.nanmean(rho_unc, axis=(1, 2))
-        rho_surface[:, inverse_mask] = np.nan
+        # Ensure all surface reflectance pixels have values above 0 & aren't cloudy.
+        sel_bands = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+        mask = np.logical_and(
+            np.all(rho_surface[sel_bands] > 0, axis=0), mask
+        )
         if mask.sum() == 0:
             return None, None, None, None, None, None
+        rho_unc[:, ~mask] = np.nan
+        rho_unc = np.nanmean(rho_unc, axis=(1, 2))
+        rho_surface[:, ~mask] = np.nan
+
         sun_angles = self._get_raw_band_data_from_name(SUN_ANGLES_NAME)
         view_angles = self._get_raw_band_data_from_name(VIEW_ANGLES_NAME)
         sza = np.cos(np.deg2rad(sun_angles[1].mean() / 100.0))
