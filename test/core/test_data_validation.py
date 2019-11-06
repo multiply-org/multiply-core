@@ -1,7 +1,8 @@
 from datetime import datetime
 from multiply_core.observations.data_validation import S2L1CValidator, AWSS2L1Validator, ModisMCD43Validator, \
     ModisMCD15A2HValidator, CamsValidator, S2AEmulatorValidator, S2BEmulatorValidator, WVEmulatorValidator, \
-    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator, S2L2Validator, S1SlcValidator
+    AsterValidator, get_valid_types, CamsTiffValidator, VariableValidator, S2L2Validator, S1SlcValidator, \
+    S1SpeckledValidator
 from shapely.geometry import Polygon
 from shapely.wkt import loads
 
@@ -28,7 +29,7 @@ def test_s1_slc_validator_name():
 
 def test_s1_slc_is_valid():
     validator = S1SlcValidator()
-    # assert validator.is_valid(VALID_S2_PATH)
+
     assert validator.is_valid('S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90')
     assert validator.is_valid('S1A_EW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90.SAFE')
     assert validator.is_valid('S1B_WV_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90.SAFE')
@@ -56,6 +57,55 @@ def test_s1_slc_is_valid_for():
     assert validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 6), datetime(2016, 6, 8))
     assert not validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 5), datetime(2016, 6, 6))
     assert not validator.is_valid_for(other_s1_path, Polygon(), datetime(2016, 6, 8), datetime(2018, 6, 9))
+
+
+def test_s1_speckled_validator_get_relative_path():
+    validator = S1SpeckledValidator()
+
+    assert '' == validator.get_relative_path(
+        '/some/path/S1A_IW_SLC__1SDV_20170525T170030_20170525T170057_016741_01BCE3_9B0A_GC_RC_No_Su_Co_speckle.nc')
+
+
+def test_s1_speckled_validator_name():
+    validator = S1SpeckledValidator()
+    assert 'S1_Speckled' == validator.name()
+
+
+def test_s1_speckled_is_valid():
+    validator = S1SpeckledValidator()
+
+    assert validator.is_valid(
+        'S1A_IW_SLC__1SDV_20170525T170030_20170525T170057_016741_01BCE3_9B0A_GC_RC_No_Su_Co_speckle.nc')
+    assert validator.is_valid(
+        'S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90_GC_RC_No_Su_Co_speckle.nc')
+    assert validator.is_valid(
+        'S1B_IW_SLC__1SDV_20170524T170804_20170524T170831_005743_00A0F5_841A_GC_RC_No_Su_Co_speckle.nc')
+
+    assert not validator.is_valid('S1A_IW_SLC__1SDV_20170525T170030_20170525T170057_016741_01BCE3_9B0A')
+    assert not validator.is_valid(
+        'S2B_IW_SLC__1SDV_20170524T170804_20170524T170831_005743_00A0F5_841A_GC_RC_No_Su_Co_speckle.nc')
+    assert not validator.is_valid(
+        'S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90_GC_RC_No_Su_Co.nc')
+    assert not validator.is_valid('dtsfrghgj')
+
+
+def test_s1_speckled_get_file_pattern():
+    validator = S1SpeckledValidator()
+    assert '(S1A|S1B)_(IW|EW|WV|(S[1-9]{1}))_SLC__1([A-Z]{3})_([0-9]{8}T[0-9]{6})_' \
+           '([0-9]{8}T[0-9]{6})_.*._GC_RC_No_Su_Co_speckle.nc' == validator.get_file_pattern()
+
+
+def test_s1_speckled_is_valid_for():
+    validator = S1SpeckledValidator()
+    s1_speckled_path = 'S1A_IW_SLC__1SDH_20140502T170314_20140502T170344_000421_0004CC_1A90_GC_RC_No_Su_Co_speckle.nc'
+    other_s1_speckled_path = \
+        'S1B_IW_SLC__1SDV_20170524T170804_20170524T170831_005743_00A0F5_841A_GC_RC_No_Su_Co_speckle.nc'
+    assert validator.is_valid_for(s1_speckled_path, Polygon(), datetime(2014, 5, 1), datetime(2014, 5, 3))
+    assert not validator.is_valid_for(s1_speckled_path, Polygon(), datetime(2014, 4, 30), datetime(2014, 5, 1))
+    assert not validator.is_valid_for(s1_speckled_path, Polygon(), datetime(2014, 5, 3), datetime(2014, 5, 4))
+    assert validator.is_valid_for(other_s1_speckled_path, Polygon(), datetime(2017, 5, 23), datetime(2017, 5, 25))
+    assert not validator.is_valid_for(other_s1_speckled_path, Polygon(), datetime(2017, 5, 21), datetime(2017, 5, 23))
+    assert not validator.is_valid_for(other_s1_speckled_path, Polygon(), datetime(2017, 5, 25), datetime(2017, 5, 27))
 
 
 def test_aws_s2_validator_matches_pattern():
