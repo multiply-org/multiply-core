@@ -30,12 +30,12 @@ dependencies:
   - setuptools = 40.8.0
   - shapely = 1.6.4
   - six = 1.12
-  - sphinxcontrib-bibtex
   - tensorflow = 1.13
   - xarray = 0.13.0
   # Docs
   - mock = 2.0.0
   - sphinx = 1.8.4
+  - sphinxcontrib-bibtex = 0.4
     # Testing
   - pytest = 4.6
   - pytest-cov = 2.7
