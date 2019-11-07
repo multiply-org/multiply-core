@@ -7,13 +7,14 @@ on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
     requirements = ['mock']
 else:
-    requirements = [
-        'gdal',
-        'numpy',
-        'pytest',
-        'shapely',
-        'scipy',
-        'pyyaml']
+    # requirements = [
+    #     'gdal',
+    #     'numpy',
+    #     'pytest',
+    #     'shapely',
+    #     'scipy',
+    #     'pyyaml']
+    requirements = []
 
 __version__ = None
 with open('multiply_core/version.py') as f:
