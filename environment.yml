@@ -9,7 +9,9 @@ dependencies:
   #
   # runtime dependencies
   #
+  - astor
   - beautifulsoup4 = 4.6.0
+  - colorama
   - gdal = 2.4
   - freetype = 2.10
   - h5py = 2.8.0
@@ -18,6 +20,7 @@ dependencies:
   - lxml = 4.3.2
   - matplotlib = 2.2
   - netcdf4 = 1.5
+  - numba
   - numpy = 1.16
   - pandas = 0.22
   - psutil = 5.6
