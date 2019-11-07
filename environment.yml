@@ -35,6 +35,7 @@ dependencies:
   - shapely = 1.6.4
   - six = 1.12
   - tensorflow = 1.13
+  - termcolor
   - xarray = 0.13.0
   # Docs
   - mock = 2.0.0
