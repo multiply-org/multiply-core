@@ -30,7 +30,7 @@ setup(name='multiply-core',
               's2_observation_creator = multiply_core.observations:s2_observations.S2ObservationsCreator',
           ],
           'variables': ['core_variables = multiply_core.variables:variables.get_default_variables'],
-          'aux_data_providers': ['default_provider = multiply_core.util.aux_data_provider.DefaultAuxDataProvider']
+          'aux_data_providers': ['default_provider = multiply_core.util:aux_data_provision.DefaultAuxDataProvider']
       },
       install_requires=requirements
       )

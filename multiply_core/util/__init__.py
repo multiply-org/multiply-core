@@ -1,3 +1,4 @@
+from .aux_data_provision import AuxDataProvider, DefaultAuxDataProvider, get_aux_data_provider
 from .util import AttributeDict, FileRef, compute_distance, get_time_from_string, get_days_of_month, \
     get_time_from_year_and_day_of_year, is_leap_year, get_mime_type, block_diag, are_times_equal, \
     are_polygons_almost_equal, get_logger

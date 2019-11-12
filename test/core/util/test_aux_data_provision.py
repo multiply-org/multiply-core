@@ -1,11 +1,20 @@
 import os
+from typing import Optional, List
 
-from multiply_core.util.aux_data_provider import DefaultAuxDataProvider
+from multiply_core.util.aux_data_provision import AuxDataProvider, DefaultAuxDataProvider, get_aux_data_provider, \
+    _get_aux_data_provider, _add_aux_data_provider, _set_up_aux_data_provider_registry
+
 
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 
 TEST_DATA_PATH = './test/test_data/2018_10_23/'
+
+
+def test_name():
+    provider = DefaultAuxDataProvider()
+
+    assert 'DEFAULT' == provider.name()
 
 
 def test_list_elements():
@@ -40,3 +49,31 @@ def test_assure_element_provided_not():
     provided = provider.assure_element_provided('./test/test_data/2018_10_23\\2018_10_23_dumaod550.tif')
     assert not provided
     assert not os.path.exists('./test/test_data/2018_10_23\\2018_10_23_dumaod550.tif')
+
+
+def test_get_aux_data_provider():
+    provider = get_aux_data_provider()
+    assert provider is not None
+    assert 'DEFAULT' == provider.name()
+
+
+def test_get_aux_data_provider_dummy():
+
+    class DummyAuxDataProvider(AuxDataProvider):
+
+        @classmethod
+        def name(cls) -> str:
+            return 'DUMMY'
+
+        def list_elements(self, base_folder: str, pattern: [Optional[str]]) -> List[str]:
+            pass
+
+        def assure_element_provided(self, name: str) -> bool:
+            pass
+
+    _set_up_aux_data_provider_registry()
+    _add_aux_data_provider(DummyAuxDataProvider())
+    provider = _get_aux_data_provider('./test/test_data/aux_data_provider.json')
+
+    assert provider is not None
+    assert 'DUMMY' == provider.name()
