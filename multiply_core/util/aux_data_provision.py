@@ -80,7 +80,8 @@ class DefaultAuxDataProviderCreator(AuxDataProviderCreator):
     def name(cls):
         return DEFAULT_AUX_DATA_PROVIDER_NAME
 
-    def create_aux_data_provider(self, parameters: dict):
+    @classmethod
+    def create_aux_data_provider(cls, parameters: dict):
         return DefaultAuxDataProvider(parameters)
 
 
