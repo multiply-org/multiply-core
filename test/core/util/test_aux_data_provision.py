@@ -2,7 +2,8 @@ import os
 from typing import Optional, List
 
 from multiply_core.util.aux_data_provision import AuxDataProvider, DefaultAuxDataProvider, get_aux_data_provider, \
-    _get_aux_data_provider, _add_aux_data_provider, _set_up_aux_data_provider_registry, AuxDataProviderCreator
+    DefaultAuxDataProviderCreator, _get_aux_data_provider, _add_aux_data_provider, _set_up_aux_data_provider_registry, \
+    AuxDataProviderCreator
 
 
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
@@ -50,6 +51,16 @@ def test_assure_element_provided_not():
     assert not provided
     assert not os.path.exists('./test/test_data/2018_10_23\\2018_10_23_dumaod550.tif')
 
+
+def test_default_aux_data_provider_creator_name():
+    assert 'DEFAULT' == DefaultAuxDataProviderCreator().name()
+
+
+def test_default_aux_data_provider_creator_create_aux_data_provider():
+    provider = DefaultAuxDataProviderCreator().create_aux_data_provider({})
+
+    assert provider is not None
+    assert 'DEFAULT' == provider.name()
 
 def test_get_aux_data_provider():
     provider = get_aux_data_provider()
