@@ -10,7 +10,7 @@ __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
 
 MULTIPLY_DIR_NAME = '.multiply'
 AUX_DATA_PROVIDER_FILE_NAME = 'aux_data_provider.json'
-AUX_DATA_PROVIDERS = []
+AUX_DATA_PROVIDER_CREATORS = []
 DEFAULT_AUX_DATA_PROVIDER_NAME = 'DEFAULT'
 
 
@@ -39,7 +39,29 @@ class AuxDataProvider(metaclass=ABCMeta):
         """
 
 
+class AuxDataProviderCreator(metaclass=ABCMeta):
+
+    @classmethod
+    @abstractmethod
+    def name(cls):
+        """
+        :return: The name of the AuxDataProvider associated with this Creator
+        """
+
+    @classmethod
+    @abstractmethod
+    def create_aux_data_provider(self, parameters: dict):
+        """
+        Creates an AuxDataProvider from the passed parameters
+        :param parameters: A dictionary containing information that may be relevant
+        :return: An AuxDataProvider.
+        """
+
+
 class DefaultAuxDataProvider(AuxDataProvider):
+
+    def __init__(self, parameters: dict):
+        pass
 
     @classmethod
     def name(cls):
@@ -52,12 +74,22 @@ class DefaultAuxDataProvider(AuxDataProvider):
         return os.path.exists(name)
 
 
+class DefaultAuxDataProviderCreator(AuxDataProviderCreator):
+
+    @classmethod
+    def name(cls):
+        return DEFAULT_AUX_DATA_PROVIDER_NAME
+
+    def create_aux_data_provider(self, parameters: dict):
+        return DefaultAuxDataProvider(parameters)
+
+
 def _set_up_aux_data_provider_registry():
-    if len(AUX_DATA_PROVIDERS) > 0:
+    if len(AUX_DATA_PROVIDER_CREATORS) > 0:
         return
-    aux_data_provider_entry_points = pkg_resources.iter_entry_points('aux_data_providers')
+    aux_data_provider_entry_points = pkg_resources.iter_entry_points('aux_data_provider_creators')
     for aux_data_provider_entry in aux_data_provider_entry_points:
-        AUX_DATA_PROVIDERS.append(aux_data_provider_entry.load())
+        AUX_DATA_PROVIDER_CREATORS.append(aux_data_provider_entry.load())
 
 
 def _get_multiply_home_dir() -> str:
@@ -79,10 +111,10 @@ def _get_aux_data_provider(path_to_file: str) -> AuxDataProvider:
         with open(path_to_file, "r") as aux_data_provider_file:
             aux_data_provider_dict = json.load(aux_data_provider_file)
             if 'aux_data_provider' in aux_data_provider_dict:
-                for aux_data_provider in AUX_DATA_PROVIDERS:
-                    if aux_data_provider_dict['aux_data_provider'] == aux_data_provider.name():
-                        return aux_data_provider
-    return DefaultAuxDataProvider()
+                for aux_data_provider_creator in AUX_DATA_PROVIDER_CREATORS:
+                    if aux_data_provider_dict['aux_data_provider'] == aux_data_provider_creator.name():
+                        return aux_data_provider_creator.create_aux_data_provider(aux_data_provider_dict)
+    return DefaultAuxDataProvider({})
 
 
 def get_aux_data_provider() -> AuxDataProvider:
@@ -91,5 +123,5 @@ def get_aux_data_provider() -> AuxDataProvider:
     return _get_aux_data_provider(aux_data_provider_file)
 
 
-def _add_aux_data_provider(aux_data_provider: AuxDataProvider):
-    AUX_DATA_PROVIDERS.append(aux_data_provider)
+def _add_aux_data_provider(aux_data_provider_creator: AuxDataProviderCreator):
+    AUX_DATA_PROVIDER_CREATORS.append(aux_data_provider_creator)
