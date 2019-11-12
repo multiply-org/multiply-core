@@ -9,7 +9,7 @@ import xml.etree.ElementTree as eT
 
 from multiply_core.observations import ProductObservations, ObservationData, ProductObservationsCreator, \
     data_validation
-from multiply_core.util import FileRef, Reprojection
+from multiply_core.util import FileRef, Reprojection, get_aux_data_provider
 from typing import List, Optional, Tuple, Union
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
@@ -91,7 +91,8 @@ def _get_uncertainty(rho_surface: np.array, mask: np.array) -> sp.lil_matrix:
 
 
 def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: float, vaa: float):
-    emulator_files = glob.glob(os.path.join(emulator_folder, "*_[0-9]*_[0-9]*_[0-9]*.pkl"))
+    aux_data_provider = get_aux_data_provider()
+    emulator_files = aux_data_provider.list_elements(emulator_folder, "*_[0-9]*_[0-9]*_[0-9]*.pkl")
     if len(emulator_files) == 0:
         return None
     emulator_files.sort()
@@ -107,6 +108,7 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
     e3 = raas == raas[np.argmin(np.abs(raas - raa))]
     iloc = np.where(e1 * e2 * e3)[0][0]
     emulator_file = emulator_files[iloc]
+    aux_data_provider.assure_element_provided(emulator_file)
     return cPickle.load(open(emulator_file, 'rb'), encoding='latin1')
 
 
