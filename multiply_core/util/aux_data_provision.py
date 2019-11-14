@@ -24,7 +24,8 @@ class AuxDataProvider(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def list_elements(self, base_folder: str, pattern: [Optional[str]]) -> List[str]:
+    def list_elements(self, base_folder: str, pattern: [Optional[str]], return_absolute_paths: bool = True) \
+            -> List[str]:
         """
         Lists available elements
         :return:
@@ -67,8 +68,11 @@ class DefaultAuxDataProvider(AuxDataProvider):
     def name(cls):
         return DEFAULT_AUX_DATA_PROVIDER_NAME
 
-    def list_elements(self, base_folder: str, pattern: [Optional[str]] = '*') -> List[str]:
-        pattern_in_absolute_path = os.path.join(os.path.abspath(base_folder), pattern)
+    def list_elements(self, base_folder: str, pattern: [Optional[str]] = '*', return_absolute_paths: bool = True) -> \
+            List[str]:
+        if return_absolute_paths:
+            base_folder = os.path.abspath(base_folder)
+        pattern_in_absolute_path = os.path.join(base_folder, pattern)
         return glob.glob(f'{pattern_in_absolute_path}')
 
     def assure_element_provided(self, name: str) -> bool:
