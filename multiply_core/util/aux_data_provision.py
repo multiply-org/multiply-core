@@ -68,7 +68,8 @@ class DefaultAuxDataProvider(AuxDataProvider):
         return DEFAULT_AUX_DATA_PROVIDER_NAME
 
     def list_elements(self, base_folder: str, pattern: [Optional[str]] = '*') -> List[str]:
-        return glob.glob(f'{base_folder}/{pattern}')
+        pattern_in_absolute_path = os.path.join(os.path.abspath(base_folder), pattern)
+        return glob.glob(f'{pattern_in_absolute_path}')
 
     def assure_element_provided(self, name: str) -> bool:
         return os.path.exists(name)
