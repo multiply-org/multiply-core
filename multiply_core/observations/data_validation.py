@@ -86,7 +86,6 @@ class DataValidator(metaclass=ABCMeta):
         :return:
         """
 
-    @abstractmethod
     @classmethod
     def differs_by_name(cls) -> bool:
         """
