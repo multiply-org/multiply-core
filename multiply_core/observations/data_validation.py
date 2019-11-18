@@ -87,6 +87,7 @@ class DataValidator(metaclass=ABCMeta):
         """
 
     @abstractmethod
+    @classmethod
     def differs_by_name(cls) -> bool:
         """
         :return: True, if different items of this type will always have different names
@@ -135,6 +136,7 @@ class S1SlcValidator(DataValidator):
             return False
         return start_time <= time <= end_time
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -181,6 +183,7 @@ class S1SpeckledValidator(DataValidator):
             return False
         return start_time <= time <= end_time
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -245,6 +248,7 @@ class S2L1CValidator(DataValidator):
             return False
         return start_time <= time <= end_time
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -296,6 +300,7 @@ class S2L2Validator(DataValidator):
             return False
         return start_time <= time <= end_time
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -337,6 +342,7 @@ class AWSS2L1Validator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         raise NotImplementedError()
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -376,6 +382,7 @@ class AWSS2L2Validator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return True  # we are not checking paths here
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -403,6 +410,7 @@ class ModisMCD43Validator(DataValidator):
         # todo implement
         raise NotImplementedError()
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -430,6 +438,7 @@ class ModisMCD15A2HValidator(DataValidator):
         # todo implement
         raise NotImplementedError()
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -488,6 +497,7 @@ class CamsTiffValidator(DataValidator):
             return start_time <= cams_time <= end_time
         return False
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -518,6 +528,7 @@ class CamsValidator(DataValidator):
             return start_time <= cams_time <= end_time
         return False
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -544,6 +555,7 @@ class S2AEmulatorValidator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return True
 
@@ -570,6 +582,7 @@ class S2BEmulatorValidator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return True
 
@@ -596,6 +609,7 @@ class WVEmulatorValidator(DataValidator):
     def is_valid_for(self, path: str, roi: Polygon, start_time: Optional[datetime], end_time: Optional[datetime]):
         return self.is_valid(path)
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return True
 
@@ -636,6 +650,7 @@ class AsterValidator(DataValidator):
             return False
         return True
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
@@ -682,6 +697,7 @@ class VariableValidator(DataValidator):
                 except ValueError:
                     return False
 
+    @classmethod
     def differs_by_name(cls) -> bool:
         return False
 
