@@ -13,6 +13,7 @@ VALID_CAMS_TIFF_DATA = './test/test_data/2018_10_23/'
 VALID_S2_PATH = './test/test_data/S2A_OPER_PRD_MSIL1C_PDMC_20150714T123646_R019_V20150704T102427_20150704T102427.SAFE'
 ANOTHER_VALID_S2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300'
 VALID_S2L2_PATH = './test/test_data/S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac'
+ANOTHER_VALID_S2L2_PATH = './test/test_data/S2B_MSIL1C_20180819T100019_N0206_R122_T32TQR_20180819T141300-ac'
 
 
 def test_s1_slc_validator_get_relative_path():
@@ -176,6 +177,7 @@ def test_s2l2_validator_name():
 def test_s2l2_is_valid():
     validator = S2L2Validator()
     assert validator.is_valid(VALID_S2L2_PATH)
+    assert validator.is_valid(ANOTHER_VALID_S2L2_PATH)
     assert not validator.is_valid('S2A_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac')
     assert not validator.is_valid(
         './test/test_data/S2B_MSIL1C_20170605T105031_N0205_R051_T30SWJ_20170605T105303-ac')

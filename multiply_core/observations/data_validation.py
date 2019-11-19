@@ -259,15 +259,19 @@ class S2L2Validator(DataValidator):
         self.S2_MATCHER = re.compile(self.S2_PATTERN)
         self.TIME_PATTERN = '([0-9]{8}T[0-9]{6})'
         self.TIME_MATCHER = re.compile(self.TIME_PATTERN)
-        self._manifest_file_name = 'MTD_TL.xml'
+        self._manifest_file_names = ['MTD_TL.xml', 'MTD_MSIL1C.xml']
 
     def name(self) -> str:
         return DataTypeConstants.S2_L2
 
     def is_valid(self, path: str) -> bool:
         end_of_path = _get_end_of_path(path)
-        return self.S2_MATCHER.match(end_of_path) is not None and \
-               os.path.exists('{}/{}'.format(path, self._manifest_file_name))
+        if self.S2_MATCHER.match(end_of_path) is None:
+            return False
+        for file_name in self._manifest_file_names:
+            if os.path.exists(os.path.join(path, file_name)):
+                return True
+        return False
 
     def get_relative_path(self, path: str) -> str:
         dir_name = self.S2_MATCHER.search(path)
