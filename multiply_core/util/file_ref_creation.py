@@ -7,6 +7,8 @@ This module contains MULTIPLY File Ref Creators. The purpose of these is to extr
 
 __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
+import os
+
 from abc import ABCMeta, abstractmethod
 from multiply_core.util import FileRef
 from multiply_core.variables import get_registered_variables
@@ -52,26 +54,51 @@ class AWSS2L2FileRefCreator(FileRefCreator):
 
 class S2L2FileRefCreator(FileRefCreator):
 
+    def __init__(self):
+        self._time_element_names = \
+            ['{https://psd-14.sentinel2.eo.esa.int/PSD/User_Product_Level-1C.xsd}General_Info', 'Product_Info']
+        self._start_time_element = 'PRODUCT_START_TIME'
+        self._stop_time_element = 'PRODUCT_STOP_TIME'
+
     def name(self) -> str:
         return 'S2_L2'
 
     def create_file_ref(self, path: str) -> FileRef:
-        time = self._extract_time_from_metadata_file(path)
-        return FileRef(path, time, time, 'application/x-directory')
+        start_time = self._extract_time_from_metadata_file(path, self._start_time_element)
+        stop_time = self._extract_time_from_metadata_file(path, self._stop_time_element)
+        return FileRef(path, start_time, stop_time, 'application/x-directory')
 
     @staticmethod
     def _get_xml_root(xml_file_name: str):
         tree = eT.parse(xml_file_name)
         return tree.getroot()
 
-    def _extract_time_from_metadata_file(self, filename: str) -> str:
+    def _extract_time_from_metadata_file(self, path: str, final_element_name: str) -> str:
         """Parses the XML metadata file to extract the sensing time."""
-        root = self._get_xml_root(filename + '/MTD_TL.xml')
+        path_to_metadata_file = os.path.join(path, 'MTD_MSIL1C.xml')
+        if os.path.exists(path_to_metadata_file):
+            return self._extract_time_from_mtd_msil1c_file(path_to_metadata_file, final_element_name)
+        path_to_metadata_file = os.path.join(path, 'MTD_TL.xml')
+        if os.path.exists(path_to_metadata_file):
+            return self._extract_time_from_mtd_dl_file(path_to_metadata_file)
+
+    def _extract_time_from_mtd_dl_file(self, mtd_dl_file: str) -> str:
+        root = self._get_xml_root(mtd_dl_file)
         for child in root:
             for x in child.findall("SENSING_TIME"):
                 time = x.text.replace('T', ' ').replace('Z', '')
                 time = time[:time.rfind('.')]
                 return time
+
+    def _extract_time_from_mtd_msil1c_file(self, mtd_msil1c_file: str, final_element_name: str) -> str:
+        element = self._get_xml_root(mtd_msil1c_file)
+        time_element_names = self._time_element_names.copy()
+        time_element_names.append(final_element_name)
+        for time_element_name in time_element_names:
+            element = element.find(time_element_name)
+            if element is None:
+                return ''
+        return element.text.split('.')[0]
 
 
 class VariableFileRefCreator(FileRefCreator):
