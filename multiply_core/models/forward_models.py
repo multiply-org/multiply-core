@@ -1,6 +1,6 @@
 from pathlib import Path
-from multiply_core.observations import DataTypeConstants
 from multiply_core.util import get_aux_data_provider
+from multiply_core.observations.data_validation import DataTypeConstants
 from typing import Dict, List, Optional
 
 import json
@@ -25,13 +25,14 @@ _MODEL_DATA_TYPE_DICTS = \
 
 class ForwardModel(object):
 
-    def __init__(self, model_dir: str, model_id: str, name: str, description: str, input_type: str, variables: List[str],
-                 model_authors: List[str], model_url: str, input_bands: List[str], input_band_indices: List[int]):
+    def __init__(self, model_dir: str, model_id: str, name: str, description: str, model_data_type: str,
+                 variables: List[str], model_authors: List[str], model_url: str, input_bands: List[str],
+                 input_band_indices: List[int]):
         self._model_dir = model_dir
         self._short_name = model_id
         self._name = name
         self._description = description
-        self._input_type = input_type
+        self._model_data_type = model_data_type
         self._variables = variables
         self._authors = []
         if model_authors is not None:
@@ -53,9 +54,9 @@ class ForwardModel(object):
                '  Description: {}, \n' \
                '  Model Authors: {}, \n' \
                '  Model URL: {}, \n' \
-               '  Input Type: {}, \n' \
+               '  Model Data Type: {}, \n' \
                '  Variables: {}\n'.format(self.id, self.name, self.description, self.authors, self.url,
-                                          self.input_type, self.variables)
+                                          self.model_data_type, self.variables)
 
     @property
     def model_dir(self) -> str:
@@ -82,8 +83,8 @@ class ForwardModel(object):
         return self._url
 
     @property
-    def input_type(self) -> str:
-        return self._input_type
+    def model_data_type(self) -> str:
+        return self._model_data_type
 
     @property
     def input_bands(self) -> List[str]:
@@ -99,7 +100,7 @@ class ForwardModel(object):
 
     def as_dict(self) -> Dict:
         return {'id': self.id, 'name': self.name, 'description': self.description, 'model_authors': self.authors,
-                'model_url': self.url, 'input_type': self.input_type, 'input_bands': self.input_bands,
+                'model_url': self.url, 'input_type': self.model_data_type, 'input_bands': self.input_bands,
                 'input_band_indices': self.input_band_indices, 'variables': self.input_band_indices}
 
     # noinspection PyUnresolvedReferences
@@ -110,7 +111,7 @@ class ForwardModel(object):
         :return:
         """
         return type(other) == ForwardModel and self.id == other.id and self.name == other.display_name \
-               and self.description == other.description and self.input_type == other.input_type \
+               and self.description == other.description and self.model_data_type == other.input_type \
                and self.input_bands == other.input_bands and self.input_band_indices == other.input_band_indices
 
 
@@ -188,7 +189,7 @@ def _read_forward_model(model_file: str) -> ForwardModel:
         if 'input_band_indices' in model:
             input_band_indices = model['input_band_indices']
         return ForwardModel(model_dir=forward_model_path, model_id=model['id'], name=model['name'],
-                            description=model["description"], input_type=model['input_type'],
+                            description=model["description"], model_data_type=model['model_data_type'],
                             variables=model['variables'], model_authors=model_authors, model_url=model_url,
                             input_bands=input_bands, input_band_indices=input_band_indices)
 

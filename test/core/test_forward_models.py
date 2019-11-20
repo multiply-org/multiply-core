@@ -20,7 +20,7 @@ def test_read_forward_model():
            'soil/vegetation contrast.' == forward_model.description
     assert '' == forward_model.authors
     assert 'http://teledetection.ipgp.jussieu.fr/prosail/' == forward_model.url
-    assert 'S2_L1C' == forward_model.input_type
+    assert 'Sentinel-2' == forward_model.model_data_type
 
     expected_input_bands = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B12"]
     assert all([a == b for a, b in zip(forward_model.input_bands, expected_input_bands)])
@@ -43,7 +43,7 @@ def test_get_forward_models():
            'soil/vegetation contrast.' == forward_models[0].description
     assert '' == forward_models[0].authors
     assert 'http://teledetection.ipgp.jussieu.fr/prosail/' == forward_models[0].url
-    assert 'S2_L1C' == forward_models[0].input_type
+    assert 'Sentinel-2' == forward_models[0].model_data_type
     expected_input_bands = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B12"]
     assert all([a == b for a, b in zip(forward_models[0].input_bands, expected_input_bands)])
     expected_input_band_indices = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
@@ -66,7 +66,7 @@ def test_register_forward_model():
         assert 'No words. No words.' == forward_models[0].description
         assert '' == forward_models[0].authors
         assert 'http://frgdtgeh.io' == forward_models[0].url
-        assert 'a made up data type' == forward_models[0].input_type
+        assert 'a made up data type' == forward_models[0].model_data_type
         expected_input_bands = ["B02", "B03"]
         assert all([a == b for a, b in zip(forward_models[0].input_bands, expected_input_bands)])
         expected_input_band_indices = [2, 3]
@@ -83,7 +83,7 @@ def test_register_forward_model():
                'soil/vegetation contrast.' == forward_models[1].description
         assert '' == forward_models[1].authors
         assert 'http://teledetection.ipgp.jussieu.fr/prosail/' == forward_models[1].url
-        assert 'S2_L1C' == forward_models[1].input_type
+        assert 'Sentinel-2' == forward_models[1].model_data_type
         expected_input_bands = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B12"]
         assert all([a == b for a, b in zip(forward_models[1].input_bands, expected_input_bands)])
         expected_input_band_indices = [2, 3, 4, 5, 6, 7, 8, 9, 12, 13]
