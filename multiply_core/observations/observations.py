@@ -13,6 +13,7 @@ import pkg_resources
 import scipy.sparse as sp
 from typing import List, Optional, Union
 
+from multiply_core.models import get_types_of_preprocessed_data_for_model_data_type
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
 from .data_validation import get_valid_type
 from ..models.forward_models import get_forward_models
@@ -217,9 +218,12 @@ class ObservationsFactory(object):
                 data_type = get_valid_type(file_ref.url)
                 for forward_model_name in forward_model_names:
                     for forward_model in forward_models:
-                        if forward_model.id == forward_model_name and forward_model.input_type == data_type:
-                            emulators_dir = forward_model.model_dir
-                            break
+                        if forward_model.id == forward_model_name and forward_model.model_data_type == data_type:
+                            types_of_preprocessed_data_for_model = \
+                                get_types_of_preprocessed_data_for_model_data_type(forward_model.model_data_type)
+                            if data_type in types_of_preprocessed_data_for_model:
+                                emulators_dir = forward_model.model_dir
+                                break
                     if emulators_dir is not None:
                         break
             observations = self._create_observations(file_ref, reprojection, emulators_dir)
