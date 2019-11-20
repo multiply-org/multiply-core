@@ -1,4 +1,5 @@
 from pathlib import Path
+from multiply_core.observations import DataTypeConstants
 from multiply_core.util import get_aux_data_provider
 from typing import Dict, List, Optional
 
@@ -11,14 +12,23 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 ALL_FORWARD_MODELS = []
 FORWARD_MODELS_FILE_NAME = 'forward_models.txt'
 MULTIPLY_DIR_NAME = '.multiply'
+SENTINEL_1_MODEL_DATA_TYPE = 'Sentinel-1'
+SENTINEL_2_MODEL_DATA_TYPE = 'Sentinel-2'
+_MODEL_DATA_TYPE_DICTS = \
+    {
+        SENTINEL_1_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S1_SLC],
+                                     'preprocessed': [DataTypeConstants.S1_SPECKLED]},
+        SENTINEL_2_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S2_L1C, DataTypeConstants.AWS_S2_L1C],
+                                     'preprocessed': [DataTypeConstants.S2_L2, DataTypeConstants.AWS_S2_L2]}
+    }
 
 
 class ForwardModel(object):
 
-    def __init__(self, model_dir: str, id: str, name: str, description: str, input_type: str, variables: List[str],
+    def __init__(self, model_dir: str, model_id: str, name: str, description: str, input_type: str, variables: List[str],
                  model_authors: List[str], model_url: str, input_bands: List[str], input_band_indices: List[int]):
         self._model_dir = model_dir
-        self._short_name = id
+        self._short_name = model_id
         self._name = name
         self._description = description
         self._input_type = input_type
@@ -177,7 +187,21 @@ def _read_forward_model(model_file: str) -> ForwardModel:
         input_band_indices = None
         if 'input_band_indices' in model:
             input_band_indices = model['input_band_indices']
-        return ForwardModel(model_dir=forward_model_path, id=model['id'], name=model['name'],
+        return ForwardModel(model_dir=forward_model_path, model_id=model['id'], name=model['name'],
                             description=model["description"], input_type=model['input_type'],
                             variables=model['variables'], model_authors=model_authors, model_url=model_url,
                             input_bands=input_bands, input_band_indices=input_band_indices)
+
+
+def get_types_of_unprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
+    if model_data_type in _MODEL_DATA_TYPE_DICTS:
+        return _MODEL_DATA_TYPE_DICTS[model_data_type]['unprocessed']
+    raise ValueError(f"Unknown model data type {model_data_type}. "
+                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")
+
+
+def get_types_of_preprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
+    if model_data_type in _MODEL_DATA_TYPE_DICTS:
+        return _MODEL_DATA_TYPE_DICTS[model_data_type]['preprocessed']
+    raise ValueError(f"Unknown model data type {model_data_type}. "
+                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")
