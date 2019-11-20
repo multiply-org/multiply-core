@@ -1,4 +1,5 @@
 from pathlib import Path
+from multiply_core.util import get_aux_data_provider
 from typing import Dict, List, Optional
 
 import json
@@ -147,12 +148,13 @@ def get_forward_model(model_name: str) -> Optional[ForwardModel]:
 
 
 def _get_forward_models(forward_models_file: str) -> List[ForwardModel]:
+    aux_data_provider = get_aux_data_provider()
     forward_models = []
     with(open(forward_models_file, 'r')) as file:
         file_paths = file.readlines()
         for file_path in file_paths:
             file_path = file_path.rstrip()
-            if not os.path.exists(file_path):
+            if not aux_data_provider.assure_element_provided(file_path):
                 logging.warning(f'Could not find forward model file {file_path}')
                 continue
             forward_models.append(_read_forward_model(file_path))
