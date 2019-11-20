@@ -218,10 +218,11 @@ class ObservationsFactory(object):
                 data_type = get_valid_type(file_ref.url)
                 for forward_model_name in forward_model_names:
                     for forward_model in forward_models:
-                        if forward_model.id == forward_model_name and forward_model.model_data_type == data_type:
+                        if forward_model.id == forward_model_name:
                             types_of_preprocessed_data_for_model = \
                                 get_types_of_preprocessed_data_for_model_data_type(forward_model.model_data_type)
                             if data_type in types_of_preprocessed_data_for_model:
+                                logging.info(f'Set emulator directory to {forward_model.model_dir}')
                                 emulators_dir = forward_model.model_dir
                                 break
                     if emulators_dir is not None:
