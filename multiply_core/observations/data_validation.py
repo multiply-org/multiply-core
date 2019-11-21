@@ -39,7 +39,15 @@ class DataTypeConstants(object):
     S3_L1_OLCI_FR = 'S3_L1_OLCI_FR'  # todo add data validator and metadata extractor
     WV_EMULATOR = 'WV_EMU'
 
-
+SENTINEL_1_MODEL_DATA_TYPE = 'Sentinel-1'
+SENTINEL_2_MODEL_DATA_TYPE = 'Sentinel-2'
+_MODEL_DATA_TYPE_DICTS = \
+    {
+        SENTINEL_1_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S1_SLC],
+                                     'preprocessed': [DataTypeConstants.S1_SPECKLED]},
+        SENTINEL_2_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S2_L1C, DataTypeConstants.AWS_S2_L1C],
+                                     'preprocessed': [DataTypeConstants.S2_L2, DataTypeConstants.AWS_S2_L2]}
+    }
 INPUT_TYPES = {DataTypeConstants.S2_L1C: {'name': "Sentinel-2 MSI L1C", "timeRange": ["06-23-2015", '']}}
 
 
@@ -794,3 +802,17 @@ def differs_by_name(data_type: str) -> bool:
     if data_type in DATA_VALIDATORS:
         return DATA_VALIDATORS[data_type].differs_by_name()
     return False
+
+
+def get_types_of_unprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
+    if model_data_type in _MODEL_DATA_TYPE_DICTS:
+        return _MODEL_DATA_TYPE_DICTS[model_data_type]['unprocessed']
+    raise ValueError(f"Unknown model data type {model_data_type}. "
+                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")
+
+
+def get_types_of_preprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
+    if model_data_type in _MODEL_DATA_TYPE_DICTS:
+        return _MODEL_DATA_TYPE_DICTS[model_data_type]['preprocessed']
+    raise ValueError(f"Unknown model data type {model_data_type}. "
+                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")

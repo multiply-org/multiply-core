@@ -1,6 +1,5 @@
 from pathlib import Path
 from multiply_core.util import get_aux_data_provider
-from multiply_core.observations.data_validation import DataTypeConstants
 from typing import Dict, List, Optional
 
 import json
@@ -12,15 +11,6 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 ALL_FORWARD_MODELS = []
 FORWARD_MODELS_FILE_NAME = 'forward_models.txt'
 MULTIPLY_DIR_NAME = '.multiply'
-SENTINEL_1_MODEL_DATA_TYPE = 'Sentinel-1'
-SENTINEL_2_MODEL_DATA_TYPE = 'Sentinel-2'
-_MODEL_DATA_TYPE_DICTS = \
-    {
-        SENTINEL_1_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S1_SLC],
-                                     'preprocessed': [DataTypeConstants.S1_SPECKLED]},
-        SENTINEL_2_MODEL_DATA_TYPE: {'unprocessed': [DataTypeConstants.S2_L1C, DataTypeConstants.AWS_S2_L1C],
-                                     'preprocessed': [DataTypeConstants.S2_L2, DataTypeConstants.AWS_S2_L2]}
-    }
 
 
 class ForwardModel(object):
@@ -192,17 +182,3 @@ def _read_forward_model(model_file: str) -> ForwardModel:
                             description=model["description"], model_data_type=model['model_data_type'],
                             variables=model['variables'], model_authors=model_authors, model_url=model_url,
                             input_bands=input_bands, input_band_indices=input_band_indices)
-
-
-def get_types_of_unprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
-    if model_data_type in _MODEL_DATA_TYPE_DICTS:
-        return _MODEL_DATA_TYPE_DICTS[model_data_type]['unprocessed']
-    raise ValueError(f"Unknown model data type {model_data_type}. "
-                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")
-
-
-def get_types_of_preprocessed_data_for_model_data_type(model_data_type: str) -> List[str]:
-    if model_data_type in _MODEL_DATA_TYPE_DICTS:
-        return _MODEL_DATA_TYPE_DICTS[model_data_type]['preprocessed']
-    raise ValueError(f"Unknown model data type {model_data_type}. "
-                     f"Valid values: '{SENTINEL_1_MODEL_DATA_TYPE}', '{SENTINEL_2_MODEL_DATA_TYPE}'")

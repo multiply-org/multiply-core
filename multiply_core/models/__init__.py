@@ -1,2 +1,1 @@
-from .forward_models import ForwardModel, get_forward_model, get_forward_models, register_forward_model, \
-    get_types_of_unprocessed_data_for_model_data_type, get_types_of_preprocessed_data_for_model_data_type
+from .forward_models import ForwardModel, get_forward_model, get_forward_models, register_forward_model

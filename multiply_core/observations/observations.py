@@ -13,9 +13,8 @@ import pkg_resources
 import scipy.sparse as sp
 from typing import List, Optional, Union
 
-from multiply_core.models import get_types_of_preprocessed_data_for_model_data_type
 from multiply_core.util import FileRef, Reprojection, get_time_from_string
-from .data_validation import get_valid_type
+from .data_validation import get_valid_type, get_types_of_preprocessed_data_for_model_data_type
 from ..models.forward_models import get_forward_models
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
