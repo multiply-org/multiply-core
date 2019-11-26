@@ -40,6 +40,13 @@ dependencies:
   - typing
   - webencodings
   - xarray = 0.13.0
+  # UI
+  - ipywidgets = 7.4.2
+  - jupyterlab = 0.35.4
+  - tornado = 5.1.1
+  - ipyleaflet = 0.10.4
+  # PMonitor
+  - inflection = 0.3.1
   # Docs
   - mock = 2.0.0
   - sphinx = 1.8.4
