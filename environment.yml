@@ -44,10 +44,11 @@ dependencies:
   - click = 7.0
   - inflection = 0.3.1
   # UI
+  - ipyleaflet = 0.10.4
   - ipywidgets = 7.4.2
   - jupyterlab = 0.35.4
+  - nodejs = 13.0
   - tornado = 5.1.1
-  - ipyleaflet = 0.10.4
   # Docs
   - mock = 2.0.0
   - sphinx = 1.8.4
