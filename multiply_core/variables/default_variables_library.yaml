@@ -75,3 +75,17 @@
     description: Soil Wetness parameter
     range:
     applications:
+- Variable:
+    short_name: sm
+    display_name: Soil Moisture
+    unit:
+    description: Soil Moisture
+    range:
+    applications:
+- Variable:
+    short_name: sr
+    display_name: Soil Roughness
+    unit:
+    description: Soil Roughness
+    range:
+    applications:
