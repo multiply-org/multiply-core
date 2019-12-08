@@ -6,7 +6,7 @@ from functools import partial
 from shapely.geometry import Polygon
 from shapely.ops import transform
 from shapely.wkt import dumps, loads
-from typing import Optional, Sequence, Union
+from typing import Optional, Sequence, Tuple, Union
 
 __author__ = "José Luis Gómez-Dans (University College London)," \
              "Tonio Fincke (Brockmann Consult GmbH)"
@@ -212,3 +212,92 @@ def reproject_image(source_img, target_img, dstSRSs=None):
         dstSRS = dstSRSs
     g = gdal.Warp('', s, format='MEM', outputBounds=[xmin, ymin, xmax, ymax], xRes=xRes, yRes=yRes, dstSRS=dstSRS)
     return g
+
+
+def _get_reference_system(wkt: str) -> Optional[osr.SpatialReference]:
+    if wkt is None:
+        return None
+    spatial_reference = osr.SpatialReference()
+    if wkt.startswith('EPSG:'):
+        epsg_code = int(wkt.split(':')[1])
+        spatial_reference.ImportFromEPSG(epsg_code)
+    else:
+        spatial_reference.ImportFromWkt(wkt)
+    return spatial_reference
+
+
+def _get_projected_srs(roi_center):
+    utm_zone = int(1 + (roi_center.coords[0][0] + 180.0) / 6.0)
+    is_northern = int(roi_center.coords[0][1] > 0.0)
+    spatial_reference_system = osr.SpatialReference()
+    spatial_reference_system.SetWellKnownGeogCS('WGS84')
+    spatial_reference_system.SetUTM(utm_zone, is_northern)
+    return spatial_reference_system
+
+
+def _get_default_global_state_mask():
+    driver = gdal.GetDriverByName('MEM')
+    dataset = driver.Create('', 360, 90, bands=1)
+    dataset.SetGeoTransform((-180.0, 1.00, 0.0, 90.0, 0.0, -1.00))
+    srs = osr.SpatialReference()
+    srs.SetWellKnownGeogCS("WGS84")
+    dataset.SetProjection(srs.ExportToWkt())
+    dataset.GetRasterBand(1).WriteArray(np.ones((90, 360)))
+    return dataset
+
+
+def get_mask_data_set_and_reprojection(state_mask: Optional[str] = None, spatial_resolution: Optional[int] = None,
+                                        roi: Optional[Union[str, Polygon]] = None, roi_grid: Optional[str] = None,
+                                        destination_grid: Optional[str] = None):
+    if roi is not None and spatial_resolution is not None:
+        if type(roi) is str:
+            roi = loads(roi)
+        roi_bounds = roi.bounds
+        roi_center = roi.centroid
+        roi_srs = _get_reference_system(roi_grid)
+        destination_srs = _get_reference_system(destination_grid)
+        wgs84_srs = _get_reference_system('EPSG:4326')
+        if roi_srs is None:
+            if destination_srs is None:
+                roi_srs = wgs84_srs
+                destination_srs = _get_projected_srs(roi_center)
+            else:
+                roi_srs = destination_srs
+        elif destination_srs is None:
+            if roi_srs.IsSame(wgs84_srs):
+                destination_srs = _get_projected_srs(roi_center)
+            else:
+                raise ValueError('Cannot derive destination grid for roi grid {}. Please specify destination grid'.
+                                 format(roi_grid))
+        if state_mask is not None:
+            mask_data_set = gdal.Open(state_mask)
+        else:
+            mask_data_set = _get_default_global_state_mask()
+        reprojection = Reprojection(roi_bounds, spatial_resolution, spatial_resolution, destination_srs, roi_srs)
+        reprojected_dataset = reprojection.reproject(mask_data_set)
+        return reprojected_dataset, reprojection
+    elif state_mask is not None:
+        state_mask_data_set = gdal.Open(state_mask)
+        geo_transform = state_mask_data_set.GetGeoTransform()
+        ulx, xres, xskew, uly, yskew, yres = geo_transform
+        lrx = ulx + (state_mask_data_set.RasterXSize * xres)
+        lry = uly + (state_mask_data_set.RasterYSize * yres)
+        roi_bounds = (min(ulx, lrx), min(uly, lry), max(ulx, lrx), max(uly, lry))
+        destination_spatial_reference_system = osr.SpatialReference()
+        projection = state_mask_data_set.GetProjection()
+        destination_spatial_reference_system.ImportFromWkt(projection)
+        reprojection = Reprojection(roi_bounds, xres, yres, destination_spatial_reference_system)
+        return state_mask_data_set, reprojection
+    else:
+        raise ValueError("Either state mask or roi and spatial resolution must be given")
+
+
+def get_num_tiles(state_mask: Optional[str] = None, spatial_resolution: Optional[int] = None,
+                  roi: Optional[Union[str, Polygon]] = None, roi_grid: Optional[str] = None,
+                  destination_grid: Optional[str] = None, tile_width: Optional[int] = None,
+                  tile_height: Optional[int] = None) -> Tuple:
+    mask_data_set, untiled_reprojection = get_mask_data_set_and_reprojection(state_mask, spatial_resolution, roi,
+                                                                              roi_grid, destination_grid)
+    raster_width = mask_data_set.RasterXSize
+    raster_height = mask_data_set.RasterYSize
+    return (int(np.ceil(raster_width / tile_width)), int(np.ceil(raster_height / tile_height)))

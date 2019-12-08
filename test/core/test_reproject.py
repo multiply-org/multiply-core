@@ -137,3 +137,12 @@ def test_reproject_image():
     raster_data = raster_band.ReadAsArray()
     assert 8 == raster_data[0][0]
     assert 14 == raster_data[94][285]
+
+
+def test_get_num_tiles():
+    roi = 'POLYGON ((27.1647563115467534 58.2611263320005577, 27.1716005869326196 58.3373581174386473, ' \
+          '27.3755330955532621 58.3321196269764286, 27.3682501734918766 58.2558991181697223, ' \
+          '27.1647563115467534 58.2611263320005577))'
+    num_x_tiles, num_y_tiles = reproject.get_num_tiles(spatial_resolution=120, roi=roi, tile_width=5, tile_height=5)
+    assert 21 == num_x_tiles
+    assert 16 == num_y_tiles
