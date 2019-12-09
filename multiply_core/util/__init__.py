@@ -3,5 +3,5 @@ from .util import AttributeDict, FileRef, compute_distance, get_time_from_string
     get_time_from_year_and_day_of_year, is_leap_year, get_mime_type, block_diag, are_times_equal, \
     are_polygons_almost_equal, get_logger
 from .reproject import transform_coordinates, get_spatial_reference_system_from_dataset, get_target_resolutions, \
-    reproject_dataset, reproject_image, Reprojection, reproject_to_wgs84
+    reproject_dataset, reproject_image, Reprojection, reproject_to_wgs84, get_num_tiles
 from .file_ref_creation import FileRefCreation
