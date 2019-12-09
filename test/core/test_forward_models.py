@@ -28,6 +28,8 @@ def test_read_forward_model():
     assert all([a == b for a, b in zip(forward_model.input_band_indices, expected_input_band_indices)])
     expected_variables = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
     assert all([a == b for a, b in zip(forward_model.variables, expected_variables)])
+    expected_required_priors = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
+    assert all([a == b for a, b in zip(forward_model.required_priors, expected_required_priors)])
 
 
 def test_get_forward_models():
@@ -50,6 +52,8 @@ def test_get_forward_models():
     assert all([a == b for a, b in zip(forward_models[0].input_band_indices, expected_input_band_indices)])
     expected_variables = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
     assert all([a == b for a, b in zip(forward_models[0].variables, expected_variables)])
+    expected_required_priors = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
+    assert all([a == b for a, b in zip(forward_models[0].required_priors, expected_required_priors)])
 
 
 def test_register_forward_model():
@@ -73,6 +77,8 @@ def test_register_forward_model():
         assert all([a == b for a, b in zip(forward_models[0].input_band_indices, expected_input_band_indices)])
         expected_variables = ["n"]
         assert all([a == b for a, b in zip(forward_models[0].variables, expected_variables)])
+        expected_required_priors = ["fzeghjkg", "fguhj", "ufxdfhrt"]
+        assert all([a == b for a, b in zip(forward_models[0].required_priors, expected_required_priors)])
 
         assert forward_models[1].model_dir.endswith('/test/test_data')
         assert 's2_prosail' == forward_models[1].id
@@ -90,6 +96,8 @@ def test_register_forward_model():
         assert all([a == b for a, b in zip(forward_models[1].input_band_indices, expected_input_band_indices)])
         expected_variables = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
         assert all([a == b for a, b in zip(forward_models[1].variables, expected_variables)])
+        expected_required_priors = ["n", "cab", "car", "cb", "cw", "cdm", "lai", "ala", "bsoil", "psoil"]
+        assert all([a == b for a, b in zip(forward_models[1].required_priors, expected_required_priors)])
 
     finally:
         if os.path.exists(PATH_TO_ANOTHER_FORWARD_MODEL_REGISTRY_FILE):

@@ -16,14 +16,16 @@ MULTIPLY_DIR_NAME = '.multiply'
 class ForwardModel(object):
 
     def __init__(self, model_dir: str, model_id: str, name: str, description: str, model_data_type: str,
-                 variables: List[str], model_authors: List[str], model_url: str, input_bands: List[str],
-                 input_band_indices: List[int]):
+                 variables: List[str], required_priors: List[str], model_authors: Optional[List[str]] = None,
+                 model_url: Optional[str] = None, input_bands: Optional[List[str]] = None,
+                 input_band_indices: Optional[List[int]] = None):
         self._model_dir = model_dir
         self._short_name = model_id
         self._name = name
         self._description = description
         self._model_data_type = model_data_type
         self._variables = variables
+        self._required_priors = required_priors
         self._authors = []
         if model_authors is not None:
             self._authors = model_authors
@@ -88,15 +90,20 @@ class ForwardModel(object):
     def variables(self) -> List[str]:
         return self._variables
 
+    @property
+    def required_priors(self) -> List[str]:
+        return self._required_priors
+
     def as_dict(self) -> Dict:
         return {'id': self.id, 'name': self.name, 'description': self.description, 'model_authors': self.authors,
                 'model_url': self.url, 'input_type': self.model_data_type, 'input_bands': self.input_bands,
-                'input_band_indices': self.input_band_indices, 'variables': self.input_band_indices}
+                'input_band_indices': self.input_band_indices, 'variables': self.input_band_indices,
+                'required_priors': self.required_priors}
 
     # noinspection PyUnresolvedReferences
     def equals(self, other: object) -> bool:
         """
-        Checks whether another object is equal to this variable.
+        Checks whether another object is equal to this forward model.
         :param other:
         :return:
         """
@@ -180,5 +187,6 @@ def _read_forward_model(model_file: str) -> ForwardModel:
             input_band_indices = model['input_band_indices']
         return ForwardModel(model_dir=forward_model_path, model_id=model['id'], name=model['name'],
                             description=model["description"], model_data_type=model['model_data_type'],
-                            variables=model['variables'], model_authors=model_authors, model_url=model_url,
-                            input_bands=input_bands, input_band_indices=input_band_indices)
+                            variables=model['variables'], required_priors=model['required_priors'],
+                            model_authors=model_authors, model_url=model_url, input_bands=input_bands,
+                            input_band_indices=input_band_indices)
