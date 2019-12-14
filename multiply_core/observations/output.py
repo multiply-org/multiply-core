@@ -1,10 +1,20 @@
 from abc import ABCMeta, abstractmethod
 import gdal
+import logging
 import numpy as np
 import os
 from typing import List, Optional
 
 __author__ = "Tonio Fincke (Brockmann Consult GmbH)"
+
+
+logger = logging.getLogger('Writer')
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+logging_handler = logging.StreamHandler()
+logging_handler.setLevel(logging.INFO)
+logging_handler.setFormatter(formatter)
+logger.addHandler(logging_handler)
 
 
 class Writer(metaclass=ABCMeta):
@@ -87,6 +97,7 @@ class GeoTiffWriter(Writer):
                 d = d.reshape(self.num_bands[i], height, width)
             if d.shape == (self.num_bands[i], height, width) and self.num_bands[i] == 1:
                 d = d.reshape(height, width)
+            logger.info(f'Expecting height {height} and width {width} as {(height, width)}, receiving {d.shape}')
             assert d.shape == (height, width) or d.shape == (self.num_bands[i], height, width)
             if self.num_bands[i] > 1:
                 for band in range(self.num_bands[i]):
