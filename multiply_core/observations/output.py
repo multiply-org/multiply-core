@@ -57,21 +57,24 @@ class GeoTiffWriter(Writer):
         self._width = width
         self._height = height
         drv = gdal.GetDriverByName('GTiff')
-        self._destination_data_sets = []
+        self._file_names = file_names
+        # self._destination_data_sets = []
         for i, file_name in enumerate(file_names):
             parent_dir = os.path.dirname(file_name)
             if not os.path.exists(parent_dir):
                 os.makedirs(parent_dir)
             if not file_name.endswith('.tif') and not file_name.endswith('tiff'):
                 file_name = file_name + '.tif'
-            if os.path.exists(file_name):
-                data_set = gdal.OpenShared(file_name, gdal.GA_Update)
-            else:
+            if not os.path.exists(file_name):
+            # if os.path.exists(file_name):
+            #     data_set = gdal.OpenShared(file_name, gdal.GA_Update)
+            # else:
                 data_set = drv.Create(file_name, width, height, num_bands[i], gdal_data_types[i],
                                   ['COMPRESS=DEFLATE', 'BIGTIFF=YES', 'PREDICTOR=1', 'TILED=YES'])
                 data_set.SetProjection(projection)
                 data_set.SetGeoTransform(geo_transform)
-            self._destination_data_sets.append(data_set)
+                data_set = None
+            # self._destination_data_sets.append(data_set)
 
     @staticmethod
     def _get_gdal_data_type(data_type: str) -> str:
@@ -85,7 +88,8 @@ class GeoTiffWriter(Writer):
 
     def write(self, data: List[np.array], width: Optional[int] = None, height: Optional[int] = None,
               offset_x: Optional[int] = 0, offset_y: Optional[int] = 0):
-        assert len(data) == len(self._destination_data_sets)
+        # assert len(data) == len(self._destination_data_sets)
+        assert len(data) == len(self._file_names)
         if width is None:
             width = self._width
         if height is None:
@@ -99,15 +103,22 @@ class GeoTiffWriter(Writer):
                 d = d.reshape(height, width)
             logger.info(f'Expecting height {height} and width {width} as {(height, width)}, receiving {d.shape}')
             assert d.shape == (height, width) or d.shape == (self.num_bands[i], height, width)
+            dataset = gdal.OpenShared(self._file_names[i], gdal.GA_Update)
             if self.num_bands[i] > 1:
                 for band in range(self.num_bands[i]):
-                    self._destination_data_sets[i].GetRasterBand(band + 1).WriteArray(d[band],
+                    # self._destination_data_sets[i].GetRasterBand(band + 1).WriteArray(d[band],
+                    dataset.GetRasterBand(band + 1).WriteArray(d[band],
                                                                                       xoff=offset_x, yoff=offset_y)
             else:
-                self._destination_data_sets[i].GetRasterBand(1).WriteArray(d, xoff=offset_x, yoff=offset_y)
-            self._destination_data_sets[i].FlushCache()
+                # self._destination_data_sets[i].GetRasterBand(1).WriteArray(d, xoff=offset_x, yoff=offset_y)
+                dataset.GetRasterBand(1).WriteArray(d, xoff=offset_x, yoff=offset_y)
+            # self._destination_data_sets[i].FlushCache()
+            dataset.FlushCache()
+            dataset = None
+
 
     def close(self):
-        for dataset in self._destination_data_sets:
-            dataset = None
-        self._destination_data_sets = None
+        pass
+        # for dataset in self._destination_data_sets:
+        #     dataset = None
+        # self._destination_data_sets = None
