@@ -55,13 +55,6 @@
     range:
     applications:
 - Variable:
-    short_name: h
-    display_name: hotspot parameter
-    unit:
-    description: hotspot parameter
-    range:
-    applications:
-- Variable:
     short_name: bsoil
     display_name: Soil Brightness parameter
     unit:
