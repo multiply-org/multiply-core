@@ -30,6 +30,3 @@ def test_get_registered_variable():
     assert variable is None
     variable = get_registered_variable('rvghhz')
     assert variable is None
-    variable = get_registered_variable('h')
-    assert 'h' == variable.short_name
-    assert 'hotspot parameter' == variable.display_name
