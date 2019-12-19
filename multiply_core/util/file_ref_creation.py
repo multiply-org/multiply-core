@@ -10,7 +10,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 import os
 
 from abc import ABCMeta, abstractmethod
-from multiply_core.util import FileRef
+from multiply_core.util import FileRef, get_time_from_string
 from multiply_core.variables import get_registered_variables
 from typing import Optional
 from datetime import datetime
@@ -111,8 +111,8 @@ class VariableFileRefCreator(FileRefCreator):
 
     def create_file_ref(self, path: str) -> FileRef:
         end_of_path = path.split('/')[-1]
-        date_part = end_of_path.split('_')[-1].split('.tif')[0]
-        time = datetime.strptime(date_part, "A%Y%j")
+        date_part = end_of_path.split('_')[-1].split('.tif')[0].split('A')[-1]
+        time = get_time_from_string(date_part)
         time = datetime.strftime(time, '%Y-%m-%d')
         return FileRef(path, time, time, 'image/tiff')
 
