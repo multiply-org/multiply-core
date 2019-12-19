@@ -427,6 +427,7 @@ def test_variable_validator_name():
 def test_variable_validator_is_valid():
     validator = VariableValidator('cvgfs')
 
+    assert validator.is_valid('s2_cvgfs_A2018-05-10.tif')
     assert validator.is_valid('something/something/cvgfs_A2017111.tif')
     assert validator.is_valid('cvgfs_A2017111.tif')
     assert not validator.is_valid('something/something/cvfgfs_A2017111.tif')
@@ -445,8 +446,8 @@ def test_variable_validator_get_relative_path():
 def test_variable_validator_get_file_pattern():
     validator = VariableValidator('cvgfs')
 
-    assert 'cvgfs_(A)?20[0-9][0-9]([0-3][0-9][0-9]|[0-1][0-9][0-1][0-9]|[0-1][0-9][0-1][0-9]_' \
-           '20[0-9][0-9][0-1][0-9][0-1][0-9]).tif' == validator.get_file_pattern()
+    assert '.*cvgfs_(A)?20[0-9][0-9](-)?([0-3][0-9][0-9]|[0-1][0-9](-)?[0-3][0-9]|' \
+           '[0-1][0-9](-)?[0-3][0-9]_20[0-9][0-9](-)?[0-1][0-9](-)?[0-3][0-9]).tif' == validator.get_file_pattern()
 
 
 def test_variable_validator_is_valid_for():

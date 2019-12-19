@@ -675,8 +675,9 @@ class VariableValidator(DataValidator):
 
     def __init__(self, variable_name: str):
         self.variable_name = variable_name
-        self.VARIABLE_NAME_PATTERN = '{}_(A)?20[0-9][0-9]([0-3][0-9][0-9]|[0-1][0-9][0-1][0-9]|' \
-                                     '[0-1][0-9][0-1][0-9]_20[0-9][0-9][0-1][0-9][0-1][0-9]).tif'.format(variable_name)
+        self.VARIABLE_NAME_PATTERN = '.*{}_(A)?20[0-9][0-9](-)?([0-3][0-9][0-9]|[0-1][0-9](-)?[0-3][0-9]|' \
+                                     '[0-1][0-9](-)?[0-3][0-9]_20[0-9][0-9](-)?[0-1][0-9](-)?[0-3][0-9]).tif'.\
+            format(variable_name)
         self.VARIABLE_NAME_MATCHER = re.compile(self.VARIABLE_NAME_PATTERN)
 
     def name(self) -> str:
