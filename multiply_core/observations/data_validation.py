@@ -10,7 +10,7 @@ __author__ = 'Tonio Fincke (Brockmann Consult GmbH)'
 
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
-from multiply_core.util import get_time_from_string
+from multiply_core.util import FileRef, FileRefCreation, get_time_from_string
 from multiply_core.variables import get_registered_variables
 from shapely.geometry import Polygon
 from typing import List, Optional
@@ -717,6 +717,20 @@ class VariableValidator(DataValidator):
     @classmethod
     def differs_by_name(cls) -> bool:
         return False
+
+
+def get_valid_files(datasets_dir: str, data_types: Optional[List[str]] = []) -> List[FileRef]:
+    file_refs = []
+    file_ref_creation = FileRefCreation()
+    found_files = glob.glob(datasets_dir + '/**', recursive=True)
+    for found_file in found_files:
+        found_file = found_file.replace('\\', '/')
+        type = get_valid_type(found_file)
+        if len(data_types) > 0 and type in data_types:
+            file_ref = file_ref_creation.get_file_ref(type, found_file)
+            if file_ref is not None:
+                file_refs.append(file_ref)
+    return file_refs
 
 
 def _set_up_validators():
