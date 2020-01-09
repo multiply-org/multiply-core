@@ -22,27 +22,35 @@ def test_list_elements():
     provider = DefaultAuxDataProvider({})
     elements = provider.list_elements(TEST_DATA_PATH, return_absolute_paths=False)
     assert 6 == len(elements)
-    assert './test/test_data/2018_10_23\\2018_10_23_aod550.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_bcaod550.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_duaod550.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_gtco3.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_omaod550.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_suaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_aod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_aod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_bcaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_bcaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_duaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_duaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_gtco3.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_gtco3.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_omaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_omaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_suaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_suaod550.tif' in elements
 
 
 def test_list_elements_with_pattern():
     provider = DefaultAuxDataProvider({})
     elements = provider.list_elements(TEST_DATA_PATH, '*uaod*.tif', return_absolute_paths=False)
     assert 2 == len(elements)
-    assert './test/test_data/2018_10_23\\2018_10_23_duaod550.tif' in elements
-    assert './test/test_data/2018_10_23\\2018_10_23_suaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_duaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_duaod550.tif' in elements
+    assert './test/test_data/2018_10_23\\2018_10_23_suaod550.tif' in elements \
+           or './test/test_data/2018_10_23/2018_10_23_suaod550.tif' in elements
 
 
 def test_assure_element_provided():
     provider = DefaultAuxDataProvider({})
-    provided = provider.assure_element_provided('./test/test_data/2018_10_23\\2018_10_23_duaod550.tif')
+    provided = provider.assure_element_provided('./test/test_data/2018_10_23/2018_10_23_duaod550.tif')
     assert provided
-    assert os.path.exists('./test/test_data/2018_10_23\\2018_10_23_duaod550.tif')
+    assert os.path.exists('./test/test_data/2018_10_23/2018_10_23_duaod550.tif')
 
 
 def test_assure_element_provided_not():
