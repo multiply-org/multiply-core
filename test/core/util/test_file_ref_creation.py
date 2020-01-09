@@ -20,8 +20,8 @@ def test_s2l2_file_ref_creator_create_file_ref():
 
     assert file_ref is not None
     assert PATH_TO_S2_L2_FILE == file_ref.url
-    assert '2017-06-05 10:53:03' == file_ref.start_time
-    assert '2017-06-05 10:53:03' == file_ref.end_time
+    assert '2017-06-05T10:50:31' == file_ref.start_time
+    assert '2017-06-05T10:50:31' == file_ref.end_time
     assert 'application/x-directory' == file_ref.mime_type
 
 
@@ -32,8 +32,8 @@ def test_file_ref_creation_get_s2l2_file_ref():
 
     assert file_ref is not None
     assert PATH_TO_S2_L2_FILE == file_ref.url
-    assert '2017-06-05 10:53:03' == file_ref.start_time
-    assert '2017-06-05 10:53:03' == file_ref.end_time
+    assert '2017-06-05T10:50:31' == file_ref.start_time
+    assert '2017-06-05T10:50:31' == file_ref.end_time
     assert 'application/x-directory' == file_ref.mime_type
 
 
