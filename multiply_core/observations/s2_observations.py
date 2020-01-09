@@ -1,4 +1,4 @@
-from gdal import Open
+from gdal import BuildVRT, Dataset, Open
 import _pickle as cPickle
 import glob
 import logging
@@ -114,16 +114,27 @@ def _prepare_band_emulators(emulator_folder: str, sza: float, saa: float, vza: f
 
 class S2Observations(ProductObservations):
 
-    def __init__(self, file_ref: FileRef, reprojection: Optional[Reprojection], emulator_folder: Optional[str]):
-        self._file_ref = file_ref
+    def __init__(self, file_refs: List[FileRef], reprojection: Optional[Reprojection], emulator_folder: Optional[str]):
+        self._file_refs = file_refs
         self._reprojection = reprojection
-        self._data_type = data_validation.get_valid_type(file_ref.url)
-        meta_data_file = self._get_metadata_file(file_ref.url)
-        sza, saa, vza, vaa = extract_angles_from_metadata_file(meta_data_file)
-        self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [sza, saa, vza, vaa]))
+        # we assume that all file refs are of the same type
+        self._data_type = data_validation.get_valid_type(file_refs[0].url)
+        file_szas = np.empty(shape=len(self._file_refs), dtype=np.float32)
+        file_saas = np.empty(shape=len(self._file_refs), dtype=np.float32)
+        file_vzas = np.empty(shape=len(self._file_refs), dtype=np.float32)
+        file_vaas = np.empty(shape=len(self._file_refs), dtype=np.float32)
+        for i, file_ref in enumerate(file_refs):
+            meta_data_file = self._get_metadata_file(file_ref.url)
+            file_szas[i], file_saas[i], file_vzas[i], file_vaas[i] = extract_angles_from_metadata_file(meta_data_file)
+        self._meta_data_infos = dict(zip(["sza", "saa", "vza", "vaa"], [float(np.mean(file_szas)),
+                                                                        float(np.mean(file_saas)),
+                                                                        float(np.mean(file_vzas)),
+                                                                        float(np.mean(file_vaas))]))
         self._band_emulators = None
         if emulator_folder is not None:
-            self._band_emulators = _prepare_band_emulators(emulator_folder, sza, saa, vza, vaa)
+            self._band_emulators = _prepare_band_emulators(emulator_folder,
+                                                           float(np.mean(file_szas)), float(np.mean(file_saas)),
+                                                           float(np.mean(file_vzas)), float(np.mean(file_vaas)))
         # todo this is not correct! This is not the number of observations but the number of observations for which
         # emulators are available! revise this by setting up an emulator description
         self._bands_per_observation = len(EMULATOR_BAND_MAP)
@@ -143,14 +154,33 @@ class S2Observations(ProductObservations):
         return self._get_raw_band_data_from_name(BAND_NAMES[band_index])
 
     def _get_raw_band_data_from_name(self, band_name: str) -> np.array:
-        data_set_base_url = self._file_ref.url
-        data_set_urls = glob.glob('{}/*{}*'.format(data_set_base_url, band_name))
-        if len(data_set_urls) == 0:
-            raise ValueError(f'Could not find band {band_name}')
-        data_set = Open(data_set_urls[0])
+        data_set = self._get_raw_data_set_from_name(band_name)
         if self._reprojection is not None:
-              data_set = self._reprojection.reproject(data_set)
+                data_set = self._reprojection.reproject(data_set)
         return data_set.ReadAsArray()
+
+    def _get_raw_data_set_from_name(self, band_name: str) -> Dataset:
+        if len(self._file_refs) > 1:
+            data_set_base_url = self._file_refs[0].url
+            relative_path = data_validation.get_relative_path(data_set_base_url, self._data_type)
+            vrt_file_name = data_set_base_url.replace(relative_path, f"/{band_name.split('.')[0]}.vrt")
+            if not os.path.exists(vrt_file_name):
+                data_set_base_urls = []
+                for file_ref in self._file_refs:
+                    data_set_urls = glob.glob('{}/*{}*'.format(file_ref.url, band_name))
+                    if len(data_set_urls) > 0:
+                        data_set_base_urls.append(data_set_urls[0])
+                if len(data_set_base_urls) == 0:
+                    raise ValueError(f'Could not find band {band_name}')
+                vrt_data_set = BuildVRT(vrt_file_name, data_set_base_urls)
+                vrt_data_set.FlushCache()
+            return Open(vrt_file_name)
+        else:
+            data_set_base_url = self._file_refs[0].url
+            data_set_urls = glob.glob('{}/*{}*'.format(data_set_base_url, band_name))
+            if len(data_set_urls) == 0:
+                raise ValueError(f'Could not find band {band_name}')
+            return Open(data_set_urls[0])
 
     def get_band_data_by_name(self, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
         for i, base_band_name in enumerate(BAND_NAMES):
@@ -232,18 +262,21 @@ class S2Observations(ProductObservations):
 class S2ObservationsCreator(ProductObservationsCreator):
 
     @classmethod
-    def can_read(cls, file_ref: FileRef) -> bool:
-        return data_validation.AWSS2L2Validator().is_valid(file_ref.url) or \
-               data_validation.S2L2Validator().is_valid(file_ref.url)
+    def can_read(cls, file_refs: List[FileRef]) -> bool:
+        i = 0
+        while i < len(file_refs) and (data_validation.AWSS2L2Validator().is_valid(file_refs[i].url)
+                                      or data_validation.S2L2Validator().is_valid(file_refs[i].url)):
+            i+=1
+        return i == len(file_refs)
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+    def create_observations(cls, file_refs: List[FileRef], reprojection: Optional[Reprojection],
                             emulator_folder: Optional[str]) -> ProductObservations:
         """
         Creates an Observations object for the given fileref object.
-        :param file_ref: A reference to a file containing data.
+        :param file_refs: A list of references to files containing data. These are expected to be of the same data type.
         :param reprojection: A Reprojection object to reproject the data
         :param emulator_folder: A folder containing the emulators for the observations.
         :return: An Observations object that encapsulates the data.
         """
-        return S2Observations(file_ref, reprojection, emulator_folder)
+        return S2Observations(file_refs, reprojection, emulator_folder)

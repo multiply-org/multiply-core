@@ -72,16 +72,16 @@ def test_extract_tile_id_from_metadata_file_when_id_is_missing():
 def test_can_read():
     file_ref = FileRef(url=FAULTY_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    assert not S2ObservationsCreator.can_read(file_ref)
+    assert not S2ObservationsCreator.can_read([file_ref])
     file_ref = FileRef(url=MISSING_TILE_ID_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    assert not S2ObservationsCreator.can_read(file_ref)
+    assert not S2ObservationsCreator.can_read([file_ref])
     file_ref = FileRef(url=S2_AWS_BASE_FILE, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    assert S2ObservationsCreator.can_read(file_ref)
+    assert S2ObservationsCreator.can_read([file_ref])
     file_ref = FileRef(url=S2_BASE_FILE, start_time='2017-06-05', end_time='2017-06-05',
                        mime_type='unknown mime type')
-    assert S2ObservationsCreator.can_read(file_ref)
+    assert S2ObservationsCreator.can_read([file_ref])
 
 
 def test_s2_data_type():
@@ -130,7 +130,7 @@ def _get_observations(url: str):
                                 bounds_srs=bounds_srs, resampling_mode=None)
     file_ref = FileRef(url=url, start_time='2017-09-10', end_time='2017-09-10',
                        mime_type='unknown mime type')
-    return S2Observations(file_ref, reprojection, emulator_folder=EMULATOR_FOLDER)
+    return S2Observations([file_ref], reprojection, emulator_folder=EMULATOR_FOLDER)
 
 
 def _assert_aws_s2_observation_data(s2_observation_data):

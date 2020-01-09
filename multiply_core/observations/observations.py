@@ -106,21 +106,21 @@ class ProductObservationsCreator(metaclass=ABCMeta):
     create an Observations object from a file."""
 
     @classmethod
-    def can_read(cls, file_ref: FileRef) -> bool:
+    def can_read(cls, file_refs: List[FileRef]) -> bool:
         """
         Whether the Observations can read from the referenced file.
-        :param file_ref: The referenced file
+        :param file_refs: The referenced files
         :return: True, if the observations can be read
         """
 
     @classmethod
-    def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+    def create_observations(cls, file_refs: List[FileRef], reprojection: Optional[Reprojection],
                             emulator_folder: Optional[str]) -> ProductObservations:
         """
         Creates an Observations object for the given fileref object.
+        :param file_refs: A list of references to files containing data. These are expected to be of the same data type.
         :param reprojection: A Reprojection object to reproject the data
         :param emulator_folder: A folder containing the emulators for the observations.
-        :param file_ref: A reference to a file containing data.
         :return: An Observations object that encapsulates the data.
         """
 
@@ -133,14 +133,16 @@ class ObservationsWrapper(object):
         self.dates = []  # datetime objects
         self.bands_per_observation = {}
 
-    def add_observations(self, product_observations: ProductObservations, date: str):
+    def add_observations(self, product_observations: ProductObservations, date: Union[datetime, str]):
         bands_per_observation = product_observations.bands_per_observation
-        date = get_time_from_string(date)
+        if type(date) == str:
+            date = get_time_from_string(date)
         self.dates.append(date)
         self._observations[date] = product_observations
         self.bands_per_observation[date] = bands_per_observation
 
-    def get_band_data_by_name(self, date: datetime, band_name: str, retrieve_uncertainty: bool = True) -> ObservationData:
+    def get_band_data_by_name(self, date: datetime, band_name: str, retrieve_uncertainty: bool = True) \
+            -> ObservationData:
         """
         This method returns
         :param date: The time of the products represented by the Observations class. It is used to identify the product.
@@ -186,6 +188,13 @@ class ObservationsWrapper(object):
             LOG.info(f"{str(date):s} -> No clear observations")
         return granule
 
+    def get_observations_subset(self, start: datetime, end: datetime):
+        sub_wrapper = ObservationsWrapper()
+        for date in self.dates:
+            if start <= date <= end:
+                sub_wrapper.add_observations(self._observations[date], date)
+        return sub_wrapper
+
 
 class ObservationsFactory(object):
 
@@ -198,11 +207,11 @@ class ObservationsFactory(object):
     def add_observations_creator_to_registry(self, observations_creator: ProductObservationsCreator):
         self.OBSERVATIONS_CREATOR_REGISTRY.append(observations_creator)
 
-    def _create_observations(self, file_ref: FileRef, reprojection: Optional[Reprojection],
+    def _create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection],
                              emulator_folder: Optional[str]) -> ProductObservations:
         for observations_creator in self.OBSERVATIONS_CREATOR_REGISTRY:
-            if observations_creator.can_read(file_ref):
-                observations = observations_creator.create_observations(file_ref, reprojection, emulator_folder)
+            if observations_creator.can_read(file_refs):
+                observations = observations_creator.create_observations(file_refs, reprojection, emulator_folder)
                 return observations
 
     def create_observations(self, file_refs: List[FileRef], reprojection: Optional[Reprojection] = None,
@@ -210,11 +219,19 @@ class ObservationsFactory(object):
             ObservationsWrapper:
         observations_wrapper = ObservationsWrapper()
         self.sort_file_ref_list(file_refs)
+        file_ref_sets = {}
         for file_ref in file_refs:
+            data_type = get_valid_type(file_ref.url)
+            time = get_time_from_string(file_ref.start_time).strftime('%Y-%m-%d')
+            file_ref_set_id = f'{data_type}/{time}'
+            if not file_ref_set_id in file_ref_sets:
+                file_ref_sets[file_ref_set_id] = []
+            file_ref_sets[file_ref_set_id].append(file_ref)
+        for file_ref_set_id in file_ref_sets:
+            data_type = file_ref_set_id.split('/')[0]
             emulators_dir = None
             if forward_model_names is not None:
                 forward_models = get_forward_models()
-                data_type = get_valid_type(file_ref.url)
                 for forward_model_name in forward_model_names:
                     for forward_model in forward_models:
                         if forward_model.id == forward_model_name:
@@ -226,9 +243,9 @@ class ObservationsFactory(object):
                                 break
                     if emulators_dir is not None:
                         break
-            observations = self._create_observations(file_ref, reprojection, emulators_dir)
+            observations = self._create_observations(file_ref_sets[file_ref_set_id], reprojection, emulators_dir)
             if observations is not None:
-                observations_wrapper.add_observations(observations, file_ref.start_time)
+                observations_wrapper.add_observations(observations, file_ref_set_id.split('/')[1])
         return observations_wrapper
 
     @staticmethod

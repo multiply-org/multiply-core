@@ -1,4 +1,3 @@
-import datetime
 import numpy as np
 import os
 import re
@@ -62,15 +61,15 @@ def test_create_observations():
         DUMMY_PATTERN_MATCHER = re.compile('dfghztm_[0-9]{4}_dvfgbh')
 
         @classmethod
-        def can_read(cls, file_ref: FileRef) -> bool:
-            if os.path.exists(file_ref.url):
-                file = open(file_ref.url, 'r')
+        def can_read(cls, file_refs: List[FileRef]) -> bool:
+            if os.path.exists(file_refs[0].url):
+                file = open(file_refs[0].url, 'r')
                 return cls.DUMMY_PATTERN_MATCHER.search(file.name) is not None
 
         @classmethod
-        def create_observations(cls, file_ref: FileRef, reprojection: Optional[Reprojection],
+        def create_observations(cls, file_refs: List[FileRef], reprojection: Optional[Reprojection],
                                 emulator_folder: Optional[str]) -> ProductObservations:
-            if cls.can_read(file_ref):
+            if cls.can_read(file_refs):
                 return DummyObservations()
     observations_factory = ObservationsFactory()
     observations_factory.add_observations_creator_to_registry(DummyObservationsCreator())
